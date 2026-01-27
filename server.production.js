@@ -181,13 +181,14 @@ if (!isProduction) {
 // API 404 HANDLER (ALWAYS ACTIVE)
 // ============================================
 
-app.use('/api/:anything*', (req, res) => {
+app.use('/api', (req, res) => {
     res.status(404).json({ 
-        success: false, 
+        success: false,
         message: 'API endpoint not found',
-        path: req.path 
+        path: req.path
     });
 });
+
 
 // ============================================
 // PRODUCTION CATCH-ALL (API ONLY)
