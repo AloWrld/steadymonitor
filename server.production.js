@@ -43,10 +43,10 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration - FIXED
+// CORS configuration
 const corsOptions = {
     origin: isProduction
-        ? [process.env.FRONTEND_URL] // Vercel URL goes here
+        ? [process.env.FRONTEND_URL] 
         : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -127,7 +127,6 @@ if (!isProduction) {
     const publicRoutes = ['/', '/login.html', '/register.html'];
     publicRoutes.forEach(route => {
         app.get(route, (req, res) => {
-            // If already logged in, redirect to dashboard
             if (req.session.userId) {
                 return res.redirect('/admin.html');
             }
@@ -137,18 +136,10 @@ if (!isProduction) {
 
     // Protected routes (require auth)
     const protectedRoutes = [
-        '/admin.html',
-        '/department.html',
-        '/customers.html',
-        '/inventory.html',
-        '/overview.html',
-        '/payments.html',
-        '/pocket_money.html',
-        '/pos.html',
-        '/refunds.html',
-        '/reports.html',
-        '/suppliers.html',
-        '/allocations.html'
+        '/admin.html', '/department.html', '/customers.html',
+        '/inventory.html', '/overview.html', '/payments.html',
+        '/pocket_money.html', '/pos.html', '/refunds.html',
+        '/reports.html', '/suppliers.html', '/allocations.html'
     ];
 
     protectedRoutes.forEach(route => {
@@ -162,17 +153,18 @@ if (!isProduction) {
 
     // Catch-all for other HTML files
     app.get('/:htmlFile([\\w-]+\\.html)', (req, res) => {
-    const filePath = path.join(__dirname, 'frontend', req.params.htmlFile);
-    if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
-    }
-});
+        const filePath = path.join(__dirname, 'frontend', req.params.htmlFile);
+        if (fs.existsSync(filePath)) {
+            res.sendFile(filePath);
+        } else {
+            res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
+        }
+    });
 
-
-    // Frontend 404 handler
-    app.use('*', (req, res) => {
+    // Frontend 404 handler - FIXED SYNTAX
+    app.use('(.*)', (req, res, next) => {
+        // If the path starts with /api, pass it to the API 404 handler
+        if (req.baseUrl.startsWith('/api')) return next();
         res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
     });
 }
@@ -189,13 +181,12 @@ app.use('/api', (req, res) => {
     });
 });
 
-
 // ============================================
-// PRODUCTION CATCH-ALL (API ONLY)
+// PRODUCTION CATCH-ALL (API ONLY) - FIXED SYNTAX
 // ============================================
 
 if (isProduction) {
-    app.use('*', (req, res) => {
+    app.use('(.*)', (req, res) => {
         res.status(404).json({
             success: false,
             message: 'Not found. This is an API-only server in production.',
@@ -210,7 +201,6 @@ if (isProduction) {
 
 app.use((err, req, res, next) => {
     console.error('Server error:', err.stack);
-    
     res.status(500).json({ 
         success: false, 
         message: 'Internal server error',
