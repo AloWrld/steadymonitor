@@ -161,8 +161,8 @@ if (!isProduction) {
         }
     });
 
-    // Frontend 404 handler - UPDATED FOR EXPRESS 5 STABILITY
-    app.use('/:path(.*)', (req, res, next) => {
+    // Frontend 404 handler - BACK TO STABLE EXPRESS 4 SYNTAX
+    app.use('*', (req, res, next) => {
         if (req.originalUrl.startsWith('/api')) return next();
         res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
     });
@@ -172,7 +172,7 @@ if (!isProduction) {
 // API 404 HANDLER (ALWAYS ACTIVE)
 // ============================================
 
-app.use('/api/:path(.*)', (req, res) => {
+app.use('/api/*', (req, res) => {
     res.status(404).json({ 
         success: false,
         message: 'API endpoint not found',
@@ -185,7 +185,7 @@ app.use('/api/:path(.*)', (req, res) => {
 // ============================================
 
 if (isProduction) {
-    app.use('/:path(.*)', (req, res) => {
+    app.use('*', (req, res) => {
         res.status(404).json({
             success: false,
             message: 'Not found. This is an API-only server in production.',
