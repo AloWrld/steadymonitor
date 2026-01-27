@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - STEADYMONITOR</title>
+    <!-- Mobile Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .filters-card {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .customer-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .stat-card.total {
+            border-left-color: #667eea;
+        }
+        
+        .stat-card.balance {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-card.program-a {
+            border-left-color: #43e97b;
+        }
+        
+        .stat-card.program-b {
+            border-left-color: #4facfe;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .customer-details {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .detail-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        .program-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .program-a-badge {
+            background: rgba(67, 233, 123, 0.1);
+            color: #16A34A;
+        }
+        
+        .program-b-badge {
+            background: rgba(79, 172, 254, 0.1);
+            color: #2563EB;
+        }
+        
+        .pocket-money-badge {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .balance-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .balance-badge.positive {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
+        
+        .balance-badge.zero {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .tab-container {
+            margin-top: 2rem;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+        
+        .transaction-details {
+            flex: 1;
+        }
+        
+        .transaction-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .transaction-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .transaction-amount.positive {
+            color: var(--success);
+        }
+        
+        .transaction-amount.negative {
+            color: var(--danger);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .quick-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .quick-action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+        
+        .quick-action-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        
+        .modal-wide {
+            max-width: 800px;
+        }
+        
+        .batch-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .batch-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.02);
+        }
+        
+        .batch-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .batch-upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .batch-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: var(--background);
+        }
+        
+        .batch-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        
+        .batch-row.header {
+            font-weight: 600;
+            background: var(--background);
+            position: sticky;
+            top: 0;
+        }
+        
+        .batch-row:last-child {
+            border-bottom: none;
+        }
+        
+        .batch-row.error {
+            background: rgba(220, 38, 38, 0.05);
+            color: var(--danger);
+        }
+        
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .customer-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .batch-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+    
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+
+        /* ===== RESPONSIVE DESIGN IMPROVEMENTS ===== */
+        
+        
+        /* ===== FLUID TYPOGRAPHY ===== */
+        
+        /* Base font size scales with viewport */
+        html {
+            font-size: 16px;
+        }
+        
+        @media (min-width: 320px) {
+            html {
+                font-size: calc(16px + (18 - 16) * ((100vw - 320px) / (1920 - 320)));
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            html {
+                font-size: 18px;
+            }
+        }
+        
+        /* Fluid headings */
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            line-height: clamp(1.2, 1.1, 1.05);
+        }
+        
+        h2 {
+            font-size: clamp(1.25rem, 4vw, 2.25rem);
+        }
+        
+        h3 {
+            font-size: clamp(1.125rem, 3vw, 1.75rem);
+        }
+        
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        }
+        
+        /* Fluid spacing */
+        :root {
+            --spacing-unit: clamp(0.5rem, 2vw, 1rem);
+            --section-spacing: clamp(2rem, 8vw, 4rem);
+        }
+        
+        .section {
+            padding: var(--section-spacing) 0;
+        }
+        
+        .gap-fluid {
+            gap: var(--spacing-unit);
+        }
+        
+        /* Fluid containers */
+        .container-fluid {
+            width: min(100% - 2rem, 1600px);
+            margin-inline: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .container-fluid {
+                width: min(100% - 3rem, 1600px);
+            }
+        }
+        
+        /* Fluid grid gaps */
+        .grid {
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+        
+        /* Fluid card padding */
+        .card {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+    
+        
+        
+        /* ===== COMPREHENSIVE RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Mobile Small (320px - 480px) - Smartphones */
+        @media (max-width: 480px) {
+            /* Extreme mobile optimizations */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Touch targets minimum 44px */
+            .btn, button, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Stack everything vertically */
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Reduce font sizes for small screens */
+            h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+            h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+            h3 { font-size: clamp(1.125rem, 3.5vw, 1.5rem); }
+            
+            /* Full-width tables with horizontal scroll */
+            .table-responsive {
+                margin: 0 -1rem;
+                width: calc(100% + 2rem);
+            }
+            
+            /* Hide non-essential elements */
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile Large (481px - 767px) - Larger phones, small tablets */
+        @media (min-width: 481px) and (max-width: 767px) {
+            /* 2-column grids where appropriate */
+            .grid-2, .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Slightly larger containers */
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            
+            /* Better spacing */
+            .card {
+                padding: 1.25rem;
+            }
+            
+            /* Adjust font sizes */
+            h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+        }
+        
+        /* Tablet (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            /* Tablet-specific layouts */
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* Adjust sidebar if present */
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content.with-sidebar {
+                margin-left: 220px;
+            }
+            
+            /* Tablet-optimized font sizes */
+            h1 { font-size: clamp(2rem, 3vw, 2.5rem); }
+            
+            /* Better button spacing */
+            .btn-group {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Desktop Small (1024px - 1365px) */
+        @media (min-width: 1024px) and (max-width: 1365px) {
+            /* Standard desktop layouts */
+            .container {
+                max-width: 1200px;
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            /* Optimize for laptop screens */
+            .card {
+                padding: 1.5rem;
+            }
+            
+            /* Comfortable reading line length */
+            p, li {
+                max-width: 70ch;
+            }
+        }
+        
+        /* Desktop Large (1366px - 1919px) */
+        @media (min-width: 1366px) and (max-width: 1919px) {
+            /* Larger container for wide screens */
+            .container {
+                max-width: 1400px;
+            }
+            
+            /* More spacious layouts */
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
+            
+            /* Increase font sizes for better readability */
+            :root {
+                --font-size-base: 1.0625rem; /* 17px */
+            }
+            
+            /* Larger click targets */
+            .btn {
+                padding: 0.75rem 1.5rem;
+            }
+        }
+        
+        /* Desktop XL (1920px+) */
+        @media (min-width: 1920px) {
+            /* Extra large containers */
+            .container {
+                max-width: 1600px;
+            }
+            
+            /* 5 or 6 column grids where appropriate */
+            .grid-4 {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            /* Larger font sizes */
+            :root {
+                --font-size-base: 1.125rem; /* 18px */
+                --font-size-lg: 1.375rem;   /* 22px */
+                --font-size-xl: 1.75rem;    /* 28px */
+                --font-size-2xl: 2.25rem;   /* 36px */
+                --font-size-3xl: 3rem;      /* 48px */
+            }
+            
+            /* More generous spacing */
+            .card {
+                padding: 2rem;
+            }
+            
+            .section-spacing {
+                padding: 3rem 0;
+            }
+        }
+        
+        /* Landscape orientation for mobile/tablet */
+        @media (max-height: 600px) and (orientation: landscape) {
+            /* Compact mode for landscape */
+            .hero-section {
+                padding: 1rem 1.5rem;
+                min-height: auto;
+            }
+            
+            /* Reduce vertical padding */
+            .card, .stat-card {
+                padding: 1rem;
+            }
+            
+            /* Stack elements horizontally when possible */
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            /* Shorter buttons */
+            .btn {
+                padding: 0.5rem 1rem;
+                min-height: 36px;
+            }
+        }
+        
+        /* High DPI/Retina screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            /* Crisper borders and shadows */
+            .card, .btn {
+                border-width: 0.5px;
+            }
+            
+            /* Better shadows for high DPI */
+            .card {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+        }
+        
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0f172a;
+                --card-bg: #1e293b;
+                --text-primary: #f8fafc;
+                --text-secondary: #cbd5e1;
+                --border: #334155;
+            }
+        }
+    
+        
+        
+        /* ===== RESPONSIVE UTILITY CLASSES ===== */
+        
+        /* Display utilities */
+        .mobile-only { display: none !important; }
+        .tablet-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        .desktop-hidden { display: none !important; }
+        
+        /* Mobile */
+        @media (max-width: 767px) {
+            .mobile-only { display: block !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: none !important; }
+            .desktop-hidden { display: block !important; }
+            .mobile-hidden { display: none !important; }
+        }
+        
+        /* Tablet */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            .tablet-hidden { display: none !important; }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: block !important; }
+        }
+        
+        /* Grid column utilities */
+        .cols-1 { grid-template-columns: 1fr; }
+        .cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        @media (max-width: 767px) {
+            .cols-mobile-1 { grid-template-columns: 1fr !important; }
+            .cols-mobile-2 { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .cols-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .cols-tablet-3 { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        
+        @media (min-width: 1024px) {
+            .cols-desktop-3 { grid-template-columns: repeat(3, 1fr) !important; }
+            .cols-desktop-4 { grid-template-columns: repeat(4, 1fr) !important; }
+            .cols-desktop-5 { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        
+        /* Spacing utilities */
+        .p-fluid { padding: clamp(1rem, 3vw, 2rem); }
+        .m-fluid { margin: clamp(1rem, 3vw, 2rem); }
+        
+        /* Text alignment by breakpoint */
+        .text-left-mobile { text-align: left; }
+        .text-center-mobile { text-align: center; }
+        .text-right-mobile { text-align: right; }
+        
+        @media (min-width: 768px) {
+            .text-left-tablet { text-align: left; }
+            .text-center-tablet { text-align: center; }
+            .text-right-tablet { text-align: right; }
+        }
+        
+        @media (min-width: 1024px) {
+            .text-left-desktop { text-align: left; }
+            .text-center-desktop { text-align: center; }
+            .text-right-desktop { text-align: right; }
+        }
+        
+        /* Order utilities for flex/grid */
+        .order-first-mobile { order: -1; }
+        .order-last-mobile { order: 999; }
+        
+        @media (min-width: 768px) {
+            .order-first-tablet { order: -1; }
+            .order-last-tablet { order: 999; }
+        }
+        
+        @media (min-width: 1024px) {
+            .order-first-desktop { order: -1; }
+            .order-last-desktop { order: 999; }
+        }
+        
+        /* Visibility utilities */
+        .visible-mobile { visibility: visible; }
+        .visible-tablet { visibility: visible; }
+        .visible-desktop { visibility: visible; }
+        
+        .hidden-mobile { visibility: hidden; }
+        .hidden-tablet { visibility: hidden; }
+        .hidden-desktop { visibility: hidden; }
+        
+        @media (max-width: 767px) {
+            .visible-tablet, .visible-desktop { visibility: hidden; }
+            .hidden-mobile { visibility: hidden; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .visible-mobile, .visible-desktop { visibility: hidden; }
+            .hidden-tablet { visibility: hidden; }
+        }
+        
+        @media (min-width: 1024px) {
+            .visible-mobile, .visible-tablet { visibility: hidden; }
+            .hidden-desktop { visibility: hidden; }
+        }
+    
+        
+        /* ===== COMPONENT-SPECIFIC RESPONSIVENESS ===== */
+        
+        /* Responsive tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-width: 767px) {
+            /* Stack table rows on mobile */
+            .table-mobile-stack {
+                display: block;
+            }
+            
+            .table-mobile-stack thead {
+                display: none;
+            }
+            
+            .table-mobile-stack tbody,
+            .table-mobile-stack tr {
+                display: block;
+            }
+            
+            .table-mobile-stack td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .table-mobile-stack td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-right: 1rem;
+                min-width: 120px;
+            }
+            
+            /* Hide non-essential columns on mobile */
+            .table td.mobile-hide,
+            .table th.mobile-hide {
+                display: none;
+            }
+        }
+        
+        /* Responsive forms */
+        @media (max-width: 767px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+            }
+        }
+        
+        /* Responsive modals */
+        @media (max-width: 767px) {
+            .modal {
+                width: 95%;
+                margin: 1rem;
+                max-height: 90vh;
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+            }
+            
+            /* Full-screen modals on very small screens */
+            @media (max-width: 480px) {
+                .modal {
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    border-radius: 0;
+                }
+            }
+        }
+        
+        /* Responsive navigation */
+        @media (max-width: 1023px) {
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                background: var(--card-bg);
+            }
+            
+            .nav-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Responsive cards */
+        @media (max-width: 767px) {
+            .card {
+                border-radius: 8px;
+                margin: 0.5rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+        }
+        
+        /* Responsive buttons */
+        @media (max-width: 767px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Touch-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        /* Responsive charts/graphs */
+        @media (max-width: 767px) {
+            .chart-container {
+                height: 250px !important;
+            }
+            
+            .chart-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+            
+            a[href]::after {
+                content: " (" attr(href) ")";
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        .loading-placeholder {
+            height: 20px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .mobile-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        
+        @media (max-width: 768px) {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+        }
+        
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+</style>
+</head>
+<body>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <a href="admin.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt nav-icon"></i>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                
+                <a href="department.html" class="nav-item">
+                    <i class="fas fa-building nav-icon"></i>
+                    <span class="nav-label">Departments</span>
+                </a>
+                
+                <a href="customers.html" class="nav-item">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span class="nav-label">Customers</span>
+                </a>
+                
+                <a href="payments.html" class="nav-item">
+                    <i class="fas fa-credit-card nav-icon"></i>
+                    <span class="nav-label">Payments</span>
+                </a>
+                
+                <a href="pos.html" class="nav-item">
+                    <i class="fas fa-cash-register nav-icon"></i>
+                    <span class="nav-label">POS</span>
+                </a>
+                
+                <!-- Allocations - based on auth.js permissions -->
+                <a href="allocations.html" class="nav-item" data-permission="allocations">
+                    <i class="fas fa-graduation-cap nav-icon"></i>
+                    <span class="nav-label">Allocations</span>
+                </a>
+                
+                <a href="pocket_money.html" class="nav-item">
+                    <i class="fas fa-wallet nav-icon"></i>
+                    <span class="nav-label">Pocket Money</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <!-- Inventory and Suppliers - admin only -->
+                <a href="inventory.html" class="nav-item" data-permission="inventory">
+                    <i class="fas fa-boxes nav-icon"></i>
+                    <span class="nav-label">Inventory</span>
+                </a>
+                
+                <a href="suppliers.html" class="nav-item" data-permission="suppliers">
+                    <i class="fas fa-truck nav-icon"></i>
+                    <span class="nav-label">Suppliers</span>
+                </a>
+                
+                <!-- Reports and Overview - admin only -->
+                <a href="reports.html" class="nav-item" data-permission="reports">
+                    <i class="fas fa-chart-bar nav-icon"></i>
+                    <span class="nav-label">Reports</span>
+                </a>
+                
+                <a href="overview.html" class="nav-item" data-permission="overview">
+                    <i class="fas fa-chart-pie nav-icon"></i>
+                    <span class="nav-label">Overview</span>
+                </a>
+                
+                <!-- Refunds -->
+                <a href="refunds.html" class="nav-item" data-permission="refunds">
+                    <i class="fas fa-exchange-alt nav-icon"></i>
+                    <span class="nav-label">Refunds</span>
+                </a>
+            </nav>
+        </aside>
+    
+       
+            
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <button class="menu-toggle" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        
+        <a href="customers.html" class="nav-brand">
+            <i class="fas fa-users"></i>
+            Customer Management
+        </a>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="greeting">Customers</span>
+            <div class="dropdown">
+                <button class="btn btn-outline btn-sm" id="userMenu">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">User</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Customer Management</h1>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="addCustomerBtn">
+                            <i class="fas fa-user-plus"></i> Add Customer
+                        </button>
+                        <button class="btn btn-outline" id="batchImportBtn">
+                            <i class="fas fa-file-import"></i> Batch Import
+                        </button>
+                        <button class="btn btn-outline" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">
+                        <i class="fas fa-filter"></i> Filters
+                    </h4>
+                    <button class="btn btn-sm btn-outline" id="clearFilters">
+                        Clear Filters
+                    </button>
+                </div>
+                
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label class="form-label">Search</label>
+                        <input type="text" id="searchFilter" class="form-control" placeholder="Search by name or ID...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <select id="classFilter" class="form-control">
+                            <option value="">All Classes</option>
+                            <!-- Classes will be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Boarding Status</label>
+                        <select id="boardingFilter" class="form-control">
+                            <option value="">All</option>
+                            <option value="Boarding">Boarding</option>
+                            <option value="Day">Day Scholar</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Program</label>
+                        <select id="programFilter" class="form-control">
+                            <option value="">All Programs</option>
+                            <option value="A">Program A (Allocations)</option>
+                            <option value="B">Program B (Exercise Books)</option>
+                            <option value="none">No Program</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="customer-stats" id="customerStats">
+                <!-- Stats will be loaded dynamically -->
+                <div class="stat-card total">
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-label">Total Customers</div>
+                </div>
+                
+                <div class="stat-card balance">
+                    <div class="stat-value" id="totalBalance">KES 0</div>
+                    <div class="stat-label">Total Outstanding Balance</div>
+                </div>
+                
+                <div class="stat-card program-a">
+                    <div class="stat-value" id="programACount">0</div>
+                    <div class="stat-label">Program A (Allocations)</div>
+                </div>
+                
+                <div class="stat-card program-b">
+                    <div class="stat-value" id="programBCount">0</div>
+                    <div class="stat-label">Program B (Exercise Books)</div>
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Customers List</h3>
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted mr-2" id="tableCount">Showing 0 customers</span>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline" id="exportBtn">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Boarding</th>
+                                <th>Program</th>
+                                <th>Balance</th>
+                                <th>Parent Phone</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable">
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="loading"></div>
+                                    Loading customers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="card-footer">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-muted" id="paginationInfo">
+                            Page 1 of 1
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm" id="prevPage" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="btn btn-outline btn-sm" id="nextPage" disabled>
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Details Panel (Initially hidden) -->
+            <div class="customer-details" id="customerDetailsPanel" style="display: none;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="detailCustomerName">Customer Name</span>
+                    </h3>
+                    <button class="btn btn-sm btn-outline" onclick="hideCustomerDetails()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+                
+                <!-- Customer Basic Info -->
+                <div class="detail-grid">
+                    <div class="detail-group">
+                        <div class="detail-label">Customer ID</div>
+                        <div class="detail-value" id="detailCustomerId">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Class</div>
+                        <div class="detail-value" id="detailClass">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Boarding Status</div>
+                        <div class="detail-value" id="detailBoardingStatus">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Program Membership</div>
+                        <div class="detail-value">
+                            <span id="detailProgramMembership" class="program-badge">-</span>
+                            <span id="detailPocketMoney" class="pocket-money-badge program-badge" style="display: none;">
+                                <i class="fas fa-wallet"></i> Pocket Money
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Contact</div>
+                        <div class="detail-value" id="detailContact">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value" id="detailEmail">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Parent Name</div>
+                        <div class="detail-value" id="detailParentName">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Parent Phone</div>
+                        <div class="detail-value" id="detailParentPhone">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Payment Method</div>
+                        <div class="detail-value" id="detailPaymentMethod">-</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Installment Status</div>
+                        <div class="detail-value" id="detailInstallmentStatus">-</div>
+                    </div>
+                </div>
+                
+                <!-- Balance Summary -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="mb-1">Balance Summary</h5>
+                                <p class="text-muted mb-0" id="balanceUpdateTime">Last updated: -</p>
+                            </div>
+                            <div class="balance-badge" id="detailBalanceBadge">
+                                KES 0.00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="mt-3">
+                    <h5>Quick Actions</h5>
+                    <div class="quick-actions" id="customerQuickActions">
+                        <!-- Actions will be loaded dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="transactions">
+                            <i class="fas fa-exchange-alt"></i> Transactions
+                        </button>
+                        <button class="tab-button" data-tab="allocations">
+                            <i class="fas fa-boxes"></i> Allocations
+                        </button>
+                        <button class="tab-button" data-tab="payments">
+                            <i class="fas fa-credit-card"></i> Installment Payments
+                        </button>
+                        <button class="tab-button" data-tab="ledger">
+                            <i class="fas fa-book"></i> Debt Ledger
+                        </button>
+                        <button class="tab-button" data-tab="history">
+                            <i class="fas fa-history"></i> Disbursement History
+                        </button>
+                    </div>
+                    
+                    <!-- Transactions Tab -->
+                    <div class="tab-content active" id="transactionsTab">
+                        <div id="transactionsList">
+                            <!-- Transactions will be loaded dynamically -->
+                            <div class="text-center p-4">
+                                <div class="loading"></div>
+                                <p class="text-muted mt-2">Loading transactions...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Allocations Tab -->
+                    <div class="tab-content" id="allocationsTab">
+                        <div id="allocationsList">
+                            <!-- Allocations will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Payments Tab -->
+                    <div class="tab-content" id="paymentsTab">
+                        <div id="paymentsList">
+                            <!-- Payments will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Ledger Tab -->
+                    <div class="tab-content" id="ledgerTab">
+                        <div id="ledgerList">
+                            <!-- Ledger will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- History Tab -->
+                    <div class="tab-content" id="historyTab">
+                        <div id="historyList">
+                            <!-- History will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading"></div>
+        <span class="ml-2">Loading...</span>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div class="modal-overlay" id="addCustomerModal">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-user-plus"></i> Add New Customer
+                </h3>
+                <button class="modal-close" onclick="closeAddCustomerModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addCustomerForm">
+                    <div class="grid grid-2">
+                        <!-- Basic Information -->
+                        <div>
+                            <h4 class="mb-3">Basic Information</h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Class</label>
+                                <input type="text" name="class" class="form-control" placeholder="e.g., Form 1A">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Boarding Status</label>
+                                <select name="boarding_status" class="form-control">
+                                    <option value="Day">Day Scholar</option>
+                                    <option value="Boarding">Boarding</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Program Membership</label>
+                                <select name="program_membership" class="form-control" id="programMembershipSelect">
+                                    <option value="none">No Program</option>
+                                    <option value="A">Program A (Allocations)</option>
+                                    <option value="B">Program B (Exercise Books)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="pocketMoneyField" style="display: none;">
+                                <label class="form-label">
+                                    <input type="checkbox" name="pocket_money_enabled" id="pocketMoneyCheckbox">
+                                    Enable Pocket Money (Boarding Students Only)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div>
+                            <h4 class="mb-3">Contact Information</h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Contact Number</label>
+                                <input type="tel" name="contact" class="form-control" placeholder="07XXXXXXXX">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="customer@example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Parent/Guardian Name</label>
+                                <input type="text" name="parent_name" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Parent/Guardian Phone</label>
+                                <input type="tel" name="parent_phone" class="form-control" placeholder="07XXXXXXXX">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Guardian Address</label>
+                                <textarea name="guardian_address" class="form-control" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Class Teacher</label>
+                                <input type="text" name="class_teacher" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Information -->
+                    <div class="mt-4">
+                        <h4 class="mb-3">Payment Information</h4>
+                        <div class="grid grid-3">
+                            <div class="form-group">
+                                <label class="form-label">Payment Method</label>
+                                <select name="payment_method" class="form-control">
+                                    <option value="installment">Installment</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Payment Duration (Months)</label>
+                                <input type="number" name="payment_duration_months" class="form-control" min="0" value="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Disbursement Notes -->
+                    <div class="form-group mt-3">
+                        <label class="form-label">Disbursement Notes (For internal use)</label>
+                        <textarea name="disbursement_notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAddCustomerModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="saveCustomer()">
+                    <i class="fas fa-save"></i> Save Customer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Import Modal -->
+    <div class="modal-overlay" id="batchImportModal">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-file-import"></i> Batch Import Customers
+                </h3>
+                <button class="modal-close" onclick="closeBatchImportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <h5>Instructions</h5>
+                    <p class="text-muted">
+                        Upload a CSV file with the following columns:<br>
+                        <code>name, class, boarding_status, program_membership, contact, email, parent_name, parent_phone</code>
+                    </p>
+                </div>
+                
+                <div class="batch-upload-area" id="batchUploadArea">
+                    <div class="batch-upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h5>Drop CSV file here or click to browse</h5>
+                    <p class="text-muted">Supports .csv files only</p>
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    <button class="btn btn-outline mt-2" onclick="document.getElementById('csvFileInput').click()">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </button>
+                </div>
+                
+                <div id="batchPreview" style="display: none;">
+                    <h5 class="mb-3">Preview</h5>
+                    <div class="batch-preview" id="batchPreviewContent">
+                        <!-- Preview will be shown here -->
+                    </div>
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label class="form-label">Apply to all records:</label>
+                    <div class="grid grid-3">
+                        <input type="text" id="batchClass" class="form-control" placeholder="Class (optional)">
+                        <select id="batchBoarding" class="form-control">
+                            <option value="">Boarding Status</option>
+                            <option value="Day">Day Scholar</option>
+                            <option value="Boarding">Boarding</option>
+                        </select>
+                        <select id="batchProgram" class="form-control">
+                            <option value="">Program</option>
+                            <option value="none">No Program</option>
+                            <option value="A">Program A</option>
+                            <option value="B">Program B</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeBatchImportModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" id="processBatchBtn" disabled onclick="processBatchImport()">
+                    <i class="fas fa-upload"></i> Process Import
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-money-check-alt"></i> Record Payment
+                </h3>
+                <button class="modal-close" onclick="closePaymentModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label class="form-label">Customer</label>
+                        <div class="form-control" id="paymentCustomerName" style="background: #f8f9fa;"></div>
+                        <input type="hidden" id="paymentCustomerId">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Amount *</label>
+                        <input type="number" id="paymentAmount" class="form-control" required min="0.01" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Payment Method *</label>
+                        <select id="paymentMethod" class="form-control" required>
+                            <option value="cash">Cash</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Reference/Receipt Number</label>
+                        <input type="text" id="paymentReference" class="form-control" placeholder="e.g., MPESA123456">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="isInstallmentCheckbox">
+                            This is an installment payment from parent
+                        </label>
+                    </div>
+                    
+                    <div id="installmentFields" style="display: none;">
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Parent Name</label>
+                                <input type="text" id="parentName" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Parent Phone</label>
+                                <input type="tel" id="parentPhone" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea id="paymentNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePaymentModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="processPayment()">
+                    <i class="fas fa-check-circle"></i> Record Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adjust Balance Modal -->
+    <div class="modal-overlay" id="adjustBalanceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-adjust"></i> Adjust Balance
+                </h3>
+                <button class="modal-close" onclick="closeAdjustBalanceModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="adjustBalanceForm">
+                    <div class="form-group">
+                        <label class="form-label">Customer</label>
+                        <div class="form-control" id="adjustCustomerName" style="background: #f8f9fa;"></div>
+                        <input type="hidden" id="adjustCustomerId">
+                        <div class="text-muted text-sm mt-1">
+                            Current Balance: <span id="currentBalance">KES 0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Adjustment Type</label>
+                        <div class="d-flex gap-2 mb-3">
+                            <label class="flex-fill">
+                                <input type="radio" name="adjustmentType" value="add" checked class="mr-2">
+                                Add to Balance (Increase debt)
+                            </label>
+                            <label class="flex-fill">
+                                <input type="radio" name="adjustmentType" value="deduct" class="mr-2">
+                                Deduct from Balance (Reduce debt)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Amount *</label>
+                        <input type="number" id="adjustAmount" class="form-control" required min="0.01" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Reason *</label>
+                        <input type="text" id="adjustReason" class="form-control" required placeholder="e.g., Correction, Manual adjustment, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea id="adjustNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAdjustBalanceModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="processBalanceAdjustment()">
+                    <i class="fas fa-check-circle"></i> Apply Adjustment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allocation Modal -->
+    <div class="modal-overlay" id="allocationModal">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-boxes"></i> Manage Allocations
+                </h3>
+                <button class="modal-close" onclick="closeAllocationModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="allocationContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+        <script src="js/menu.js"></script>
+<script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/customers.js"></script>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <script>
+                    // Auth check
+                    document.addEventListener('DOMContentLoaded', async function() {
+                        if (window.auth) {
+                            const authenticated = await window.auth.requireAuth();
+                            if (!authenticated) return;
+                        }
+                    });
+                
+        // Mobile functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('active');
+                    }
+                });
+                
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    });
+                }
+            }
+            
+            // Dropdown menus
+            const userMenu = document.getElementById('userMenu');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (userMenu && dropdownMenu) {
+                userMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.innerWidth <= 768) {
+                        dropdownMenu.classList.toggle('active');
+                    } else {
+                        dropdownMenu.style.display = 
+                            dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                    }
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        if (window.innerWidth <= 768) {
+                            dropdownMenu.classList.remove('active');
+                        } else {
+                            dropdownMenu.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        if (typeof auth !== 'undefined' && auth.logout) {
+                            await auth.logout();
+                        }
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+            
+            // Window resize handling
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Close mobile dropdowns on resize to desktop
+                    if (window.innerWidth > 768) {
+                        const dropdowns = document.querySelectorAll('.dropdown-menu.active');
+                        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+                    }
+                }, 250);
+            });
+        });
+        
+        // Helper functions
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Simple notification implementation
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+        
+        // Make functions available globally
+        window.showLoading = showLoading;
+        window.showNotification = showNotification;
+    </script>
+        </body>
+</html>

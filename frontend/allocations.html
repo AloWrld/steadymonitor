@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocations Management - Hattyjohns Investments</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Allocations-specific styles */
+        .allocations-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .allocations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .program-tabs {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--border);
+        }
+        
+        .program-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .program-tab:hover:not(.active) {
+            background: var(--background);
+        }
+        
+        .program-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .allocations-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .allocation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+        
+        .stat-card.program-a {
+            border-left-color: #4F46E5;
+        }
+        
+        .stat-card.program-b {
+            border-left-color: #10B981;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .batch-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: #E0F2FE;
+            color: #0369A1;
+        }
+        
+        .allocation-modal {
+            max-width: 600px;
+        }
+        
+        .learner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #F8FAFC;
+        }
+        
+        .learner-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .learner-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .learner-card.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .learner-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .learner-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .learner-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #F8FAFC;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .product-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .product-card.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .product-name {
+            font-weight: 600;
+        }
+        
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qty-btn:hover {
+            background: var(--background);
+        }
+        
+        .qty-input {
+            width: 60px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        
+        .selected-items {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #F8FAFC;
+        }
+        
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .selected-item:last-child {
+            border-bottom: none;
+        }
+        
+        .batch-section {
+            background: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .class-card {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .class-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .class-card.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .activity-timeline {
+            margin-top: 30px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            border-left: 3px solid var(--border);
+            margin-left: 10px;
+            position: relative;
+        }
+        
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--background);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .allocations-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .program-tabs {
+                overflow-x: auto;
+            }
+            
+            .program-tab {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .learner-grid,
+            .products-grid,
+            .class-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .allocation-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .allocation-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .program-tab {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Loading states */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Batch status badges */
+        .batch-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-processed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .status-pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-failed {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <nav id="sidebarNav" class="sidebar-nav"></nav>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <button id="menuToggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-brand">
+                <i class="fas fa-gift"></i>
+                <span>Allocations Management</span>
+            </div>
+            <div class="nav-user">
+                <span id="currentUser" class="user-greeting">Loading...</span>
+                <div class="dropdown">
+                    <button class="btn btn-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Page Header -->
+                <div class="allocations-header">
+                    <h1>Allocations Management</h1>
+                    <div class="program-tabs" id="programTabs">
+                        <div class="program-tab active" onclick="allocationsManager.setActiveProgram('A')">
+                            Program A
+                        </div>
+                        <div class="program-tab" onclick="allocationsManager.setActiveProgram('B')">
+                            Program B
+                        </div>
+                        <div class="program-tab" onclick="allocationsManager.setActiveProgram('all')">
+                            All Programs
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" onclick="allocationsManager.showNewAllocationModal()">
+                            <i class="fas fa-plus"></i> New Allocation
+                        </button>
+                        <button class="btn btn-outline" onclick="allocationsManager.showBatchAllocationModal()">
+                            <i class="fas fa-users"></i> Batch Allocate
+                        </button>
+                        <button class="btn btn-outline" onclick="allocationsManager.refreshData()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="allocation-stats" id="allocationStats">
+                    <!-- Stats will be loaded here -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="allocations-filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Class</label>
+                            <select id="filterClass" class="form-control" onchange="allocationsManager.applyFilters()">
+                                <option value="all">All Classes</option>
+                                <!-- Classes will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Date Range</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="date" id="filterStartDate" class="form-control" 
+                                       onchange="allocationsManager.applyFilters()">
+                                <input type="date" id="filterEndDate" class="form-control" 
+                                       onchange="allocationsManager.applyFilters()">
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label>Search Learner</label>
+                            <input type="text" id="searchLearner" class="form-control" 
+                                   placeholder="Search by name or ID..." 
+                                   onkeyup="allocationsManager.searchLearners(this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allocations Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" id="allocationsTitle">Recent Allocations</h3>
+                        <div class="product-actions">
+                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.exportData()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.viewBatches()">
+                                <i class="fas fa-list"></i> View Batches
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table" id="allocationsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Learner</th>
+                                        <th>Class</th>
+                                        <th>Program</th>
+                                        <th>Items</th>
+                                        <th>Value</th>
+                                        <th>Type</th>
+                                        <th>By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allocationsBody">
+                                    <!-- Allocations will be loaded here -->
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            <div class="loading-state">
+                                                <div class="loading-spinner"></div>
+                                                <p>Loading allocations...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="allocationsPagination" style="margin-top: 20px; text-align: center;"></div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="card activity-timeline">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="activityTimeline">
+                            <!-- Activity will be loaded here -->
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Loading activity...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Allocation Modal -->
+    <div id="allocationModal" class="modal-overlay">
+        <div class="modal allocation-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="allocationModalTitle">New Allocation</h3>
+                <button class="modal-close" onclick="allocationsManager.closeAllocationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="allocationForm">
+                    <input type="hidden" id="allocationType" value="individual">
+                    <input type="hidden" id="selectedProgram">
+                    
+                    <!-- Program Selection -->
+                    <div class="form-group">
+                        <label>Program *</label>
+                        <select id="programSelect" class="form-control" required 
+                                onchange="allocationsManager.loadEligibleLearners()">
+                            <option value="">Select Program</option>
+                            <option value="A">Program A</option>
+                            <option value="B">Program B</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Class Filter -->
+                    <div class="form-group">
+                        <label>Filter by Class</label>
+                        <select id="modalClassFilter" class="form-control" 
+                                onchange="allocationsManager.loadEligibleLearners()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Learner Selection -->
+                    <div class="form-group">
+                        <label>Select Learner(s) *</label>
+                        <div class="learner-grid" id="learnerSelection">
+                            <!-- Learners will be loaded here -->
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Loading learners...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Selection -->
+                    <div class="form-group">
+                        <label>Select Products *</label>
+                        <div class="products-grid" id="productSelection">
+                            <!-- Products will be loaded here -->
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Loading products...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Items -->
+                    <div class="selected-items" id="selectedItemsContainer" style="display: none;">
+                        <h4>Selected Items</h4>
+                        <div id="selectedItemsList">
+                            <!-- Selected items will appear here -->
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Notes (Optional)</label>
+                            <textarea id="allocationNotes" class="form-control" rows="2" 
+                                      placeholder="Add any notes about this allocation..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="allocationsManager.closeAllocationModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="allocationsManager.processAllocation()">
+                    <i class="fas fa-check"></i> Process Allocation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Allocation Modal -->
+    <div id="batchModal" class="modal-overlay">
+        <div class="modal allocation-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Batch Allocation</h3>
+                <button class="modal-close" onclick="allocationsManager.closeBatchModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="batchForm">
+                    <div class="form-group">
+                        <label>Program *</label>
+                        <select id="batchProgramSelect" class="form-control" required 
+                                onchange="allocationsManager.loadBatchClasses()">
+                            <option value="">Select Program</option>
+                            <option value="A">Program A</option>
+                            <option value="B">Program B</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Class Selection -->
+                    <div class="form-group">
+                        <label>Select Class(es) *</label>
+                        <div class="class-grid" id="classSelection">
+                            <!-- Classes will be loaded here -->
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Loading classes...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Selection -->
+                    <div class="form-group">
+                        <label>Select Products for Batch Allocation *</label>
+                        <div class="products-grid" id="batchProductSelection">
+                            <!-- Products will be loaded here -->
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p>Loading products...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Batch Selected Items -->
+                    <div class="selected-items" id="batchSelectedItemsContainer" style="display: none;">
+                        <h4>Batch Allocation Items</h4>
+                        <div id="batchSelectedItemsList">
+                            <!-- Selected items will appear here -->
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Batch Notes (Optional)</label>
+                            <textarea id="batchNotes" class="form-control" rows="2" 
+                                      placeholder="Add notes about this batch allocation..."></textarea>
+                        </div>
+                        <div class="batch-section">
+                            <h5><i class="fas fa-info-circle"></i> Batch Information</h5>
+                            <p>This will allocate the selected items to <strong id="estimatedLearners">0</strong> learners 
+                            in <strong id="selectedClassesCount">0</strong> class(es).</p>
+                            <p>Total estimated value: <strong id="estimatedValue">KES 0.00</strong></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="allocationsManager.closeBatchModal()">Cancel</button>
+                <button class="btn btn-success" onclick="allocationsManager.processBatchAllocation()">
+                    <i class="fas fa-users"></i> Process Batch Allocation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Details Modal -->
+    <div id="batchDetailsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Batch Details</h3>
+                <button class="modal-close" onclick="allocationsManager.closeBatchDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="batchDetailsContent">
+                    <!-- Batch details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="allocationsManager.closeBatchDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learner Details Modal -->
+    <div id="learnerAllocationsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Learner Allocations</h3>
+                <button class="modal-close" onclick="allocationsManager.closeLearnerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="learnerAllocationsContent">
+                    <!-- Learner allocations will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="allocationsManager.closeLearnerModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationMessage">Notification message</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/menu.js"></script>
+    
+    <script>
+        // Allocations Manager - Complete Implementation
+        class AllocationsManager {
+            constructor() {
+                this.activeProgram = 'all';
+                this.currentFilters = {
+                    class: 'all',
+                    startDate: '',
+                    endDate: '',
+                    searchQuery: ''
+                };
+                this.selectedLearners = [];
+                this.selectedProducts = [];
+                this.selectedClasses = [];
+                this.batchSelectedProducts = [];
+                this.searchTimeout = null;
+                this.currentPage = 1;
+                this.itemsPerPage = 20;
+                this.totalAllocations = 0;
+                this.totalPages = 1;
+            }
+            
+            async init() {
+                // Check authentication and permissions
+                await auth.requireAuth();
+                
+                // Check if user has allocation permissions
+                const user = auth.getUser();
+                const hasPermission = await auth.hasPermission('allocations');
+                
+                if (!hasPermission && user.role !== 'admin') {
+                    alert('Access denied. Allocations management requires special permissions.');
+                    window.location.href = '/admin.html';
+                    return;
+                }
+                
+                // Load user info
+                document.getElementById('currentUser').textContent = 
+                    `Welcome, ${user.display_name || user.username}`;
+                
+                // Setup logout button
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                });
+                
+                // Initialize date filters
+                this.initDateFilters();
+                
+                // Load initial data
+                await this.loadAllocationStats();
+                await this.loadAllocations();
+                await this.loadClasses();
+                await this.loadActivity();
+                
+                console.log('✅ Allocations Manager initialized');
+            }
+            
+            initDateFilters() {
+                const today = new Date().toISOString().split('T')[0];
+                const firstDayOfMonth = new Date();
+                firstDayOfMonth.setDate(1);
+                const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
+                
+                document.getElementById('filterStartDate').value = firstDayStr;
+                document.getElementById('filterEndDate').value = today;
+                
+                this.currentFilters.startDate = firstDayStr;
+                this.currentFilters.endDate = today;
+            }
+            
+            async loadAllocationStats() {
+                try {
+                    const response = await API.call('/api/allocations/summary');
+                    
+                    if (response.success) {
+                        this.renderStats(response);
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading allocation stats:', error);
+                    this.showNotification('Failed to load statistics', 'error');
+                }
+            }
+            
+            renderStats(data) {
+                const statsContainer = document.getElementById('allocationStats');
+                const programA = data.program_A || {};
+                const programB = data.program_B || {};
+                const totals = data.totals || {};
+                
+                statsContainer.innerHTML = `
+                    <div class="stat-card program-a">
+                        <h4>Program A</h4>
+                        <div class="stat-value">${programA.total_allocations || 0}</div>
+                        <p>Allocations</p>
+                        <small>${programA.total_learners || 0} learners</small>
+                    </div>
+                    <div class="stat-card program-b">
+                        <h4>Program B</h4>
+                        <div class="stat-value">${programB.total_allocations || 0}</div>
+                        <p>Allocations</p>
+                        <small>${programB.total_learners || 0} learners</small>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Learners</h4>
+                        <div class="stat-value">${totals.total_learners || 0}</div>
+                        <p>Across programs</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Value</h4>
+                        <div class="stat-value">KES ${parseFloat(totals.total_value || 0).toLocaleString()}</div>
+                        <p>Allocation value</p>
+                    </div>
+                `;
+            }
+            
+            async loadAllocations(page = 1) {
+                try {
+                    this.currentPage = page;
+                    
+                    const params = new URLSearchParams({
+                        page: this.currentPage,
+                        limit: this.itemsPerPage
+                    });
+                    
+                    if (this.activeProgram !== 'all') {
+                        params.append('program_type', this.activeProgram);
+                    }
+                    
+                    if (this.currentFilters.class !== 'all') {
+                        params.append('class', this.currentFilters.class);
+                    }
+                    
+                    if (this.currentFilters.startDate) {
+                        params.append('start_date', this.currentFilters.startDate);
+                    }
+                    
+                    if (this.currentFilters.endDate) {
+                        params.append('end_date', this.currentFilters.endDate);
+                    }
+                    
+                    let endpoint = '/api/allocations/summary';
+                    if (this.activeProgram !== 'all') {
+                        endpoint = `/api/allocations/program/${this.activeProgram}`;
+                    }
+                    
+                    const response = await API.call(`${endpoint}?${params.toString()}`);
+                    
+                    if (response.success) {
+                        this.totalAllocations = response.count || response.allocations?.length || 0;
+                        this.totalPages = Math.ceil(this.totalAllocations / this.itemsPerPage);
+                        
+                        this.renderAllocations(response.allocations || []);
+                        this.renderPagination();
+                        
+                        // Update title
+                        const title = document.getElementById('allocationsTitle');
+                        if (this.activeProgram === 'all') {
+                            title.textContent = 'Recent Allocations';
+                        } else {
+                            title.textContent = `Program ${this.activeProgram} Allocations`;
+                        }
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading allocations:', error);
+                    this.showNotification('Failed to load allocations', 'error');
+                }
+            }
+            
+            renderAllocations(allocations) {
+                const allocationsBody = document.getElementById('allocationsBody');
+                
+                if (allocations.length === 0) {
+                    allocationsBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <h4>No allocations found</h4>
+                                    <p>Try adjusting your filters or create a new allocation</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                allocationsBody.innerHTML = allocations.map(allocation => {
+                    const isBatch = allocation.parent_allocation_id || allocation.is_batch;
+                    const date = new Date(allocation.given_date || allocation.date).toLocaleDateString();
+                    const value = parseFloat(allocation.total || (allocation.quantity * allocation.unit_price) || 0);
+                    
+                    return `
+                        <tr>
+                            <td>${date}</td>
+                            <td>
+                                <strong>${allocation.customer_name || 'N/A'}</strong>
+                                <br>
+                                <small class="text-muted">${allocation.customer_id || ''}</small>
+                            </td>
+                            <td>${allocation.customer_class || 'N/A'}</td>
+                            <td>
+                                <span class="badge ${allocation.program_type === 'A' ? 'badge-primary' : 'badge-success'}">
+                                    Program ${allocation.program_type}
+                                </span>
+                            </td>
+                            <td>${allocation.quantity || 1} item(s)</td>
+                            <td><strong>KES ${value.toFixed(2)}</strong></td>
+                            <td>
+                                ${isBatch ? 
+                                    '<span class="batch-indicator"><i class="fas fa-users"></i> Batch</span>' : 
+                                    '<span>Individual</span>'
+                                }
+                            </td>
+                            <td>${allocation.given_by || allocation.served_by || 'System'}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-outline" 
+                                            onclick="allocationsManager.viewLearnerAllocations('${allocation.customer_id}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${isBatch ? `
+                                        <button class="btn btn-sm btn-outline" 
+                                                onclick="allocationsManager.viewBatchDetails('${allocation.parent_allocation_id}')">
+                                            <i class="fas fa-list"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            renderPagination() {
+                const pagination = document.getElementById('allocationsPagination');
+                
+                if (this.totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+                
+                let startPage = Math.max(1, this.currentPage - 2);
+                let endPage = Math.min(this.totalPages, this.currentPage + 2);
+                
+                if (this.currentPage <= 3) {
+                    endPage = Math.min(5, this.totalPages);
+                }
+                if (this.currentPage >= this.totalPages - 2) {
+                    startPage = Math.max(this.totalPages - 4, 1);
+                }
+                
+                const pageButtons = [];
+                for (let i = startPage; i <= endPage; i++) {
+                    pageButtons.push(`
+                        <button class="btn btn-sm ${i === this.currentPage ? 'btn-primary' : 'btn-outline'}" 
+                                onclick="allocationsManager.goToPage(${i})">
+                            ${i}
+                        </button>
+                    `);
+                }
+                
+                pagination.innerHTML = `
+                    <div style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+                        <button class="btn btn-sm btn-outline ${this.currentPage === 1 ? 'disabled' : ''}" 
+                                onclick="allocationsManager.goToPage(${this.currentPage - 1})"
+                                ${this.currentPage === 1 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </button>
+                        
+                        ${startPage > 1 ? `
+                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.goToPage(1)">1</button>
+                            ${startPage > 2 ? '<span style="padding: 5px 10px; color: #6c757d;">...</span>' : ''}
+                        ` : ''}
+                        
+                        ${pageButtons.join('')}
+                        
+                        ${endPage < this.totalPages ? `
+                            ${endPage < this.totalPages - 1 ? '<span style="padding: 5px 10px; color: #6c757d;">...</span>' : ''}
+                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.goToPage(${this.totalPages})">
+                                ${this.totalPages}
+                            </button>
+                        ` : ''}
+                        
+                        <button class="btn btn-sm btn-outline ${this.currentPage === this.totalPages ? 'disabled' : ''}" 
+                                onclick="allocationsManager.goToPage(${this.currentPage + 1})"
+                                ${this.currentPage === this.totalPages ? 'disabled' : ''}>
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            goToPage(page) {
+                if (page < 1 || page > this.totalPages) return;
+                this.currentPage = page;
+                this.loadAllocations(page);
+            }
+            
+            async loadClasses() {
+                try {
+                    const response = await API.call('/api/customers/classes');
+                    if (response.success && response.classes) {
+                        const classFilter = document.getElementById('filterClass');
+                        const modalClassFilter = document.getElementById('modalClassFilter');
+                        
+                        response.classes.forEach(className => {
+                            const option = `<option value="${className}">${className}</option>`;
+                            classFilter.innerHTML += option;
+                            modalClassFilter.innerHTML += option;
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading classes:', error);
+                }
+            }
+            
+            async loadActivity() {
+                try {
+                    // This is a simplified version - you might want to create a specific endpoint for activity
+                    const response = await API.call('/api/allocations/program/A?limit=5');
+                    
+                    if (response.success) {
+                        this.renderActivity(response.allocations || []);
+                    }
+                } catch (error) {
+                    console.error('Error loading activity:', error);
+                }
+            }
+            
+            renderActivity(allocations) {
+                const timeline = document.getElementById('activityTimeline');
+                
+                if (allocations.length === 0) {
+                    timeline.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <p>No recent activity</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                timeline.innerHTML = allocations.map(activity => {
+                    const date = new Date(activity.given_date).toLocaleString();
+                    
+                    return `
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">${date}</div>
+                                <p>
+                                    <strong>${activity.customer_name}</strong> received 
+                                    ${activity.quantity} ${activity.product_name} 
+                                    (Program ${activity.program_type})
+                                </p>
+                                <small class="text-muted">Allocated by ${activity.given_by}</small>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            setActiveProgram(program) {
+                this.activeProgram = program;
+                
+                // Update tabs
+                document.querySelectorAll('.program-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                event.target.classList.add('active');
+                
+                // Reload data
+                this.loadAllocations();
+                this.loadAllocationStats();
+            }
+            
+            applyFilters() {
+                this.currentFilters.class = document.getElementById('filterClass').value;
+                this.currentFilters.startDate = document.getElementById('filterStartDate').value;
+                this.currentFilters.endDate = document.getElementById('filterEndDate').value;
+                
+                this.currentPage = 1;
+                this.loadAllocations();
+            }
+            
+            searchLearners(query) {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.currentFilters.searchQuery = query;
+                    this.currentPage = 1;
+                    this.loadAllocations();
+                }, 300);
+            }
+            
+            // MODAL MANAGEMENT
+            showNewAllocationModal() {
+                document.getElementById('allocationType').value = 'individual';
+                document.getElementById('allocationModalTitle').textContent = 'New Allocation';
+                document.getElementById('allocationModal').classList.add('active');
+                
+                this.selectedLearners = [];
+                this.selectedProducts = [];
+                
+                this.loadEligibleLearners();
+                this.loadAllocatableProducts();
+            }
+            
+            showBatchAllocationModal() {
+                document.getElementById('allocationType').value = 'batch';
+                document.getElementById('batchModal').classList.add('active');
+                
+                this.selectedClasses = [];
+                this.batchSelectedProducts = [];
+                
+                this.loadBatchClasses();
+                this.loadBatchProducts();
+            }
+            
+            closeAllocationModal() {
+                document.getElementById('allocationModal').classList.remove('active');
+                this.selectedLearners = [];
+                this.selectedProducts = [];
+            }
+            
+            closeBatchModal() {
+                document.getElementById('batchModal').classList.remove('active');
+                this.selectedClasses = [];
+                this.batchSelectedProducts = [];
+            }
+            
+            // LEARNER MANAGEMENT
+            async loadEligibleLearners() {
+                const program = document.getElementById('programSelect').value;
+                const className = document.getElementById('modalClassFilter').value;
+                
+                if (!program) {
+                    document.getElementById('learnerSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-graduate"></i>
+                            <p>Select a program first</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                try {
+                    const params = new URLSearchParams({ program_type: program });
+                    if (className) params.append('class', className);
+                    
+                    const response = await API.call(`/api/allocations/eligible/${program}?${params.toString()}`);
+                    
+                    if (response.success) {
+                        this.renderLearners(response.learners || []);
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading learners:', error);
+                    document.getElementById('learnerSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Failed to load learners</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            renderLearners(learners) {
+                const learnerSelection = document.getElementById('learnerSelection');
+                
+                if (learners.length === 0) {
+                    learnerSelection.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-graduate"></i>
+                            <p>No eligible learners found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                learnerSelection.innerHTML = learners.map(learner => {
+                    const isSelected = this.selectedLearners.some(l => l.customer_id === learner.customer_id);
+                    
+                    return `
+                        <div class="learner-card ${isSelected ? 'selected' : ''}" 
+                             onclick="allocationsManager.toggleLearnerSelection('${learner.customer_id}')">
+                            <div class="learner-info">
+                                <div class="learner-name">${learner.name}</div>
+                                <div class="learner-details">
+                                    <span>${learner.customer_id}</span> • 
+                                    <span>${learner.class || 'No class'}</span>
+                                </div>
+                                <div class="learner-details">
+                                    Balance: KES ${parseFloat(learner.balance || 0).toFixed(2)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            toggleLearnerSelection(learnerId) {
+                // For individual allocation, only allow one learner
+                this.selectedLearners = [];
+                
+                // Find the learner
+                const learnerSelection = document.getElementById('learnerSelection');
+                const learnerCard = learnerSelection.querySelector(`[onclick*="${learnerId}"]`);
+                
+                if (learnerCard) {
+                    this.selectedLearners.push({ customer_id: learnerId });
+                    this.renderLearners(Array.from(learnerSelection.querySelectorAll('.learner-card')).map(card => {
+                        return { customer_id: card.getAttribute('onclick').match(/'([^']+)'/)[1] };
+                    }));
+                }
+                
+                this.updateSelectedItems();
+            }
+            
+            // PRODUCT MANAGEMENT
+            async loadAllocatableProducts() {
+                try {
+                    const response = await API.call('/api/inventory/products?department=all&is_allocatable=true');
+                    
+                    if (response.success) {
+                        this.renderProducts(response.products || [], 'productSelection');
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    document.getElementById('productSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-box"></i>
+                            <p>Failed to load products</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            async loadBatchProducts() {
+                try {
+                    const response = await API.call('/api/inventory/products?department=all&is_allocatable=true');
+                    
+                    if (response.success) {
+                        this.renderProducts(response.products || [], 'batchProductSelection');
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    document.getElementById('batchProductSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-box"></i>
+                            <p>Failed to load products</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            renderProducts(products, containerId) {
+                const container = document.getElementById(containerId);
+                
+                if (products.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-box"></i>
+                            <p>No allocatable products found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = products.map(product => {
+                    const selectedProducts = containerId === 'batchProductSelection' ? 
+                        this.batchSelectedProducts : this.selectedProducts;
+                    const isSelected = selectedProducts.some(p => p.product_id === product.product_id);
+                    
+                    return `
+                        <div class="product-card ${isSelected ? 'selected' : ''}" 
+                             onclick="allocationsManager.toggleProductSelection('${product.product_id}', '${containerId}')">
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-details">
+                                    <span>${product.sku}</span>
+                                    <span>KES ${parseFloat(product.sell_price || 0).toFixed(2)}</span>
+                                </div>
+                                <div class="product-details">
+                                    <span>${product.department}</span>
+                                    <span>Stock: ${product.stock_qty || 0}</span>
+                                </div>
+                                ${isSelected ? `
+                                    <div class="quantity-control">
+                                        <button class="qty-btn" onclick="event.stopPropagation(); allocationsManager.adjustQuantity('${product.product_id}', -1, '${containerId}')">-</button>
+                                        <input type="number" class="qty-input" value="${selectedProducts.find(p => p.product_id === product.product_id)?.quantity || 1}" 
+                                               min="1" max="${product.stock_qty}"
+                                               onchange="allocationsManager.updateQuantity('${product.product_id}', this.value, '${containerId}')"
+                                               onclick="event.stopPropagation()">
+                                        <button class="qty-btn" onclick="event.stopPropagation(); allocationsManager.adjustQuantity('${product.product_id}', 1, '${containerId}')">+</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            toggleProductSelection(productId, containerId) {
+                const isBatch = containerId === 'batchProductSelection';
+                const selectedArray = isBatch ? this.batchSelectedProducts : this.selectedProducts;
+                
+                const index = selectedArray.findIndex(p => p.product_id === productId);
+                
+                if (index > -1) {
+                    selectedArray.splice(index, 1);
+                } else {
+                    selectedArray.push({
+                        product_id: productId,
+                        quantity: 1,
+                        unit_price: 0 // Will be fetched from product details
+                    });
+                }
+                
+                this.renderProducts(
+                    isBatch ? this.batchSelectedProducts.map(p => ({ product_id: p.product_id })) : 
+                             this.selectedProducts.map(p => ({ product_id: p.product_id })),
+                    containerId
+                );
+                
+                if (isBatch) {
+                    this.updateBatchSummary();
+                } else {
+                    this.updateSelectedItems();
+                }
+            }
+            
+            adjustQuantity(productId, change, containerId) {
+                const isBatch = containerId === 'batchProductSelection';
+                const selectedArray = isBatch ? this.batchSelectedProducts : this.selectedProducts;
+                
+                const product = selectedArray.find(p => p.product_id === productId);
+                if (product) {
+                    const newQuantity = Math.max(1, (product.quantity || 1) + change);
+                    product.quantity = newQuantity;
+                    
+                    this.renderProducts(
+                        isBatch ? this.batchSelectedProducts.map(p => ({ product_id: p.product_id })) : 
+                                 this.selectedProducts.map(p => ({ product_id: p.product_id })),
+                        containerId
+                    );
+                    
+                    if (isBatch) {
+                        this.updateBatchSummary();
+                    } else {
+                        this.updateSelectedItems();
+                    }
+                }
+            }
+            
+            updateQuantity(productId, quantity, containerId) {
+                const isBatch = containerId === 'batchProductSelection';
+                const selectedArray = isBatch ? this.batchSelectedProducts : this.selectedProducts;
+                
+                const product = selectedArray.find(p => p.product_id === productId);
+                if (product) {
+                    product.quantity = Math.max(1, parseInt(quantity) || 1);
+                    
+                    if (isBatch) {
+                        this.updateBatchSummary();
+                    } else {
+                        this.updateSelectedItems();
+                    }
+                }
+            }
+            
+            updateSelectedItems() {
+                const container = document.getElementById('selectedItemsContainer');
+                const list = document.getElementById('selectedItemsList');
+                
+                if (this.selectedProducts.length === 0 || this.selectedLearners.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                
+                // Fetch product details for display
+                Promise.all(this.selectedProducts.map(async (selectedProduct) => {
+                    try {
+                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        if (response.success) {
+                            return {
+                                ...selectedProduct,
+                                name: response.product.name,
+                                price: response.product.sell_price || 0
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error fetching product details:', error);
+                    }
+                    return selectedProduct;
+                })).then(productsWithDetails => {
+                    list.innerHTML = productsWithDetails.map(product => `
+                        <div class="selected-item">
+                            <div>
+                                <strong>${product.name || 'Unknown Product'}</strong>
+                                <br>
+                                <small>Qty: ${product.quantity} × KES ${parseFloat(product.price || 0).toFixed(2)}</small>
+                            </div>
+                            <div>
+                                <strong>KES ${(product.quantity * parseFloat(product.price || 0)).toFixed(2)}</strong>
+                                <br>
+                                <button class="btn btn-sm btn-outline" 
+                                        onclick="allocationsManager.removeSelectedItem('${product.product_id}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+            }
+            
+            removeSelectedItem(productId) {
+                this.selectedProducts = this.selectedProducts.filter(p => p.product_id !== productId);
+                this.renderProducts(this.selectedProducts.map(p => ({ product_id: p.product_id })), 'productSelection');
+                this.updateSelectedItems();
+            }
+            
+            // BATCH ALLOCATION
+            async loadBatchClasses() {
+                const program = document.getElementById('batchProgramSelect').value;
+                
+                if (!program) {
+                    document.getElementById('classSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <p>Select a program first</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                try {
+                    const response = await API.call(`/api/allocations/eligible/${program}`);
+                    
+                    if (response.success && response.grouped_by_class) {
+                        this.renderClasses(Object.keys(response.grouped_by_class));
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading classes:', error);
+                    document.getElementById('classSelection').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Failed to load classes</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            renderClasses(classes) {
+                const classSelection = document.getElementById('classSelection');
+                
+                if (classes.length === 0) {
+                    classSelection.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <p>No classes found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                classSelection.innerHTML = classes.map(className => {
+                    const isSelected = this.selectedClasses.includes(className);
+                    
+                    return `
+                        <div class="class-card ${isSelected ? 'selected' : ''}" 
+                             onclick="allocationsManager.toggleClassSelection('${className}')">
+                            ${className}
+                        </div>
+                    `;
+                }).join('');
+                
+                this.updateBatchSummary();
+            }
+            
+            toggleClassSelection(className) {
+                const index = this.selectedClasses.indexOf(className);
+                
+                if (index > -1) {
+                    this.selectedClasses.splice(index, 1);
+                } else {
+                    this.selectedClasses.push(className);
+                }
+                
+                this.loadBatchClasses(); // Re-render
+            }
+            
+            async updateBatchSummary() {
+                if (this.selectedClasses.length === 0 || this.batchSelectedProducts.length === 0) {
+                    document.getElementById('batchSelectedItemsContainer').style.display = 'none';
+                    return;
+                }
+                
+                // Estimate number of learners
+                let totalLearners = 0;
+                try {
+                    for (const className of this.selectedClasses) {
+                        const response = await API.call(`/api/customers/class/${className}`);
+                        if (response.success) {
+                            totalLearners += response.count || 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error estimating learners:', error);
+                }
+                
+                // Calculate total value
+                let totalValue = 0;
+                for (const product of this.batchSelectedProducts) {
+                    try {
+                        const response = await API.call(`/api/inventory/products/${product.product_id}`);
+                        if (response.success) {
+                            const price = parseFloat(response.product.sell_price || 0);
+                            totalValue += price * product.quantity * totalLearners;
+                        }
+                    } catch (error) {
+                        console.error('Error calculating value:', error);
+                    }
+                }
+                
+                // Update UI
+                document.getElementById('estimatedLearners').textContent = totalLearners;
+                document.getElementById('selectedClassesCount').textContent = this.selectedClasses.length;
+                document.getElementById('estimatedValue').textContent = `KES ${totalValue.toFixed(2)}`;
+                
+                // Show selected items
+                const container = document.getElementById('batchSelectedItemsContainer');
+                const list = document.getElementById('batchSelectedItemsList');
+                
+                container.style.display = 'block';
+                
+                // Fetch product details for display
+                Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
+                    try {
+                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        if (response.success) {
+                            return {
+                                ...selectedProduct,
+                                name: response.product.name,
+                                price: response.product.sell_price || 0
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error fetching product details:', error);
+                    }
+                    return selectedProduct;
+                })).then(productsWithDetails => {
+                    list.innerHTML = productsWithDetails.map(product => `
+                        <div class="selected-item">
+                            <div>
+                                <strong>${product.name || 'Unknown Product'}</strong>
+                                <br>
+                                <small>Qty per learner: ${product.quantity} × KES ${parseFloat(product.price || 0).toFixed(2)}</small>
+                            </div>
+                            <div>
+                                <strong>KES ${(product.quantity * parseFloat(product.price || 0)).toFixed(2)}</strong>
+                                <br>
+                                <button class="btn btn-sm btn-outline" 
+                                        onclick="allocationsManager.removeBatchSelectedItem('${product.product_id}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+            }
+            
+            removeBatchSelectedItem(productId) {
+                this.batchSelectedProducts = this.batchSelectedProducts.filter(p => p.product_id !== productId);
+                this.renderProducts(this.batchSelectedProducts.map(p => ({ product_id: p.product_id })), 'batchProductSelection');
+                this.updateBatchSummary();
+            }
+            
+            // PROCESS ALLOCATIONS
+            async processAllocation() {
+                const program = document.getElementById('programSelect').value;
+                const notes = document.getElementById('allocationNotes').value;
+                
+                if (!program) {
+                    this.showNotification('Please select a program', 'error');
+                    return;
+                }
+                
+                if (this.selectedLearners.length === 0) {
+                    this.showNotification('Please select at least one learner', 'error');
+                    return;
+                }
+                
+                if (this.selectedProducts.length === 0) {
+                    this.showNotification('Please select at least one product', 'error');
+                    return;
+                }
+                
+                // Get product details
+                const items = await Promise.all(this.selectedProducts.map(async (selectedProduct) => {
+                    try {
+                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        if (response.success) {
+                            return {
+                                product_id: selectedProduct.product_id,
+                                quantity: selectedProduct.quantity,
+                                unit_price: response.product.sell_price || 0
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error fetching product price:', error);
+                    }
+                    return selectedProduct;
+                }));
+                
+                const allocationData = {
+                    learner_id: this.selectedLearners[0].customer_id,
+                    items: items,
+                    program_type: program,
+                    allocation_notes: notes
+                };
+                
+                try {
+                    this.showNotification('Processing allocation...', 'info');
+                    
+                    const response = await API.call('/api/allocations', {
+                        method: 'POST',
+                        body: JSON.stringify(allocationData)
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification('Allocation processed successfully', 'success');
+                        this.closeAllocationModal();
+                        await this.refreshData();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error processing allocation:', error);
+                    this.showNotification(`Failed to process allocation: ${error.message}`, 'error');
+                }
+            }
+            
+            async processBatchAllocation() {
+                const program = document.getElementById('batchProgramSelect').value;
+                const notes = document.getElementById('batchNotes').value;
+                
+                if (!program) {
+                    this.showNotification('Please select a program', 'error');
+                    return;
+                }
+                
+                if (this.selectedClasses.length === 0) {
+                    this.showNotification('Please select at least one class', 'error');
+                    return;
+                }
+                
+                if (this.batchSelectedProducts.length === 0) {
+                    this.showNotification('Please select at least one product', 'error');
+                    return;
+                }
+                
+                // Get product details
+                const items = await Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
+                    try {
+                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        if (response.success) {
+                            return {
+                                product_id: selectedProduct.product_id,
+                                quantity: selectedProduct.quantity,
+                                unit_price: response.product.sell_price || 0
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error fetching product price:', error);
+                    }
+                    return selectedProduct;
+                }));
+                
+                const batchData = {
+                    class_name: this.selectedClasses[0], // For now, handle one class at a time
+                    program_type: program,
+                    items: items,
+                    allocation_notes: notes
+                };
+                
+                if (!confirm(`Allocate items to ${this.selectedClasses.length} class(es)? This will affect multiple learners.`)) {
+                    return;
+                }
+                
+                try {
+                    this.showNotification('Processing batch allocation...', 'info');
+                    
+                    const response = await API.call('/api/allocations/batch', {
+                        method: 'POST',
+                        body: JSON.stringify(batchData)
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification('Batch allocation processed successfully', 'success');
+                        this.closeBatchModal();
+                        await this.refreshData();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error processing batch allocation:', error);
+                    this.showNotification(`Failed to process batch allocation: ${error.message}`, 'error');
+                }
+            }
+            
+            // VIEW DETAILS
+            async viewLearnerAllocations(learnerId) {
+                try {
+                    const response = await API.call(`/api/allocations/learner/${learnerId}`);
+                    
+                    if (response.success) {
+                        this.renderLearnerAllocations(response);
+                        document.getElementById('learnerAllocationsModal').classList.add('active');
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error viewing learner allocations:', error);
+                    this.showNotification('Failed to load learner allocations', 'error');
+                }
+            }
+            
+            renderLearnerAllocations(data) {
+                const content = document.getElementById('learnerAllocationsContent');
+                
+                content.innerHTML = `
+                    <div class="learner-header">
+                        <h4>${data.allocations[0]?.customer_name || 'Learner'} Allocations</h4>
+                        <div class="totals">
+                            <div class="total-item">
+                                <div class="total-label">Total Allocations</div>
+                                <div class="total-value">${data.total_allocations}</div>
+                            </div>
+                            <div class="total-item">
+                                <div class="total-label">Total Items</div>
+                                <div class="total-value">${data.totals.total_items}</div>
+                            </div>
+                            <div class="total-item">
+                                <div class="total-label">Total Value</div>
+                                <div class="total-value">KES ${parseFloat(data.totals.total_value || 0).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Program</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.allocations.map(allocation => `
+                                    <tr>
+                                        <td>${new Date(allocation.given_date).toLocaleDateString()}</td>
+                                        <td>${allocation.product_name}</td>
+                                        <td><span class="badge ${allocation.program_type === 'A' ? 'badge-primary' : 'badge-success'}">Program ${allocation.program_type}</span></td>
+                                        <td>${allocation.quantity}</td>
+                                        <td>KES ${parseFloat(allocation.unit_price || 0).toFixed(2)}</td>
+                                        <td><strong>KES ${(allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2)}</strong></td>
+                                        <td>${allocation.given_by}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            async viewBatchDetails(batchId) {
+                try {
+                    const response = await API.call(`/api/allocations/batch/${batchId}`);
+                    
+                    if (response.success) {
+                        this.renderBatchDetails(response);
+                        document.getElementById('batchDetailsModal').classList.add('active');
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error viewing batch details:', error);
+                    this.showNotification('Failed to load batch details', 'error');
+                }
+            }
+            
+            renderBatchDetails(data) {
+                const content = document.getElementById('batchDetailsContent');
+                
+                content.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>${data.batch.batch_name}</h4>
+                            <div class="detail-row">
+                                <div class="detail-label">Class:</div>
+                                <div class="detail-value">${data.batch.class}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Program:</div>
+                                <div class="detail-value">Program ${data.batch.program_type}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Total Items:</div>
+                                <div class="detail-value">${data.batch.total_items}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Total Value:</div>
+                                <div class="detail-value">KES ${parseFloat(data.batch.total_value || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Status:</div>
+                                <div class="detail-value">
+                                    <span class="batch-status status-processed">
+                                        <i class="fas fa-check-circle"></i> ${data.batch.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Created By:</div>
+                                <div class="detail-value">${data.batch.created_by}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Created At:</div>
+                                <div class="detail-value">${new Date(data.batch.created_at).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-header">
+                            <h5>Allocations in this Batch (${data.count})</h5>
+                        </div>
+                        <div class="card-body">
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${data.allocations.map(allocation => `
+                                    <div class="selected-item">
+                                        <div>
+                                            <strong>${allocation.customer_name}</strong>
+                                            <br>
+                                            <small>${allocation.product_name} × ${allocation.quantity}</small>
+                                        </div>
+                                        <div>
+                                            <small>KES ${(allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2)}</small>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            async viewBatches() {
+                try {
+                    const response = await API.call('/api/allocations/batches');
+                    
+                    if (response.success) {
+                        // You could show this in a modal or navigate to a batches page
+                        this.showNotification(`Loaded ${response.count} batches`, 'info');
+                    }
+                } catch (error) {
+                    console.error('Error viewing batches:', error);
+                    this.showNotification('Failed to load batches', 'error');
+                }
+            }
+            
+            closeLearnerModal() {
+                document.getElementById('learnerAllocationsModal').classList.remove('active');
+            }
+            
+            closeBatchDetailsModal() {
+                document.getElementById('batchDetailsModal').classList.remove('active');
+            }
+            
+            // UTILITY METHODS
+            async refreshData() {
+                await this.loadAllocationStats();
+                await this.loadAllocations();
+                await this.loadActivity();
+                this.showNotification('Data refreshed', 'success');
+            }
+            
+            exportData() {
+                // Simple CSV export implementation
+                const table = document.getElementById('allocationsTable');
+                const rows = table.querySelectorAll('tr');
+                const csv = [];
+                
+                rows.forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('th, td').forEach(cell => {
+                        rowData.push(cell.innerText.replace(/,/g, ''));
+                    });
+                    csv.push(rowData.join(','));
+                });
+                
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `allocations-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                this.showNotification('Data exported successfully', 'success');
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                const messageEl = document.getElementById('notificationMessage');
+                const icon = notification.querySelector('i');
+                
+                switch (type) {
+                    case 'success':
+                        icon.className = 'fas fa-check-circle';
+                        notification.className = 'notification success';
+                        break;
+                    case 'error':
+                        icon.className = 'fas fa-exclamation-circle';
+                        notification.className = 'notification error';
+                        break;
+                    case 'warning':
+                        icon.className = 'fas fa-exclamation-triangle';
+                        notification.className = 'notification warning';
+                        break;
+                    default:
+                        icon.className = 'fas fa-info-circle';
+                        notification.className = 'notification';
+                }
+                
+                messageEl.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // Create global instance
+        const allocationsManager = new AllocationsManager();
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('🚀 Initializing Allocations Manager...');
+                await allocationsManager.init();
+                console.log('✅ Allocations Manager ready!');
+            } catch (error) {
+                console.error('❌ Failed to initialize allocations:', error);
+                
+                // Show user-friendly error
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.querySelector('i').className = 'fas fa-exclamation-triangle';
+                    notification.className = 'notification error';
+                    notification.querySelector('span').textContent = 
+                        'Failed to load allocations. Please refresh the page.';
+                    notification.classList.add('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

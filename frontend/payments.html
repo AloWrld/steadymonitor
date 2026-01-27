@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments Management - Hattyjohns Investments</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .toast-success {
+            border-left-color: var(--success);
+        }
+        
+        .toast-error {
+            border-left-color: var(--danger);
+        }
+        
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+        
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* File upload */
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .file-upload input[type="file"] {
+            padding: 8px;
+            border: 2px dashed var(--border);
+            border-radius: var(--border-radius);
+        }
+        
+        /* Form check */
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        /* Scrollbar styling */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        
+        /* Loading spinner */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <i class="fas fa-cash-register"></i>
+            <span>SteadyMonitor</span>
+        </div>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="userGreeting">Welcome</span>
+            <button class="btn btn-icon btn-outline" id="notificationBtn">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar (will be populated by menu.js) -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+    </aside>
+    
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <div>
+                    <h1><i class="fas fa-credit-card"></i> Payments Management</h1>
+                    <p class="text-muted">Record, track, and manage all payments</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="recordPaymentBtn">
+                        <i class="fas fa-plus-circle"></i> Record Payment
+                    </button>
+                    <button class="btn btn-outline" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="record-payment">Record Payment</button>
+            <button class="tab-btn" data-tab="bulk-payments">Bulk Payments</button>
+            <button class="tab-btn" data-tab="outstanding">Outstanding</button>
+            <button class="tab-btn" data-tab="search-payments">Search Payments</button>
+            <button class="tab-btn" data-tab="installments">Installments</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane active" id="dashboard">
+                <!-- Summary Statistics -->
+                <div class="summary-stats">
+                    <div class="summary-card">
+                        <h4>Today's Payments</h4>
+                        <h2 id="todayTotal">KES 0</h2>
+                        <p><span class="text-success" id="todayCount">0</span> transactions</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Month to Date</h4>
+                        <h2 id="monthTotal">KES 0</h2>
+                        <p><span class="text-primary" id="monthCount">0</span> transactions</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Outstanding Balance</h4>
+                        <h2 id="outstandingTotal">KES 0</h2>
+                        <p><span class="text-danger" id="outstandingCount">0</span> learners</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Collection Rate</h4>
+                        <h2 id="collectionRate">0%</h2>
+                        <p>of total expected</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h4>Payment Methods Distribution</h4>
+                        <canvas id="paymentMethodsChart" height="250"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>Daily Collection (Last 7 Days)</h4>
+                        <canvas id="dailyTrendsChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Payments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Payments</h3>
+                        <button class="btn btn-sm btn-outline" id="viewAllPayments">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="recentPaymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Learner</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Reference</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Record Payment Tab -->
+            <div class="tab-pane" id="record-payment">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Record New Payment</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <!-- Left Column: Learner Search -->
+                            <div>
+                                <h4>1. Select Learner</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Search Learner</label>
+                                    <div class="search-box">
+                                        <input type="text" class="form-control" id="learnerSearch" 
+                                               placeholder="Enter name, ID, or parent phone">
+                                        <button class="btn btn-outline" id="searchLearnerBtn">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="learnerResults" class="hidden">
+                                    <div class="table-container" style="max-height: 300px;">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Balance</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="learnerResultsBody">
+                                                <!-- Search results will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div id="selectedLearnerInfo" class="hidden">
+                                    <div class="learner-header">
+                                        <h4>Selected Learner</h4>
+                                        <div class="totals">
+                                            <div class="total-item">
+                                                <span class="total-label">Name</span>
+                                                <span class="total-value" id="selectedLearnerName">-</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Class</span>
+                                                <span class="total-value" id="selectedLearnerClass">-</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Current Balance</span>
+                                                <span class="total-value text-danger" id="selectedLearnerBalance">KES 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Payment Details -->
+                            <div>
+                                <h4>2. Payment Details</h4>
+                                <form id="paymentForm">
+                                    <div class="form-group">
+                                        <label class="form-label">Amount (KES)</label>
+                                        <input type="number" class="form-control" id="paymentAmount" 
+                                               placeholder="Enter amount" min="1" required>
+                                        <div class="form-text" id="balanceValidation"></div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-control" id="paymentMethod" required>
+                                            <option value="">Select method</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="mpesa">M-Pesa</option>
+                                            <option value="card">Card</option>
+                                            <option value="bank_transfer">Bank Transfer</option>
+                                            <option value="cheque">Cheque</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Reference Number</label>
+                                        <input type="text" class="form-control" id="paymentReference" 
+                                               placeholder="PAY-001 or M-Pesa code">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-control" id="paymentNotes" 
+                                                  placeholder="Additional notes about this payment" 
+                                                  rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="isInstallment">
+                                            <label class="form-check-label" for="isInstallment">
+                                                This is an installment payment
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="modal-actions">
+                                        <button type="button" class="btn btn-outline" id="validatePaymentBtn">
+                                            Validate Payment
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" id="submitPaymentBtn">
+                                            <i class="fas fa-check-circle"></i> Record Payment
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Payments Tab -->
+            <div class="tab-pane" id="bulk-payments">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Bulk Payment Upload</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-instructions">
+                            <h5>Instructions:</h5>
+                            <ul>
+                                <li>Download the template file: <a href="#" id="downloadTemplate">payments_template.csv</a></li>
+                                <li>Fill in the required columns: <code>learner_id, amount, payment_method, reference, notes</code></li>
+                                <li>Upload the CSV file below (max 100 records per upload)</li>
+                                <li>Review and confirm the payments</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Upload CSV File</label>
+                            <div class="file-upload">
+                                <input type="file" class="form-control" id="bulkUploadFile" accept=".csv">
+                                <div class="form-text">Maximum file size: 5MB</div>
+                            </div>
+                        </div>
+                        
+                        <div id="bulkPreview" class="hidden">
+                            <h5>Preview (First 5 rows)</h5>
+                            <div class="preview-table table-container">
+                                <table class="table" id="bulkPreviewTable">
+                                    <!-- Preview will be shown here -->
+                                </table>
+                            </div>
+                            
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-outline" id="cancelBulkUpload">
+                                    Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" id="processBulkPayments">
+                                    <i class="fas fa-upload"></i> Process Payments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outstanding Tab -->
+            <div class="tab-pane" id="outstanding">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Outstanding Balances</h3>
+                        <div class="filter-controls">
+                            <select class="form-control" id="filterClass">
+                                <option value="">All Classes</option>
+                                <!-- Classes will be populated by JavaScript -->
+                            </select>
+                            <select class="form-control" id="filterProgram">
+                                <option value="">All Programs</option>
+                                <!-- Programs will be populated by JavaScript -->
+                            </select>
+                            <button class="btn btn-outline" id="exportOutstandingBtn">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="outstandingTable">
+                            <thead>
+                                <tr>
+                                    <th>Learner ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Program</th>
+                                    <th>Total Items Cost</th>
+                                    <th>Amount Paid</th>
+                                    <th>Balance</th>
+                                    <th>Last Payment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="9" class="text-center">Loading outstanding balances...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Payments Tab -->
+            <div class="tab-pane" id="search-payments">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Search Payments</h3>
+                        <div class="filter-controls">
+                            <input type="text" class="form-control" id="searchQuery" placeholder="Search by learner, reference, or notes">
+                            <div class="date-filter">
+                                <input type="date" class="form-control" id="startDate">
+                                <span>to</span>
+                                <input type="date" class="form-control" id="endDate">
+                            </div>
+                            <select class="form-control" id="searchMethod">
+                                <option value="">All Methods</option>
+                                <option value="cash">Cash</option>
+                                <option value="mpesa">M-Pesa</option>
+                                <option value="card">Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                            <button class="btn btn-primary" id="searchPaymentsBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="searchResultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Payment ID</th>
+                                    <th>Learner</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Reference</th>
+                                    <th>Installment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="8" class="text-center">Enter search criteria to find payments</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installments Tab -->
+            <div class="tab-pane" id="installments">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Installment Payments</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Select Learner to View Installments</label>
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="installmentLearnerSearch" 
+                                       placeholder="Search learner">
+                                <button class="btn btn-outline" id="searchInstallmentLearner">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="installmentDetails" class="hidden">
+                            <div class="learner-header">
+                                <h4>Installment Payment History</h4>
+                                <div class="totals">
+                                    <div class="total-item">
+                                        <span class="total-label">Learner</span>
+                                        <span class="total-value" id="installmentLearnerName">-</span>
+                                    </div>
+                                    <div class="total-item">
+                                        <span class="total-label">Total Paid</span>
+                                        <span class="total-value text-success" id="installmentTotalPaid">KES 0</span>
+                                    </div>
+                                    <div class="total-item">
+                                        <span class="total-label">Remaining Balance</span>
+                                        <span class="total-value text-danger" id="installmentRemaining">KES 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="table" id="installmentPaymentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Method</th>
+                                            <th>Reference</th>
+                                            <th>Parent Name</th>
+                                            <th>Recorded By</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Installment payments will be shown here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Detail Modal -->
+    <div class="modal-overlay" id="paymentDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Payment Details</h3>
+                <button class="modal-close" id="closePaymentDetail">&times;</button>
+            </div>
+            <div class="modal-body" id="paymentDetailContent">
+                <!-- Payment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Payment Modal (for quick access) -->
+    <div class="modal-overlay" id="quickPaymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Record Quick Payment</h3>
+                <button class="modal-close" id="closeQuickPayment">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Quick payment form will be loaded from record-payment tab -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Global API Helper for SteadyMonitor
+        // Access via window.API or window.apiCall
+        (function() {
+            'use strict';
+            
+            const API_BASE = '';
+            
+            // Main API object
+            const API = {
+                
+                  // Core fetch wrapper
+        call: async function(endpoint, options = {}) {
+            const url = endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : endpoint;
+            
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // CRITICAL: For session cookies
+                credentials: 'include', // This sends cookies with requests
+                mode: 'cors' // or remove this line if not using CORS
+            };
+
+            const config = { ...defaultOptions, ...options };
+            
+            try {
+                console.log('[API] Calling:', url);
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('[API] Error:', response.status, errorText);
+                    
+                    if (response.status === 401) {
+                        // Only redirect on 401 Unauthorized
+                        if (!window.location.pathname.includes('login.html')) {
+                            window.location.href = '/login.html';
+                        }
+                        return null;
+                    }
+                    
+                    throw new Error(`API Error ${response.status}: ${errorText.substring(0, 100)}`);
+                }
+                
+                const data = await response.json();
+                console.log('[API] Success:', data);
+                return data;
+            } catch (error) {
+                console.error('[API] Fetch failed:', error);
+                // Don't redirect on network errors
+                throw error;
+            }
+        },
+        
+        // ... rest of your API methods remain the same
+        login: async function(username, password) {
+            return this.call('/api/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+        },
+        
+        logout: async function() {
+            return this.call('/api/auth/logout', { method: 'POST' });
+        },
+        
+        checkAuth: async function() {
+            return this.call('/api/auth/check');
+        },
+        
+                  getPermissions: async function() {
+                    return this.call('/api/auth/permissions');
+                },
+                
+                // Customers
+                getCustomers: async function() {
+                    return this.call('/api/customers');
+                },
+                
+                getCustomerById: async function(id) {
+                    return this.call(`/api/customers/${id}`);
+                },
+                
+                createCustomer: async function(customerData) {
+                    return this.call('/api/customers', {
+                        method: 'POST',
+                        body: JSON.stringify(customerData)
+                    });
+                },
+                
+                // Products & Inventory
+                getProducts: async function() {
+                    return this.call('/api/inventory/products');
+                },
+                
+                getDepartmentProducts: async function(department) {
+                    return this.call(`/api/pos/products/${department}`);
+                },
+                
+                getLowStock: async function() {
+                    return this.call('/api/inventory/low-stock');
+                },
+                
+                // Dashboard
+                getDashboardStats: async function() {
+                    return this.call('/api/dashboard/stats');
+                },
+                
+                getRecentSales: async function() {
+                    return this.call('/api/dashboard/recent-sales');
+                },
+                
+                getCustomerBalances: async function() {
+                    return this.call('/api/dashboard/customers-balance');
+                },
+                
+                // POS
+                getDepartments: async function() {
+                    return this.call('/api/pos/departments');
+                },
+                
+                getClasses: async function() {
+                    return this.call('/api/pos/classes');
+                },
+                
+                searchLearners: async function(query) {
+                    return this.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                },
+                
+                checkout: async function(saleData) {
+                    return this.call('/api/pos/checkout', {
+                        method: 'POST',
+                        body: JSON.stringify(saleData)
+                    });
+                },
+                
+                // Print
+                printReceipt: async function(saleId) {
+                    return this.call('/api/print/receipt', {
+                        method: 'POST',
+                        body: JSON.stringify({ sale_id: saleId })
+                    });
+                },
+                
+                // Reports
+                getSalesReport: async function(params = {}) {
+                    const query = new URLSearchParams(params).toString();
+                    return this.call(`/api/reports/sales?${query}`);
+                },
+                
+                // Test function
+                testAll: async function() {
+                    console.log('Testing API connectivity...');
+                    
+                    const endpoints = [
+                        '/api/auth/check',
+                        '/api/customers',
+                        '/api/inventory/products',
+                        '/api/dashboard/stats',
+                        '/api/pos/departments'
+                    ];
+                    
+                    const results = {};
+                    
+                    for (const endpoint of endpoints) {
+                        try {
+                            const data = await this.call(endpoint);
+                            results[endpoint] = { success: true, data: data ? 'OK' : 'No data' };
+                        } catch (error) {
+                            results[endpoint] = { success: false, error: error.message };
+                        }
+                    }
+                    
+                    return results;
+                }
+            };
+            
+            // Expose to window
+            window.API = API;
+            window.apiCall = API.call.bind(API);
+            
+            console.log('API loaded successfully');
+        })();
+    </script>
+    
+    <script>
+        // frontend/js/payments.js
+        (function() {
+            'use strict';
+
+            class PaymentsManager {
+                constructor() {
+                    this.currentTab = 'dashboard';
+                    this.selectedLearner = null;
+                    this.charts = {};
+                    this.initialize();
+                }
+
+                initialize() {
+                    // Setup event listeners
+                    this.setupEventListeners();
+                    
+                    // Load initial data
+                    this.loadDashboardData();
+                    this.loadOutstandingBalances();
+                    this.loadRecentPayments();
+                    
+                    // Initialize charts
+                    this.initializeCharts();
+                    
+                    // Setup file download
+                    this.setupTemplateDownload();
+                    
+                    console.log('Payments Manager initialized');
+                }
+
+                setupEventListeners() {
+                    // Tab navigation
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                    });
+
+                    // Record payment button
+                    document.getElementById('recordPaymentBtn').addEventListener('click', () => {
+                        this.openQuickPaymentModal();
+                    });
+
+                    // Refresh button
+                    document.getElementById('refreshBtn').addEventListener('click', () => {
+                        this.refreshCurrentTab();
+                    });
+
+                    // View all payments
+                    document.getElementById('viewAllPayments').addEventListener('click', () => {
+                        this.switchTab('search-payments');
+                    });
+
+                    // Learner search
+                    document.getElementById('searchLearnerBtn').addEventListener('click', () => {
+                        this.searchLearners();
+                    });
+
+                    document.getElementById('learnerSearch').addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.searchLearners();
+                    });
+
+                    // Payment amount validation
+                    document.getElementById('paymentAmount').addEventListener('input', () => {
+                        this.validatePaymentAmount();
+                    });
+
+                    // Validate payment button
+                    document.getElementById('validatePaymentBtn').addEventListener('click', () => {
+                        this.validatePayment();
+                    });
+
+                    // Submit payment form
+                    document.getElementById('paymentForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitPayment();
+                    });
+
+                    // Bulk upload
+                    document.getElementById('bulkUploadFile').addEventListener('change', (e) => {
+                        this.handleFileUpload(e.target.files[0]);
+                    });
+
+                    // Process bulk payments
+                    document.getElementById('processBulkPayments').addEventListener('click', () => {
+                        this.processBulkPayments();
+                    });
+
+                    // Cancel bulk upload
+                    document.getElementById('cancelBulkUpload').addEventListener('click', () => {
+                        this.cancelBulkUpload();
+                    });
+
+                    // Search payments
+                    document.getElementById('searchPaymentsBtn').addEventListener('click', () => {
+                        this.searchPayments();
+                    });
+
+                    // Export outstanding
+                    document.getElementById('exportOutstandingBtn').addEventListener('click', () => {
+                        this.exportOutstanding();
+                    });
+
+                    // Installment learner search
+                    document.getElementById('searchInstallmentLearner').addEventListener('click', () => {
+                        this.searchInstallmentLearner();
+                    });
+
+                    // Modal close buttons
+                    document.getElementById('closePaymentDetail')?.addEventListener('click', () => {
+                        this.closeModal('paymentDetailModal');
+                    });
+
+                    document.getElementById('closeQuickPayment')?.addEventListener('click', () => {
+                        this.closeModal('quickPaymentModal');
+                    });
+
+                    // Close modals on overlay click
+                    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                        overlay.addEventListener('click', (e) => {
+                            if (e.target === overlay) {
+                                this.closeModal(overlay.id);
+                            }
+                        });
+                    });
+                }
+
+                async loadDashboardData() {
+                    try {
+                        // Load payment summary
+                        const summary = await API.call('/api/payments/summary?period=month');
+                        if (summary.success) {
+                            this.updateDashboardSummary(summary);
+                            this.updateDailyTrendsChart(summary.daily_summary);
+                        }
+
+                        // Load payment methods summary
+                        const methods = await API.call('/api/payments/summary/methods');
+                        if (methods.success) {
+                            this.updatePaymentMethodsChart(methods.methods_summary);
+                        }
+
+                    } catch (error) {
+                        console.error('Error loading dashboard data:', error);
+                        this.showToast('Failed to load dashboard data', 'error');
+                    }
+                }
+
+                async loadRecentPayments() {
+                    try {
+                        // In a real implementation, you would have an endpoint for recent payments
+                        // For now, we'll use the summary endpoint
+                        const response = await API.call('/api/payments/summary?period=day');
+                        if (response.success) {
+                            this.updateRecentPaymentsTable(response.daily_summary);
+                        }
+                    } catch (error) {
+                        console.error('Error loading recent payments:', error);
+                    }
+                }
+
+                async loadOutstandingBalances() {
+                    try {
+                        const response = await API.call('/api/payments/outstanding');
+                        if (response.success) {
+                            this.updateOutstandingTable(response.outstanding);
+                            
+                            // Update dashboard summary
+                            document.getElementById('outstandingTotal').textContent = 
+                                `KES ${response.totals.total_balance.toLocaleString()}`;
+                            document.getElementById('outstandingCount').textContent = 
+                                response.total_learners;
+                        }
+                    } catch (error) {
+                        console.error('Error loading outstanding balances:', error);
+                    }
+                }
+
+                async searchLearners() {
+                    const query = document.getElementById('learnerSearch').value.trim();
+                    if (!query) {
+                        this.showToast('Please enter search criteria', 'warning');
+                        return;
+                    }
+
+                    try {
+                        // Use the API search endpoint
+                        const response = await API.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                        if (response.success && response.learners.length > 0) {
+                            this.displayLearnerResults(response.learners);
+                        } else {
+                            document.getElementById('learnerResultsBody').innerHTML = `
+                                <tr>
+                                    <td colspan="5" class="text-center">No learners found</td>
+                                </tr>
+                            `;
+                            document.getElementById('learnerResults').classList.remove('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Error searching learners:', error);
+                        this.showToast('Failed to search learners', 'error');
+                    }
+                }
+
+                displayLearnerResults(learners) {
+                    const tbody = document.getElementById('learnerResultsBody');
+                    tbody.innerHTML = '';
+
+                    learners.forEach(learner => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${learner.customer_id}</td>
+                            <td>${learner.name}</td>
+                            <td>${learner.class || 'N/A'}</td>
+                            <td class="${learner.balance > 0 ? 'text-danger' : 'text-success'}">
+                                KES ${parseFloat(learner.balance || 0).toLocaleString()}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary select-learner" 
+                                        data-id="${learner.customer_id}"
+                                        data-name="${learner.name}"
+                                        data-class="${learner.class || ''}"
+                                        data-balance="${learner.balance || 0}">
+                                    Select
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Add event listeners to select buttons
+                    document.querySelectorAll('.select-learner').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learner = {
+                                id: e.target.dataset.id,
+                                name: e.target.dataset.name,
+                                class: e.target.dataset.class,
+                                balance: parseFloat(e.target.dataset.balance)
+                            };
+                            this.selectLearner(learner);
+                        });
+                    });
+
+                    document.getElementById('learnerResults').classList.remove('hidden');
+                }
+
+                selectLearner(learner) {
+                    this.selectedLearner = learner;
+                    
+                    // Update UI
+                    document.getElementById('selectedLearnerName').textContent = learner.name;
+                    document.getElementById('selectedLearnerClass').textContent = learner.class || 'N/A';
+                    document.getElementById('selectedLearnerBalance').textContent = 
+                        `KES ${learner.balance.toLocaleString()}`;
+                    
+                    document.getElementById('selectedLearnerInfo').classList.remove('hidden');
+                    document.getElementById('learnerResults').classList.add('hidden');
+                    
+                    // Pre-fill payment amount with balance
+                    document.getElementById('paymentAmount').value = learner.balance;
+                    this.validatePaymentAmount();
+                    
+                    this.showToast(`Selected learner: ${learner.name}`, 'success');
+                }
+
+                validatePaymentAmount() {
+                    if (!this.selectedLearner) return;
+                    
+                    const amount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+                    const balance = this.selectedLearner.balance;
+                    const validationDiv = document.getElementById('balanceValidation');
+                    
+                    if (amount <= 0) {
+                        validationDiv.innerHTML = '<span class="text-danger">Please enter a valid amount</span>';
+                        return false;
+                    }
+                    
+                    if (amount > balance) {
+                        validationDiv.innerHTML = `
+                            <span class="text-warning">
+                                Amount exceeds balance by KES ${(amount - balance).toLocaleString()}
+                            </span>
+                        `;
+                        return false;
+                    }
+                    
+                    validationDiv.innerHTML = `
+                        <span class="text-success">
+                            New balance will be KES ${(balance - amount).toLocaleString()}
+                        </span>
+                    `;
+                    return true;
+                }
+
+                async validatePayment() {
+                    if (!this.selectedLearner) {
+                        this.showToast('Please select a learner first', 'warning');
+                        return;
+                    }
+                    
+                    const amount = document.getElementById('paymentAmount').value;
+                    const method = document.getElementById('paymentMethod').value;
+                    
+                    if (!amount || !method) {
+                        this.showToast('Please enter amount and select payment method', 'warning');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await API.call('/api/payments/validate', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                learner_id: this.selectedLearner.id,
+                                amount: parseFloat(amount),
+                                payment_method: method
+                            })
+                        });
+                        
+                        if (response.success) {
+                            this.showToast('Payment validation successful', 'success');
+                        } else {
+                            this.showToast(response.message, 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Error validating payment:', error);
+                        this.showToast('Failed to validate payment', 'error');
+                    }
+                }
+
+                async submitPayment() {
+                    if (!this.selectedLearner) {
+                        this.showToast('Please select a learner first', 'warning');
+                        return;
+                    }
+                    
+                    const amount = document.getElementById('paymentAmount').value;
+                    const method = document.getElementById('paymentMethod').value;
+                    const reference = document.getElementById('paymentReference').value;
+                    const notes = document.getElementById('paymentNotes').value;
+                    const isInstallment = document.getElementById('isInstallment').checked;
+                    
+                    if (!amount || !method) {
+                        this.showToast('Please enter amount and select payment method', 'warning');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitPaymentBtn');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    submitBtn.disabled = true;
+                    
+                    try {
+                        const paymentData = {
+                            learner_id: this.selectedLearner.id,
+                            amount: parseFloat(amount),
+                            payment_method: method,
+                            reference: reference || `PAY-${Date.now()}`,
+                            notes: notes,
+                            is_installment: isInstallment
+                        };
+                        
+                        const response = await API.call('/api/payments', {
+                            method: 'POST',
+                            body: JSON.stringify(paymentData)
+                        });
+                        
+                        if (response.success) {
+                            this.showToast('Payment recorded successfully!', 'success');
+                            
+                            // Reset form
+                            this.resetPaymentForm();
+                            
+                            // Refresh data
+                            this.refreshCurrentTab();
+                            
+                            // If on dashboard tab, reload
+                            if (this.currentTab === 'dashboard') {
+                                this.loadDashboardData();
+                                this.loadRecentPayments();
+                                this.loadOutstandingBalances();
+                            }
+                        } else {
+                            this.showToast(response.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error recording payment:', error);
+                        this.showToast('Failed to record payment', 'error');
+                    } finally {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }
+
+                resetPaymentForm() {
+                    document.getElementById('paymentForm').reset();
+                    document.getElementById('selectedLearnerInfo').classList.add('hidden');
+                    document.getElementById('learnerSearch').value = '';
+                    this.selectedLearner = null;
+                    
+                    const validationDiv = document.getElementById('balanceValidation');
+                    validationDiv.innerHTML = '';
+                }
+
+                handleFileUpload(file) {
+                    if (!file) return;
+                    
+                    if (!file.name.endsWith('.csv')) {
+                        this.showToast('Please upload a CSV file', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.parseCSV(e.target.result);
+                    };
+                    reader.readAsText(file);
+                }
+
+                parseCSV(csvText) {
+                    const lines = csvText.split('\n');
+                    const headers = lines[0].split(',').map(h => h.trim());
+                    
+                    // Validate headers
+                    const requiredHeaders = ['learner_id', 'amount', 'payment_method'];
+                    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+                    
+                    if (missingHeaders.length > 0) {
+                        this.showToast(`Missing required headers: ${missingHeaders.join(', ')}`, 'error');
+                        return;
+                    }
+                    
+                    const previewData = [];
+                    for (let i = 1; i < Math.min(6, lines.length); i++) {
+                        if (lines[i].trim()) {
+                            const values = lines[i].split(',').map(v => v.trim());
+                            const row = {};
+                            headers.forEach((header, index) => {
+                                row[header] = values[index] || '';
+                            });
+                            previewData.push(row);
+                        }
+                    }
+                    
+                    this.displayBulkPreview(previewData, lines.length - 1);
+                }
+
+                displayBulkPreview(data, totalRows) {
+                    const table = document.getElementById('bulkPreviewTable');
+                    table.innerHTML = '';
+                    
+                    // Create header
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    Object.keys(data[0] || {}).forEach(key => {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Create body
+                    const tbody = document.createElement('tbody');
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        Object.values(row).forEach(value => {
+                            const td = document.createElement('td');
+                            td.textContent = value;
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    
+                    // Show preview
+                    document.getElementById('bulkPreview').classList.remove('hidden');
+                    
+                    // Store total rows for processing
+                    this.bulkTotalRows = totalRows;
+                }
+
+                async processBulkPayments() {
+                    try {
+                        // In a real implementation, you would send the CSV file to the server
+                        // For now, we'll simulate processing
+                        this.showToast(`Processing ${this.bulkTotalRows} payments...`, 'info');
+                        
+                        // Simulate API call
+                        setTimeout(() => {
+                            this.showToast(`Successfully processed ${this.bulkTotalRows} payments`, 'success');
+                            this.cancelBulkUpload();
+                            this.refreshCurrentTab();
+                        }, 2000);
+                        
+                    } catch (error) {
+                        console.error('Error processing bulk payments:', error);
+                        this.showToast('Failed to process bulk payments', 'error');
+                    }
+                }
+
+                cancelBulkUpload() {
+                    document.getElementById('bulkUploadFile').value = '';
+                    document.getElementById('bulkPreview').classList.add('hidden');
+                    document.getElementById('bulkPreviewTable').innerHTML = '';
+                }
+
+                async searchPayments() {
+                    const query = document.getElementById('searchQuery').value;
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    const method = document.getElementById('searchMethod').value;
+                    
+                    // Build query parameters
+                    const params = new URLSearchParams();
+                    if (query) params.append('q', query);
+                    if (startDate) params.append('start_date', startDate);
+                    if (endDate) params.append('end_date', endDate);
+                    if (method) params.append('method', method);
+                    
+                    try {
+                        // Note: You'll need to implement a search endpoint in the backend
+                        // For now, we'll use the existing endpoints
+                        this.showToast('Searching payments...', 'info');
+                        
+                        // This is a placeholder - in reality, you would call your search API
+                        setTimeout(() => {
+                            this.showToast('Search endpoint not yet implemented', 'warning');
+                        }, 1000);
+                        
+                    } catch (error) {
+                        console.error('Error searching payments:', error);
+                        this.showToast('Failed to search payments', 'error');
+                    }
+                }
+
+                async exportOutstanding() {
+                    try {
+                        const response = await API.call('/api/payments/outstanding');
+                        if (response.success) {
+                            // Convert to CSV
+                            const csv = this.convertToCSV(response.outstanding);
+                            
+                            // Download
+                            const blob = new Blob([csv], { type: 'text/csv' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `outstanding_balances_${new Date().toISOString().split('T')[0]}.csv`;
+                            a.click();
+                            
+                            this.showToast('Export started successfully', 'success');
+                        }
+                    } catch (error) {
+                        console.error('Error exporting outstanding:', error);
+                        this.showToast('Failed to export data', 'error');
+                    }
+                }
+
+                async searchInstallmentLearner() {
+                    const query = document.getElementById('installmentLearnerSearch').value.trim();
+                    if (!query) {
+                        this.showToast('Please enter learner search criteria', 'warning');
+                        return;
+                    }
+                    
+                    try {
+                        // Search for learner
+                        const response = await API.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                        if (response.success && response.learners.length > 0) {
+                            const learner = response.learners[0];
+                            this.loadInstallmentPayments(learner.customer_id);
+                        } else {
+                            this.showToast('Learner not found', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Error searching installment learner:', error);
+                        this.showToast('Failed to search learner', 'error');
+                    }
+                }
+
+                async loadInstallmentPayments(learnerId) {
+                    try {
+                        const response = await API.call(`/api/payments/installments/${learnerId}`);
+                        if (response.success) {
+                            this.displayInstallmentPayments(response);
+                        }
+                    } catch (error) {
+                        console.error('Error loading installment payments:', error);
+                        this.showToast('Failed to load installment payments', 'error');
+                    }
+                }
+
+                displayInstallmentPayments(data) {
+                    // Update learner info
+                    document.getElementById('installmentLearnerName').textContent = data.learner_id;
+                    document.getElementById('installmentTotalPaid').textContent = 
+                        `KES ${data.totals.total_paid.toLocaleString()}`;
+                    
+                    // For now, we'll set remaining balance to 0
+                    // In reality, you would calculate this based on total amount owed
+                    document.getElementById('installmentRemaining').textContent = 'KES 0';
+                    
+                    // Update table
+                    const tbody = document.getElementById('installmentPaymentsTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+                    
+                    if (data.installment_payments.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center">No installment payments found</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.installment_payments.forEach(payment => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${new Date(payment.payment_date).toLocaleDateString()}</td>
+                                <td class="text-success">KES ${parseFloat(payment.amount).toLocaleString()}</td>
+                                <td><span class="badge badge-primary">${payment.payment_method}</span></td>
+                                <td>${payment.reference}</td>
+                                <td>${payment.parent_name || 'N/A'}</td>
+                                <td>${payment.recorded_by}</td>
+                                <td>${payment.notes || '-'}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                    
+                    document.getElementById('installmentDetails').classList.remove('hidden');
+                }
+
+                switchTab(tabName) {
+                    // Update active tab button
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.tab === tabName) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    // Update active tab pane
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                        if (pane.id === tabName) {
+                            pane.classList.add('active');
+                        }
+                    });
+                    
+                    this.currentTab = tabName;
+                    
+                    // Load tab-specific data
+                    switch(tabName) {
+                        case 'dashboard':
+                            this.loadDashboardData();
+                            this.loadRecentPayments();
+                            break;
+                        case 'outstanding':
+                            this.loadOutstandingBalances();
+                            break;
+                        case 'record-payment':
+                            // Reset form when switching to this tab
+                            this.resetPaymentForm();
+                            break;
+                    }
+                }
+
+                refreshCurrentTab() {
+                    switch(this.currentTab) {
+                        case 'dashboard':
+                            this.loadDashboardData();
+                            this.loadRecentPayments();
+                            this.loadOutstandingBalances();
+                            break;
+                        case 'outstanding':
+                            this.loadOutstandingBalances();
+                            break;
+                        case 'record-payment':
+                            // Reset form
+                            this.resetPaymentForm();
+                            break;
+                        case 'search-payments':
+                            // Clear search
+                            document.getElementById('searchQuery').value = '';
+                            break;
+                    }
+                    
+                    this.showToast('Refreshed data', 'success');
+                }
+
+                openQuickPaymentModal() {
+                    // Load the record-payment form into the modal
+                    const formContent = document.getElementById('record-payment').innerHTML;
+                    document.querySelector('#quickPaymentModal .modal-body').innerHTML = formContent;
+                    
+                    // Re-initialize event listeners for the modal
+                    setTimeout(() => {
+                        const modalSearchBtn = document.querySelector('#quickPaymentModal #searchLearnerBtn');
+                        if (modalSearchBtn) {
+                            modalSearchBtn.addEventListener('click', () => {
+                                this.searchLearners();
+                            });
+                        }
+                        
+                        const modalSubmitBtn = document.querySelector('#quickPaymentModal #submitPaymentBtn');
+                        if (modalSubmitBtn) {
+                            modalSubmitBtn.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                this.submitPayment();
+                                this.closeModal('quickPaymentModal');
+                            });
+                        }
+                    }, 100);
+                    
+                    this.openModal('quickPaymentModal');
+                }
+
+                openModal(modalId) {
+                    document.getElementById(modalId).classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                closeModal(modalId) {
+                    document.getElementById(modalId).classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+
+                initializeCharts() {
+                    // Payment Methods Chart
+                    const methodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+                    this.charts.methods = new Chart(methodsCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Cash', 'M-Pesa', 'Card', 'Bank Transfer', 'Cheque'],
+                            datasets: [{
+                                data: [0, 0, 0, 0, 0],
+                                backgroundColor: [
+                                    '#10B981', // Green for Cash
+                                    '#3B82F6', // Blue for M-Pesa
+                                    '#8B5CF6', // Purple for Card
+                                    '#F59E0B', // Yellow for Bank Transfer
+                                    '#EF4444'  // Red for Cheque
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Daily Trends Chart
+                    const trendsCtx = document.getElementById('dailyTrendsChart').getContext('2d');
+                    this.charts.trends = new Chart(trendsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Daily Collection (KES)',
+                                data: [],
+                                borderColor: '#2563EB',
+                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'KES ' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                updateDashboardSummary(summaryData) {
+                    // Calculate today's total
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayData = summaryData.daily_summary.filter(item => 
+                        item.payment_date === today
+                    );
+                    
+                    const todayTotal = todayData.reduce((sum, item) => sum + parseFloat(item.total_amount || 0), 0);
+                    const todayCount = todayData.reduce((sum, item) => sum + (item.payment_count || 0), 0);
+                    
+                    document.getElementById('todayTotal').textContent = `KES ${todayTotal.toLocaleString()}`;
+                    document.getElementById('todayCount').textContent = todayCount;
+                    
+                    // Calculate month total
+                    const monthTotal = summaryData.daily_summary.reduce((sum, item) => 
+                        sum + parseFloat(item.total_amount || 0), 0
+                    );
+                    const monthCount = summaryData.daily_summary.reduce((sum, item) => 
+                        sum + (item.payment_count || 0), 0
+                    );
+                    
+                    document.getElementById('monthTotal').textContent = `KES ${monthTotal.toLocaleString()}`;
+                    document.getElementById('monthCount').textContent = monthCount;
+                    
+                    // Collection rate (placeholder)
+                    document.getElementById('collectionRate').textContent = '75%';
+                }
+
+                updatePaymentMethodsChart(methodsData) {
+                    // Group methods data
+                    const methodTotals = {
+                        cash: 0,
+                        mpesa: 0,
+                        card: 0,
+                        bank_transfer: 0,
+                        cheque: 0
+                    };
+                    
+                    methodsData.forEach(item => {
+                        const method = item.method.toLowerCase();
+                        if (methodTotals.hasOwnProperty(method)) {
+                            methodTotals[method] = parseFloat(item.total_amount || 0);
+                        }
+                    });
+                    
+                    this.charts.methods.data.datasets[0].data = [
+                        methodTotals.cash,
+                        methodTotals.mpesa,
+                        methodTotals.card,
+                        methodTotals.bank_transfer,
+                        methodTotals.cheque
+                    ];
+                    
+                    this.charts.methods.update();
+                }
+
+                updateDailyTrendsChart(dailyData) {
+                    // Sort by date and get last 7 days
+                    const sortedData = dailyData.sort((a, b) => 
+                        new Date(a.payment_date) - new Date(b.payment_date)
+                    ).slice(-7);
+                    
+                    const labels = sortedData.map(item => 
+                        new Date(item.payment_date).toLocaleDateString('en-US', { weekday: 'short' })
+                    );
+                    
+                    const amounts = sortedData.map(item => parseFloat(item.total_amount || 0));
+                    
+                    this.charts.trends.data.labels = labels;
+                    this.charts.trends.data.datasets[0].data = amounts;
+                    this.charts.trends.update();
+                }
+
+                updateRecentPaymentsTable(paymentsData) {
+                    const tbody = document.getElementById('recentPaymentsTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+                    
+                    if (!paymentsData || paymentsData.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center">No recent payments</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    // For now, we'll use placeholder data
+                    // In reality, you would have actual payment data
+                    const placeholderPayments = [
+                        {
+                            date: new Date().toLocaleDateString(),
+                            learner: 'John Doe',
+                            amount: 5000,
+                            method: 'M-Pesa',
+                            reference: 'PAY-001',
+                            status: 'Completed'
+                        },
+                        {
+                            date: new Date().toLocaleDateString(),
+                            learner: 'Jane Smith',
+                            amount: 7500,
+                            method: 'Cash',
+                            reference: 'PAY-002',
+                            status: 'Completed'
+                        }
+                    ];
+                    
+                    placeholderPayments.forEach(payment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${payment.date}</td>
+                            <td>${payment.learner}</td>
+                            <td class="text-success">KES ${payment.amount.toLocaleString()}</td>
+                            <td><span class="badge badge-primary">${payment.method}</span></td>
+                            <td>${payment.reference}</td>
+                            <td><span class="badge badge-success">${payment.status}</span></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                updateOutstandingTable(outstandingData) {
+                    const tbody = document.getElementById('outstandingTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+                    
+                    if (!outstandingData || outstandingData.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-center">No outstanding balances</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    outstandingData.forEach(learner => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${learner.customer_id}</td>
+                            <td>${learner.name}</td>
+                            <td>${learner.class || 'N/A'}</td>
+                            <td>${learner.program_membership || 'N/A'}</td>
+                            <td>KES ${parseFloat(learner.total_items_cost || 0).toLocaleString()}</td>
+                            <td class="text-success">KES ${parseFloat(learner.total_paid || 0).toLocaleString()}</td>
+                            <td class="text-danger">KES ${parseFloat(learner.balance || 0).toLocaleString()}</td>
+                            <td>${learner.last_payment_date ? 
+                                new Date(learner.last_payment_date).toLocaleDateString() : 'Never'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="paymentsManager.collectPayment('${learner.customer_id}', '${learner.name}')">
+                                    <i class="fas fa-credit-card"></i> Collect
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                setupTemplateDownload() {
+                    document.getElementById('downloadTemplate').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        // Create CSV template
+                        const template = `learner_id,amount,payment_method,reference,notes
+CUST001,5000,mpesa,PAY001,Uniform payment
+CUST002,7500,cash,PAY002,Stationery payment
+CUST003,3000,bank_transfer,PAY003,Installment payment`;
+                        
+                        const blob = new Blob([template], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'payments_template.csv';
+                        a.click();
+                        
+                        this.showToast('Template downloaded successfully', 'success');
+                    });
+                }
+
+                collectPayment(learnerId, learnerName) {
+                    // Switch to record payment tab and pre-fill
+                    this.switchTab('record-payment');
+                    
+                    // Simulate selecting the learner
+                    this.selectedLearner = {
+                        id: learnerId,
+                        name: learnerName,
+                        balance: 5000 // Placeholder - you would get actual balance from API
+                    };
+                    
+                    // Update UI
+                    document.getElementById('selectedLearnerName').textContent = learnerName;
+                    document.getElementById('selectedLearnerBalance').textContent = 'KES 5,000';
+                    document.getElementById('selectedLearnerInfo').classList.remove('hidden');
+                    
+                    // Scroll to form
+                    document.getElementById('record-payment').scrollIntoView({ behavior: 'smooth' });
+                    
+                    this.showToast(`Ready to collect payment from ${learnerName}`, 'info');
+                }
+
+                convertToCSV(data) {
+                    if (!data.length) return '';
+                    
+                    const headers = Object.keys(data[0]);
+                    const csvRows = [];
+                    
+                    // Add headers
+                    csvRows.push(headers.join(','));
+                    
+                    // Add data rows
+                    for (const row of data) {
+                        const values = headers.map(header => {
+                            const value = row[header];
+                            // Escape quotes and wrap in quotes if contains comma
+                            const escaped = ('' + value).replace(/"/g, '""');
+                            return escaped.includes(',') ? `"${escaped}"` : escaped;
+                        });
+                        csvRows.push(values.join(','));
+                    }
+                    
+                    return csvRows.join('\n');
+                }
+
+                showToast(message, type = 'info') {
+                    // Create toast element
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    toast.innerHTML = `
+                        <div class="toast-content">
+                            <i class="fas fa-${this.getToastIcon(type)}"></i>
+                            <span>${message}</span>
+                        </div>
+                        <button class="toast-close">&times;</button>
+                    `;
+                    
+                    // Add to page
+                    document.body.appendChild(toast);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 5000);
+                    
+                    // Close button
+                    toast.querySelector('.toast-close').addEventListener('click', () => {
+                        toast.remove();
+                    });
+                }
+
+                getToastIcon(type) {
+                    switch(type) {
+                        case 'success': return 'check-circle';
+                        case 'error': return 'exclamation-circle';
+                        case 'warning': return 'exclamation-triangle';
+                        default: return 'info-circle';
+                    }
+                }
+            }
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // First, check if we're on login page - skip auth check
+        if (window.location.pathname.includes('login.html')) {
+            return;
+        }
+        
+        console.log('🔐 Checking authentication status...');
+        
+        // Try to verify authentication
+        const authCheck = await API.call('/api/auth/check').catch(error => {
+            console.warn('Auth check failed:', error);
+            return null;
+        });
+        
+        // Also try the legacy endpoint for compatibility
+        if (!authCheck) {
+            console.log('Trying legacy auth endpoint...');
+            const legacyCheck = await API.call('/api/auth/verify').catch(() => null);
+            if (legacyCheck && legacyCheck.isAuthenticated) {
+                console.log('✅ Authenticated via legacy endpoint');
+                // Proceed with initialization
+            } else {
+                console.warn('❌ Not authenticated, redirecting to login');
+                window.location.href = '/login.html';
+                return;
+            }
+        }
+        
+        if (authCheck && authCheck.success && authCheck.isAuthenticated) {
+            console.log('✅ User authenticated:', authCheck.user?.username);
+            
+            // Initialize payments manager
+            window.paymentsManager = new PaymentsManager();
+            
+            // Update user greeting
+            const user = authCheck.user;
+            if (user) {
+                document.getElementById('userGreeting').textContent = 
+                    `Welcome, ${user.display_name || user.username || 'User'}`;
+            }
+            
+            // Initialize auth object for menu.js
+            if (window.auth) {
+                window.auth.user = user;
+                window.auth.initialized = true;
+            }
+            
+        } else if (authCheck && !authCheck.success) {
+            console.warn('❌ Auth check returned failure, redirecting...');
+            window.location.href = '/login.html';
+            return;
+        }
+        // If authCheck is null (network error), we already tried legacy endpoint
+        
+    } catch (error) {
+        console.error('Authentication initialization error:', error);
+        window.location.href = '/login.html';
+    }
+});
+
+        })();
+    </script>
+    
+    <script>
+        // frontend/js/menu.js - Enhanced Dynamic Sidebar
+        (function () {
+            'use strict';
+
+            const MENU_CONFIG = {
+                admin: [
+                    { icon: 'fas fa-tachometer-alt', label: 'Dashboard', page: 'admin.html' },
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
+                    { icon: 'fas fa-users', label: 'Customers', page: 'customers.html' },
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-boxes', label: 'Inventory', page: 'inventory.html' },
+                    { icon: 'fas fa-truck', label: 'Suppliers', page: 'suppliers.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-chart-bar', label: 'Reports', page: 'reports.html' },
+                    { icon: 'fas fa-chart-pie', label: 'Overview', page: 'overview.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ],
+                department_uniform: [
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },      
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ],
+                department_stationery: [
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ]
+            };
+
+            class MenuManager {
+                constructor() {
+                    this.sidebarNav = document.getElementById('sidebarNav');
+                    this.menuToggle = document.getElementById('menuToggle');
+                    this.sidebar = document.getElementById('sidebar');
+                    this.sidebarOverlay = document.getElementById('sidebarOverlay');
+                    this.user = null;
+                }
+
+                async initialize() {
+                    if (!this.sidebarNav) {
+                        console.warn('Sidebar nav not found');
+                        return;
+                    }
+
+                    try {
+                        // Wait for auth to be ready
+                        await this.waitForAuth();
+                        
+                        // Get user info
+                        this.user = window.auth?.getUser();
+                        
+                        // Build menu
+                        this.buildMenu();
+                        
+                        // Setup mobile menu
+                        this.setupMobileMenu();
+                        
+                        // Highlight current page
+                        this.highlightCurrentPage();
+                        
+                        console.log('Menu initialized for user:', this.user?.role);
+                        
+                    } catch (error) {
+                        console.error('Menu initialization error:', error);
+                        this.buildDefaultMenu();
+                    }
+                }
+
+                async waitForAuth() {
+                    return new Promise((resolve) => {
+                        if (window.auth && window.auth.getUser()) {
+                            resolve();
+                            return;
+                        }
+
+                        let attempts = 0;
+                        const maxAttempts = 10;
+                        
+                        const checkAuth = setInterval(() => {
+                            attempts++;
+                            if (window.auth && window.auth.getUser()) {
+                                clearInterval(checkAuth);
+                                resolve();
+                            } else if (attempts >= maxAttempts) {
+                                clearInterval(checkAuth);
+                                console.warn('Auth not available, using default menu');
+                                resolve();
+                            }
+                        }, 100);
+                    });
+                }
+
+                buildMenu() {
+                    const role = this.user?.role || 'department_stationery';
+                    const items = MENU_CONFIG[role] || MENU_CONFIG.department_stationery;
+                    
+                    // Clear existing menu
+                    this.sidebarNav.innerHTML = '';
+                    
+                    // Add menu items
+                    items.forEach(item => {
+                        const menuItem = this.createMenuItem(item);
+                        this.sidebarNav.appendChild(menuItem);
+                    });
+                    
+                    // Add user info and logout
+                    this.addUserSection();
+                }
+
+                buildDefaultMenu() {
+                    const items = MENU_CONFIG.department_stationery;
+                    this.sidebarNav.innerHTML = '';
+                    
+                    items.forEach(item => {
+                        const menuItem = this.createMenuItem(item);
+                        this.sidebarNav.appendChild(menuItem);
+                    });
+                    
+                    this.addUserSection();
+                }
+
+                createMenuItem(item) {
+                    const a = document.createElement('a');
+                    a.href = item.page;
+                    a.className = 'nav-item';
+                    a.innerHTML = `
+                        <i class="${item.icon} nav-icon"></i>
+                        <span class="nav-label">${item.label}</span>
+                    `;
+                    
+                    a.addEventListener('click', (e) => {
+                        if (window.innerWidth <= 768) {
+                            this.closeMobileMenu();
+                        }
+                    });
+                    
+                    return a;
+                }
+
+                addUserSection() {
+                    const divider = document.createElement('div');
+                    divider.className = 'nav-divider';
+                    this.sidebarNav.appendChild(divider);
+                    
+                    // User info
+                    const userInfo = document.createElement('div');
+                    userInfo.className = 'nav-item';
+                    userInfo.style.pointerEvents = 'none';
+                    
+                    const userName = this.user?.displayName || this.user?.username || 'User';
+                    const userRole = this.user?.role || 'Staff';
+                    
+                    userInfo.innerHTML = `
+                        <i class="fas fa-user-circle nav-icon"></i>
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="nav-label" style="font-weight: 600;">${userName}</span>
+                            <small style="opacity: 0.8; font-size: 12px;">${userRole.replace('_', ' ').toUpperCase()}</small>
+                        </div>
+                    `;
+                    this.sidebarNav.appendChild(userInfo);
+                    
+                    // Logout button
+                    const logoutItem = document.createElement('a');
+                    logoutItem.href = '#';
+                    logoutItem.className = 'nav-item logout-item';
+                    logoutItem.innerHTML = `
+                        <i class="fas fa-sign-out-alt nav-icon"></i>
+                        <span class="nav-label">Logout</span>
+                    `;
+                    
+                    logoutItem.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleLogout();
+                    });
+                    
+                    this.sidebarNav.appendChild(logoutItem);
+                }
+
+                handleLogout() {
+                    if (confirm('Are you sure you want to logout?')) {
+                        if (window.auth && typeof window.auth.logout === 'function') {
+                            window.auth.logout()
+                                .then(() => {
+                                    window.location.href = 'login.html';
+                                })
+                                .catch(() => {
+                                    window.location.href = 'login.html';
+                                });
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    }
+                }
+
+                highlightCurrentPage() {
+                    const currentPage = window.location.pathname.split('/').pop() || 'admin.html';
+                    const navItems = this.sidebarNav.querySelectorAll('.nav-item:not(.logout-item)');
+                    
+                    navItems.forEach(item => {
+                        const href = item.getAttribute('href');
+                        if (href === currentPage) {
+                            item.classList.add('active');
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                }
+
+                setupMobileMenu() {
+                    // Create menu toggle button if it doesn't exist
+                    if (!document.getElementById('menuToggle')) {
+                        const menuToggle = document.createElement('button');
+                        menuToggle.id = 'menuToggle';
+                        menuToggle.className = 'menu-toggle';
+                        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                        document.querySelector('.nav-brand').appendChild(menuToggle);
+                    }
+                    
+                    const menuToggle = document.getElementById('menuToggle');
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    if (!menuToggle || !sidebar || !sidebarOverlay) {
+                        return;
+                    }
+
+                    menuToggle.addEventListener('click', () => {
+                        this.toggleMobileMenu();
+                    });
+
+                    sidebarOverlay.addEventListener('click', () => {
+                        this.closeMobileMenu();
+                    });
+
+                    // Close menu when window resizes to desktop
+                    window.addEventListener('resize', () => {
+                        if (window.innerWidth > 768) {
+                            this.closeMobileMenu();
+                        }
+                    });
+                }
+
+                toggleMobileMenu() {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    sidebar.classList.toggle('active');
+                    sidebarOverlay.classList.toggle('active');
+                    document.body.classList.toggle('no-scroll');
+                }
+
+                closeMobileMenu() {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.classList.remove('no-scroll');
+                }
+            }
+
+            // Initialize when DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                const menuManager = new MenuManager();
+                menuManager.initialize();
+            });
+
+            // Make MenuManager available globally
+            window.MenuManager = MenuManager;
+
+        })();
+    </script>
+</body>
+</html>

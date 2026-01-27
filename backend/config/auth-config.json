@@ -1,0 +1,12 @@
+{
+  "departments": [
+    "Uniform",
+    "Stationery",
+    "Admin"
+  ],
+  "sessionDuration": 24,
+  "passwordPolicy": {
+    "minLength": 6,
+    "requireNumbers": true
+  }
+}

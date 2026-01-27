@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Overview - Hattyjohns Investments</title>
+    <!-- Mobile Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <script src="js/menu.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .overview-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .card-icon.blue { background: var(--primary); }
+        .card-icon.green { background: var(--secondary); }
+        .card-icon.red { background: var(--warning); }
+        .card-icon.yellow { background: var(--secondary); }
+        .card-icon.purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+        .card-icon.teal { background: var(--success); }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #0F172A;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+        
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+        
+        .trend-up {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+        
+        .trend-down {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .trend-neutral {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+        
+        .status-warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        
+        .status-offline {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-online .status-indicator { background: #16A34A; }
+        .status-warning .status-indicator { background: #D97706; }
+        .status-offline .status-indicator { background: #DC2626; }
+        
+        .performance-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #E5E7EB;
+            color: #475569;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .data-refresh {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6B7280;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+
+        /* ===== RESPONSIVE DESIGN IMPROVEMENTS ===== */
+        
+        
+        /* ===== FLUID TYPOGRAPHY ===== */
+        
+        /* Base font size scales with viewport */
+        html {
+            font-size: 16px;
+        }
+        
+        @media (min-width: 320px) {
+            html {
+                font-size: calc(16px + (18 - 16) * ((100vw - 320px) / (1920 - 320)));
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            html {
+                font-size: 18px;
+            }
+        }
+        
+        /* Fluid headings */
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            line-height: clamp(1.2, 1.1, 1.05);
+        }
+        
+        h2 {
+            font-size: clamp(1.25rem, 4vw, 2.25rem);
+        }
+        
+        h3 {
+            font-size: clamp(1.125rem, 3vw, 1.75rem);
+        }
+        
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        }
+        
+        /* Fluid spacing */
+        :root {
+            --spacing-unit: clamp(0.5rem, 2vw, 1rem);
+            --section-spacing: clamp(2rem, 8vw, 4rem);
+        }
+        
+        .section {
+            padding: var(--section-spacing) 0;
+        }
+        
+        .gap-fluid {
+            gap: var(--spacing-unit);
+        }
+        
+        /* Fluid containers */
+        .container-fluid {
+            width: min(100% - 2rem, 1600px);
+            margin-inline: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .container-fluid {
+                width: min(100% - 3rem, 1600px);
+            }
+        }
+        
+        /* Fluid grid gaps */
+        .grid {
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+        
+        /* Fluid card padding */
+        .card {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+    
+        
+        
+        /* ===== COMPREHENSIVE RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Mobile Small (320px - 480px) - Smartphones */
+        @media (max-width: 480px) {
+            /* Extreme mobile optimizations */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Touch targets minimum 44px */
+            .btn, button, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Stack everything vertically */
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Reduce font sizes for small screens */
+            h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+            h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+            h3 { font-size: clamp(1.125rem, 3.5vw, 1.5rem); }
+            
+            /* Full-width tables with horizontal scroll */
+            .table-responsive {
+                margin: 0 -1rem;
+                width: calc(100% + 2rem);
+            }
+            
+            /* Hide non-essential elements */
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile Large (481px - 767px) - Larger phones, small tablets */
+        @media (min-width: 481px) and (max-width: 767px) {
+            /* 2-column grids where appropriate */
+            .grid-2, .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Slightly larger containers */
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            
+            /* Better spacing */
+            .card {
+                padding: 1.25rem;
+            }
+            
+            /* Adjust font sizes */
+            h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+        }
+        
+        /* Tablet (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            /* Tablet-specific layouts */
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* Adjust sidebar if present */
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content.with-sidebar {
+                margin-left: 220px;
+            }
+            
+            /* Tablet-optimized font sizes */
+            h1 { font-size: clamp(2rem, 3vw, 2.5rem); }
+            
+            /* Better button spacing */
+            .btn-group {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Desktop Small (1024px - 1365px) */
+        @media (min-width: 1024px) and (max-width: 1365px) {
+            /* Standard desktop layouts */
+            .container {
+                max-width: 1200px;
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            /* Optimize for laptop screens */
+            .card {
+                padding: 1.5rem;
+            }
+            
+            /* Comfortable reading line length */
+            p, li {
+                max-width: 70ch;
+            }
+        }
+        
+        /* Desktop Large (1366px - 1919px) */
+        @media (min-width: 1366px) and (max-width: 1919px) {
+            /* Larger container for wide screens */
+            .container {
+                max-width: 1400px;
+            }
+            
+            /* More spacious layouts */
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
+            
+            /* Increase font sizes for better readability */
+            :root {
+                --font-size-base: 1.0625rem; /* 17px */
+            }
+            
+            /* Larger click targets */
+            .btn {
+                padding: 0.75rem 1.5rem;
+            }
+        }
+        
+        /* Desktop XL (1920px+) */
+        @media (min-width: 1920px) {
+            /* Extra large containers */
+            .container {
+                max-width: 1600px;
+            }
+            
+            /* 5 or 6 column grids where appropriate */
+            .grid-4 {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            /* Larger font sizes */
+            :root {
+                --font-size-base: 1.125rem; /* 18px */
+                --font-size-lg: 1.375rem;   /* 22px */
+                --font-size-xl: 1.75rem;    /* 28px */
+                --font-size-2xl: 2.25rem;   /* 36px */
+                --font-size-3xl: 3rem;      /* 48px */
+            }
+            
+            /* More generous spacing */
+            .card {
+                padding: 2rem;
+            }
+            
+            .section-spacing {
+                padding: 3rem 0;
+            }
+        }
+        
+        /* Landscape orientation for mobile/tablet */
+        @media (max-height: 600px) and (orientation: landscape) {
+            /* Compact mode for landscape */
+            .hero-section {
+                padding: 1rem 1.5rem;
+                min-height: auto;
+            }
+            
+            /* Reduce vertical padding */
+            .card, .stat-card {
+                padding: 1rem;
+            }
+            
+            /* Stack elements horizontally when possible */
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            /* Shorter buttons */
+            .btn {
+                padding: 0.5rem 1rem;
+                min-height: 36px;
+            }
+        }
+        
+        /* High DPI/Retina screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            /* Crisper borders and shadows */
+            .card, .btn {
+                border-width: 0.5px;
+            }
+            
+            /* Better shadows for high DPI */
+            .card {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+        }
+        
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0f172a;
+                --card-bg: #1e293b;
+                --text-primary: #f8fafc;
+                --text-secondary: #cbd5e1;
+                --border: #334155;
+            }
+        }
+    
+        
+        
+        /* ===== RESPONSIVE UTILITY CLASSES ===== */
+        
+        /* Display utilities */
+        .mobile-only { display: none !important; }
+        .tablet-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        .desktop-hidden { display: none !important; }
+        
+        /* Mobile */
+        @media (max-width: 767px) {
+            .mobile-only { display: block !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: none !important; }
+            .desktop-hidden { display: block !important; }
+            .mobile-hidden { display: none !important; }
+        }
+        
+        /* Tablet */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            .tablet-hidden { display: none !important; }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: block !important; }
+        }
+        
+        /* Grid column utilities */
+        .cols-1 { grid-template-columns: 1fr; }
+        .cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        @media (max-width: 767px) {
+            .cols-mobile-1 { grid-template-columns: 1fr !important; }
+            .cols-mobile-2 { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .cols-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .cols-tablet-3 { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        
+        @media (min-width: 1024px) {
+            .cols-desktop-3 { grid-template-columns: repeat(3, 1fr) !important; }
+            .cols-desktop-4 { grid-template-columns: repeat(4, 1fr) !important; }
+            .cols-desktop-5 { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        
+        /* Spacing utilities */
+        .p-fluid { padding: clamp(1rem, 3vw, 2rem); }
+        .m-fluid { margin: clamp(1rem, 3vw, 2rem); }
+        
+        /* Text alignment by breakpoint */
+        .text-left-mobile { text-align: left; }
+        .text-center-mobile { text-align: center; }
+        .text-right-mobile { text-align: right; }
+        
+        @media (min-width: 768px) {
+            .text-left-tablet { text-align: left; }
+            .text-center-tablet { text-align: center; }
+            .text-right-tablet { text-align: right; }
+        }
+        
+        @media (min-width: 1024px) {
+            .text-left-desktop { text-align: left; }
+            .text-center-desktop { text-align: center; }
+            .text-right-desktop { text-align: right; }
+        }
+        
+        /* Order utilities for flex/grid */
+        .order-first-mobile { order: -1; }
+        .order-last-mobile { order: 999; }
+        
+        @media (min-width: 768px) {
+            .order-first-tablet { order: -1; }
+            .order-last-tablet { order: 999; }
+        }
+        
+        @media (min-width: 1024px) {
+            .order-first-desktop { order: -1; }
+            .order-last-desktop { order: 999; }
+        }
+        
+        /* Visibility utilities */
+        .visible-mobile { visibility: visible; }
+        .visible-tablet { visibility: visible; }
+        .visible-desktop { visibility: visible; }
+        
+        .hidden-mobile { visibility: hidden; }
+        .hidden-tablet { visibility: hidden; }
+        .hidden-desktop { visibility: hidden; }
+        
+        @media (max-width: 767px) {
+            .visible-tablet, .visible-desktop { visibility: hidden; }
+            .hidden-mobile { visibility: hidden; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .visible-mobile, .visible-desktop { visibility: hidden; }
+            .hidden-tablet { visibility: hidden; }
+        }
+        
+        @media (min-width: 1024px) {
+            .visible-mobile, .visible-tablet { visibility: hidden; }
+            .hidden-desktop { visibility: hidden; }
+        }
+    
+        
+        /* ===== COMPONENT-SPECIFIC RESPONSIVENESS ===== */
+        
+        /* Responsive tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-width: 767px) {
+            /* Stack table rows on mobile */
+            .table-mobile-stack {
+                display: block;
+            }
+            
+            .table-mobile-stack thead {
+                display: none;
+            }
+            
+            .table-mobile-stack tbody,
+            .table-mobile-stack tr {
+                display: block;
+            }
+            
+            .table-mobile-stack td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .table-mobile-stack td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-right: 1rem;
+                min-width: 120px;
+            }
+            
+            /* Hide non-essential columns on mobile */
+            .table td.mobile-hide,
+            .table th.mobile-hide {
+                display: none;
+            }
+        }
+        
+        /* Responsive forms */
+        @media (max-width: 767px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+            }
+        }
+        
+        /* Responsive modals */
+        @media (max-width: 767px) {
+            .modal {
+                width: 95%;
+                margin: 1rem;
+                max-height: 90vh;
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+            }
+            
+            /* Full-screen modals on very small screens */
+            @media (max-width: 480px) {
+                .modal {
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    border-radius: 0;
+                }
+            }
+        }
+        
+        /* Responsive navigation */
+        @media (max-width: 1023px) {
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                background: var(--card-bg);
+            }
+            
+            .nav-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Responsive cards */
+        @media (max-width: 767px) {
+            .card {
+                border-radius: 8px;
+                margin: 0.5rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+        }
+        
+        /* Responsive buttons */
+        @media (max-width: 767px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Touch-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        /* Responsive charts/graphs */
+        @media (max-width: 767px) {
+            .chart-container {
+                height: 250px !important;
+            }
+            
+            .chart-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+            
+            a[href]::after {
+                content: " (" attr(href) ")";
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        .loading-placeholder {
+            height: 20px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .mobile-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        
+        @media (max-width: 768px) {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+        }
+        
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+</style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            
+            <a href="department.html" class="nav-item">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-label">Departments</span>
+            </a>
+            
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Customers</span>
+            </a>
+            
+            <a href="payments.html" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+            
+            <a href="pos.html" class="nav-item">
+                <i class="fas fa-cash-register nav-icon"></i>
+                <span class="nav-label">POS</span>
+            </a>
+            
+            <!-- Allocations - based on auth.js permissions -->
+            <a href="allocations.html" class="nav-item" data-permission="allocations">
+                <i class="fas fa-graduation-cap nav-icon"></i>
+                <span class="nav-label">Allocations</span>
+            </a>
+            
+            <a href="pocket_money.html" class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">Pocket Money</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <!-- Inventory and Suppliers - admin only -->
+            <a href="inventory.html" class="nav-item" data-permission="inventory">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-label">Inventory</span>
+            </a>
+            
+            <a href="suppliers.html" class="nav-item" data-permission="suppliers">
+                <i class="fas fa-truck nav-icon"></i>
+                <span class="nav-label">Suppliers</span>
+            </a>
+            
+            <!-- Reports and Overview - admin only -->
+            <a href="reports.html" class="nav-item" data-permission="reports">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+            
+            <a href="overview.html" class="nav-item" data-permission="overview">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span class="nav-label">Overview</span>
+            </a>
+            
+            <!-- Refunds -->
+            <a href="refunds.html" class="nav-item" data-permission="refunds">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <span class="nav-label">Refunds</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <a href="admin.html" class="nav-brand">
+            <i class="fas fa-chart-line"></i>
+            STEADYMONITOR
+        </a>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="greeting">Good morning, Admin</span>
+            <div class="dropdown">
+                <button class="btn btn-outline btn-sm" id="userMenu">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            
+            <a href="department.html" class="nav-item">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-label">Departments</span>
+            </a>
+            
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Customers</span>
+            </a>
+            
+            <a href="payments.html" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+            
+            <a href="pos.html" class="nav-item">
+                <i class="fas fa-cash-register nav-icon"></i>
+                <span class="nav-label">POS</span>
+            </a>
+            
+            <a href="pocket_money.html" class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">Pocket Money</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-label">Inventory</span>
+            </a>
+            
+            <a href="suppliers.html" class="nav-item">
+                <i class="fas fa-truck nav-icon"></i>
+                <span class="nav-label">Suppliers</span>
+            </a>
+            
+            <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+            
+            <a href="overview.html" class="nav-item active">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span class="nav-label">Overview</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content with-sidebar" id="mainContent">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>System Overview</h1>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-outline" id="exportOverviewBtn">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title">System Status</h3>
+                    <div class="system-status status-online" id="systemStatus">
+                        <div class="status-indicator"></div>
+                        <span>All Systems Operational</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value" id="uptimeValue">99.8%</div>
+                            <div class="metric-label">Uptime (30 days)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="responseTime">142ms</div>
+                            <div class="metric-label">Avg Response Time</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="activeUsers">24</div>
+                            <div class="metric-label">Active Users</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="dataRefresh">5 min</div>
+                            <div class="metric-label">Data Refresh Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="overview-grid">
+                <!-- Sales Overview -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <div>
+                            <h3 class="card-title">Sales</h3>
+                            <div class="data-refresh">
+                                <i class="fas fa-clock"></i>
+                                <span id="salesLastUpdate">Just now</span>
+                            </div>
+                        </div>
+                        <div class="card-icon blue">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value" id="todaySales">KES 0</div>
+                            <div class="metric-label">Today</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="weekSales">KES 0</div>
+                            <div class="metric-label">This Week</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="monthSales">KES 0</div>
+                            <div class="metric-label">This Month</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="avgTransaction">KES 0</div>
+                            <div class="metric-label">Avg Transaction</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers Overview -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <div>
+                            <h3 class="card-title">Customers</h3>
+                            <div class="data-refresh">
+                                <i class="fas fa-clock"></i>
+                                <span id="customersLastUpdate">Just now</span>
+                            </div>
+                        </div>
+                        <div class="card-icon green">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value" id="totalCustomers">0</div>
+                            <div class="metric-label">Total</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="activeCustomers">0</div>
+                            <div class="metric-label">Active</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="newCustomers">0</div>
+                            <div class="metric-label">New (30 days)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="customerGrowth">0%</div>
+                            <div class="metric-label">Growth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Overview -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <div>
+                            <h3 class="card-title">Inventory</h3>
+                            <div class="data-refresh">
+                                <i class="fas fa-clock"></i>
+                                <span id="inventoryLastUpdate">Just now</span>
+                            </div>
+                        </div>
+                        <div class="card-icon red">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value" id="totalProducts">0</div>
+                            <div class="metric-label">Total Products</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="lowStockItems">0</div>
+                            <div class="metric-label">Low Stock</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="outOfStock">0</div>
+                            <div class="metric-label">Out of Stock</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="inventoryValue">KES 0</div>
+                            <div class="metric-label">Total Value</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Overview -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <div>
+                            <h3 class="card-title">Financial</h3>
+                            <div class="data-refresh">
+                                <i class="fas fa-clock"></i>
+                                <span id="financialLastUpdate">Just now</span>
+                            </div>
+                        </div>
+                        <div class="card-icon yellow">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value" id="revenue">KES 0</div>
+                            <div class="metric-label">Revenue (MTD)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="expenses">KES 0</div>
+                            <div class="metric-label">Expenses (MTD)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="profit">KES 0</div>
+                            <div class="metric-label">Profit (MTD)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="profitMargin">0%</div>
+                            <div class="metric-label">Profit Margin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Charts -->
+            <div class="performance-charts">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="card-title">Sales Trend (Last 6 Months)</h3>
+                        <select class="form-control form-control-sm" style="width: auto;" id="salesTrendFilter">
+                            <option value="amount">Sales Amount</option>
+                            <option value="transactions">Transactions</option>
+                        </select>
+                    </div>
+                    <canvas id="salesTrendChart" height="250"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="card-title">Department Performance</h3>
+                        <select class="form-control form-control-sm" style="width: auto;" id="deptPerformanceFilter">
+                            <option value="revenue">Revenue</option>
+                            <option value="transactions">Transactions</option>
+                            <option value="profit">Profit</option>
+                        </select>
+                    </div>
+                    <canvas id="deptPerformanceChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions">
+                        <a href="reports.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="action-title">View Reports</div>
+                            <div class="action-desc">Detailed analytics</div>
+                        </a>
+                        
+                        <a href="customers.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="action-title">Add Customer</div>
+                            <div class="action-desc">Register new learner</div>
+                        </a>
+                        
+                        <a href="pos.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-cash-register"></i>
+                            </div>
+                            <div class="action-title">New Sale</div>
+                            <div class="action-desc">Process transaction</div>
+                        </a>
+                        
+                        <a href="inventory.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="action-title">Restock</div>
+                            <div class="action-desc">Manage inventory</div>
+                        </a>
+                        
+                        <a href="payments.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="action-title">Record Payment</div>
+                            <div class="action-desc">Process payment</div>
+                        </a>
+                        
+                        <a href="suppliers.html" class="action-btn">
+                            <div class="action-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="action-title">Supplier Payment</div>
+                            <div class="action-desc">Pay suppliers</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/overview.js"></script>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <script>
+                    // Auth check
+                    document.addEventListener('DOMContentLoaded', async function() {
+                        if (window.auth) {
+                            const authenticated = await window.auth.requireAuth();
+                            if (!authenticated) return;
+                        }
+                    });
+                
+        // Mobile functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('active');
+                    }
+                });
+                
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    });
+                }
+            }
+            
+            // Dropdown menus
+            const userMenu = document.getElementById('userMenu');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (userMenu && dropdownMenu) {
+                userMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.innerWidth <= 768) {
+                        dropdownMenu.classList.toggle('active');
+                    } else {
+                        dropdownMenu.style.display = 
+                            dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                    }
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        if (window.innerWidth <= 768) {
+                            dropdownMenu.classList.remove('active');
+                        } else {
+                            dropdownMenu.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        if (typeof auth !== 'undefined' && auth.logout) {
+                            await auth.logout();
+                        }
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+            
+            // Window resize handling
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Close mobile dropdowns on resize to desktop
+                    if (window.innerWidth > 768) {
+                        const dropdowns = document.querySelectorAll('.dropdown-menu.active');
+                        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+                    }
+                }, 250);
+            });
+        });
+        
+        // Helper functions
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Simple notification implementation
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+        
+        // Make functions available globally
+        window.showLoading = showLoading;
+        window.showNotification = showNotification;
+    </script>
+        </body>
+</html>

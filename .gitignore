@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+
+# Backups (YOU HAVE MANY — DO NOT COMMIT)
+**/*.backup*
+**/*.fix-backup*
+**/*.script-backup*
+backups/
+
+# Generated / reports
+DIAGNOSTIC_ERRORS.log
+DIAGNOSTIC_REPORT.md
+API_TEST_REPORT_WINDOWS.md
+
+# Build / temp
+dist/
+build/
+.tmp/
+
+# CSV raw data (keep local unless explicitly needed)
+CSV/
+
+# Ignore runtime artifacts
+*.pid
+*.seed
+*.sqlite

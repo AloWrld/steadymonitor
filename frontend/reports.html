@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Hattyjohns Investments</title>
+    <!-- Mobile Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="js/menu.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .reports-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .reports-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .report-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            border-color: #2563EB;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1);
+        }
+        
+        .report-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .report-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .report-icon.sales { background: var(--primary); }
+        .report-icon.inventory { background: var(--warning); }
+        .report-icon.customers { background: var(--success); }
+        .report-icon.pocket-money { background: var(--secondary); }
+        .report-icon.suppliers { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
+        .report-icon.profit { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+        .report-icon.allocations { background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%); }
+        .report-icon.installments { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        
+        .report-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #0F172A;
+        }
+        
+        .report-description {
+            font-size: 0.9rem;
+            color: #64748B;
+        }
+        
+        .filters-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .report-content {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .report-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .export-btn:hover {
+            background: #F8FAFC;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        
+        .export-btn.excel:hover {
+            background: #ECFDF5;
+            border-color: #16A34A;
+            color: #16A34A;
+        }
+        
+        .export-btn.pdf:hover {
+            background: #FEF2F2;
+            border-color: #DC2626;
+            color: #DC2626;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .report-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-options {
+                flex-direction: column;
+            }
+            
+            .export-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    
+        /* ===== RESPONSIVE DESIGN IMPROVEMENTS ===== */
+        
+        
+        /* ===== FLUID TYPOGRAPHY ===== */
+        
+        /* Base font size scales with viewport */
+        html {
+            font-size: 16px;
+        }
+        
+        @media (min-width: 320px) {
+            html {
+                font-size: calc(16px + (18 - 16) * ((100vw - 320px) / (1920 - 320)));
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            html {
+                font-size: 18px;
+            }
+        }
+        
+        /* Fluid headings */
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            line-height: clamp(1.2, 1.1, 1.05);
+        }
+        
+        h2 {
+            font-size: clamp(1.25rem, 4vw, 2.25rem);
+        }
+        
+        h3 {
+            font-size: clamp(1.125rem, 3vw, 1.75rem);
+        }
+        
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        }
+        
+        /* Fluid spacing */
+        :root {
+            --spacing-unit: clamp(0.5rem, 2vw, 1rem);
+            --section-spacing: clamp(2rem, 8vw, 4rem);
+        }
+        
+        .section {
+            padding: var(--section-spacing) 0;
+        }
+        
+        .gap-fluid {
+            gap: var(--spacing-unit);
+        }
+        
+        /* Fluid containers */
+        .container-fluid {
+            width: min(100% - 2rem, 1600px);
+            margin-inline: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .container-fluid {
+                width: min(100% - 3rem, 1600px);
+            }
+        }
+        
+        /* Fluid grid gaps */
+        .grid {
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+        
+        /* Fluid card padding */
+        .card {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+    
+        
+        
+        /* ===== COMPREHENSIVE RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Mobile Small (320px - 480px) - Smartphones */
+        @media (max-width: 480px) {
+            /* Extreme mobile optimizations */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Touch targets minimum 44px */
+            .btn, button, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Stack everything vertically */
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Reduce font sizes for small screens */
+            h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+            h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+            h3 { font-size: clamp(1.125rem, 3.5vw, 1.5rem); }
+            
+            /* Full-width tables with horizontal scroll */
+            .table-responsive {
+                margin: 0 -1rem;
+                width: calc(100% + 2rem);
+            }
+            
+            /* Hide non-essential elements */
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile Large (481px - 767px) - Larger phones, small tablets */
+        @media (min-width: 481px) and (max-width: 767px) {
+            /* 2-column grids where appropriate */
+            .grid-2, .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Slightly larger containers */
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            
+            /* Better spacing */
+            .card {
+                padding: 1.25rem;
+            }
+            
+            /* Adjust font sizes */
+            h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+        }
+        
+        /* Tablet (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            /* Tablet-specific layouts */
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* Adjust sidebar if present */
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content.with-sidebar {
+                margin-left: 220px;
+            }
+            
+            /* Tablet-optimized font sizes */
+            h1 { font-size: clamp(2rem, 3vw, 2.5rem); }
+            
+            /* Better button spacing */
+            .btn-group {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Desktop Small (1024px - 1365px) */
+        @media (min-width: 1024px) and (max-width: 1365px) {
+            /* Standard desktop layouts */
+            .container {
+                max-width: 1200px;
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            /* Optimize for laptop screens */
+            .card {
+                padding: 1.5rem;
+            }
+            
+            /* Comfortable reading line length */
+            p, li {
+                max-width: 70ch;
+            }
+        }
+        
+        /* Desktop Large (1366px - 1919px) */
+        @media (min-width: 1366px) and (max-width: 1919px) {
+            /* Larger container for wide screens */
+            .container {
+                max-width: 1400px;
+            }
+            
+            /* More spacious layouts */
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
+            
+            /* Increase font sizes for better readability */
+            :root {
+                --font-size-base: 1.0625rem; /* 17px */
+            }
+            
+            /* Larger click targets */
+            .btn {
+                padding: 0.75rem 1.5rem;
+            }
+        }
+        
+        /* Desktop XL (1920px+) */
+        @media (min-width: 1920px) {
+            /* Extra large containers */
+            .container {
+                max-width: 1600px;
+            }
+            
+            /* 5 or 6 column grids where appropriate */
+            .grid-4 {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            /* Larger font sizes */
+            :root {
+                --font-size-base: 1.125rem; /* 18px */
+                --font-size-lg: 1.375rem;   /* 22px */
+                --font-size-xl: 1.75rem;    /* 28px */
+                --font-size-2xl: 2.25rem;   /* 36px */
+                --font-size-3xl: 3rem;      /* 48px */
+            }
+            
+            /* More generous spacing */
+            .card {
+                padding: 2rem;
+            }
+            
+            .section-spacing {
+                padding: 3rem 0;
+            }
+        }
+        
+        /* Landscape orientation for mobile/tablet */
+        @media (max-height: 600px) and (orientation: landscape) {
+            /* Compact mode for landscape */
+            .hero-section {
+                padding: 1rem 1.5rem;
+                min-height: auto;
+            }
+            
+            /* Reduce vertical padding */
+            .card, .stat-card {
+                padding: 1rem;
+            }
+            
+            /* Stack elements horizontally when possible */
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            /* Shorter buttons */
+            .btn {
+                padding: 0.5rem 1rem;
+                min-height: 36px;
+            }
+        }
+        
+        /* High DPI/Retina screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            /* Crisper borders and shadows */
+            .card, .btn {
+                border-width: 0.5px;
+            }
+            
+            /* Better shadows for high DPI */
+            .card {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+        }
+        
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0f172a;
+                --card-bg: #1e293b;
+                --text-primary: #f8fafc;
+                --text-secondary: #cbd5e1;
+                --border: #334155;
+            }
+        }
+    
+        
+        
+        /* ===== RESPONSIVE UTILITY CLASSES ===== */
+        
+        /* Display utilities */
+        .mobile-only { display: none !important; }
+        .tablet-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        .desktop-hidden { display: none !important; }
+        
+        /* Mobile */
+        @media (max-width: 767px) {
+            .mobile-only { display: block !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: none !important; }
+            .desktop-hidden { display: block !important; }
+            .mobile-hidden { display: none !important; }
+        }
+        
+        /* Tablet */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            .tablet-hidden { display: none !important; }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: block !important; }
+        }
+        
+        /* Grid column utilities */
+        .cols-1 { grid-template-columns: 1fr; }
+        .cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        @media (max-width: 767px) {
+            .cols-mobile-1 { grid-template-columns: 1fr !important; }
+            .cols-mobile-2 { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .cols-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .cols-tablet-3 { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        
+        @media (min-width: 1024px) {
+            .cols-desktop-3 { grid-template-columns: repeat(3, 1fr) !important; }
+            .cols-desktop-4 { grid-template-columns: repeat(4, 1fr) !important; }
+            .cols-desktop-5 { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        
+        /* Spacing utilities */
+        .p-fluid { padding: clamp(1rem, 3vw, 2rem); }
+        .m-fluid { margin: clamp(1rem, 3vw, 2rem); }
+        
+        /* Text alignment by breakpoint */
+        .text-left-mobile { text-align: left; }
+        .text-center-mobile { text-align: center; }
+        .text-right-mobile { text-align: right; }
+        
+        @media (min-width: 768px) {
+            .text-left-tablet { text-align: left; }
+            .text-center-tablet { text-align: center; }
+            .text-right-tablet { text-align: right; }
+        }
+        
+        @media (min-width: 1024px) {
+            .text-left-desktop { text-align: left; }
+            .text-center-desktop { text-align: center; }
+            .text-right-desktop { text-align: right; }
+        }
+        
+        /* Order utilities for flex/grid */
+        .order-first-mobile { order: -1; }
+        .order-last-mobile { order: 999; }
+        
+        @media (min-width: 768px) {
+            .order-first-tablet { order: -1; }
+            .order-last-tablet { order: 999; }
+        }
+        
+        @media (min-width: 1024px) {
+            .order-first-desktop { order: -1; }
+            .order-last-desktop { order: 999; }
+        }
+        
+        /* Visibility utilities */
+        .visible-mobile { visibility: visible; }
+        .visible-tablet { visibility: visible; }
+        .visible-desktop { visibility: visible; }
+        
+        .hidden-mobile { visibility: hidden; }
+        .hidden-tablet { visibility: hidden; }
+        .hidden-desktop { visibility: hidden; }
+        
+        @media (max-width: 767px) {
+            .visible-tablet, .visible-desktop { visibility: hidden; }
+            .hidden-mobile { visibility: hidden; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .visible-mobile, .visible-desktop { visibility: hidden; }
+            .hidden-tablet { visibility: hidden; }
+        }
+        
+        @media (min-width: 1024px) {
+            .visible-mobile, .visible-tablet { visibility: hidden; }
+            .hidden-desktop { visibility: hidden; }
+        }
+    
+        
+        /* ===== COMPONENT-SPECIFIC RESPONSIVENESS ===== */
+        
+        /* Responsive tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-width: 767px) {
+            /* Stack table rows on mobile */
+            .table-mobile-stack {
+                display: block;
+            }
+            
+            .table-mobile-stack thead {
+                display: none;
+            }
+            
+            .table-mobile-stack tbody,
+            .table-mobile-stack tr {
+                display: block;
+            }
+            
+            .table-mobile-stack td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .table-mobile-stack td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-right: 1rem;
+                min-width: 120px;
+            }
+            
+            /* Hide non-essential columns on mobile */
+            .table td.mobile-hide,
+            .table th.mobile-hide {
+                display: none;
+            }
+        }
+        
+        /* Responsive forms */
+        @media (max-width: 767px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+            }
+        }
+        
+        /* Responsive modals */
+        @media (max-width: 767px) {
+            .modal {
+                width: 95%;
+                margin: 1rem;
+                max-height: 90vh;
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+            }
+            
+            /* Full-screen modals on very small screens */
+            @media (max-width: 480px) {
+                .modal {
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    border-radius: 0;
+                }
+            }
+        }
+        
+        /* Responsive navigation */
+        @media (max-width: 1023px) {
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                background: var(--card-bg);
+            }
+            
+            .nav-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Responsive cards */
+        @media (max-width: 767px) {
+            .card {
+                border-radius: 8px;
+                margin: 0.5rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+        }
+        
+        /* Responsive buttons */
+        @media (max-width: 767px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Touch-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        /* Responsive charts/graphs */
+        @media (max-width: 767px) {
+            .chart-container {
+                height: 250px !important;
+            }
+            
+            .chart-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+            
+            a[href]::after {
+                content: " (" attr(href) ")";
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        .loading-placeholder {
+            height: 20px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .mobile-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        
+        @media (max-width: 768px) {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+        }
+        
+</style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            
+            <a href="department.html" class="nav-item">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-label">Departments</span>
+            </a>
+            
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Customers</span>
+            </a>
+            
+            <a href="payments.html" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+            
+            <a href="pos.html" class="nav-item">
+                <i class="fas fa-cash-register nav-icon"></i>
+                <span class="nav-label">POS</span>
+            </a>
+            
+            <!-- Allocations - based on auth.js permissions -->
+            <a href="allocations.html" class="nav-item" data-permission="allocations">
+                <i class="fas fa-graduation-cap nav-icon"></i>
+                <span class="nav-label">Allocations</span>
+            </a>
+            
+            <a href="pocket_money.html" class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">Pocket Money</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <!-- Inventory and Suppliers - admin only -->
+            <a href="inventory.html" class="nav-item" data-permission="inventory">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-label">Inventory</span>
+            </a>
+            
+            <a href="suppliers.html" class="nav-item" data-permission="suppliers">
+                <i class="fas fa-truck nav-icon"></i>
+                <span class="nav-label">Suppliers</span>
+            </a>
+            
+            <!-- Reports and Overview - admin only -->
+            <a href="reports.html" class="nav-item" data-permission="reports">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+            
+            <a href="overview.html" class="nav-item" data-permission="overview">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span class="nav-label">Overview</span>
+            </a>
+            
+            <!-- Refunds -->
+            <a href="refunds.html" class="nav-item" data-permission="refunds">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <span class="nav-label">Refunds</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <a href="admin.html" class="nav-brand">
+            <i class="fas fa-chart-line"></i>
+            STEADYMONITOR
+        </a>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="greeting">Good morning, Admin</span>
+            <div class="dropdown">
+                <button class="btn btn-outline btn-sm" id="userMenu">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            
+            <a href="department.html" class="nav-item">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-label">Departments</span>
+            </a>
+            
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Customers</span>
+            </a>
+            
+            <a href="payments.html" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+            
+            <a href="pos.html" class="nav-item">
+                <i class="fas fa-cash-register nav-icon"></i>
+                <span class="nav-label">POS</span>
+            </a>
+            
+            <a href="pocket_money.html" class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">Pocket Money</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-label">Inventory</span>
+            </a>
+            
+            <a href="suppliers.html" class="nav-item">
+                <i class="fas fa-truck nav-icon"></i>
+                <span class="nav-label">Suppliers</span>
+            </a>
+            
+            <a href="reports.html" class="nav-item active">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+            
+            <a href="overview.html" class="nav-item">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span class="nav-label">Overview</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content with-sidebar" id="mainContent">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Reports & Analytics</h1>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="refreshAllBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh All
+                        </button>
+                        <button class="btn btn-outline" id="dataStatusBtn">
+                            <i class="fas fa-database"></i> Data Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Container -->
+            <div class="reports-container">
+                <!-- Report Type Cards -->
+                <div class="report-cards">
+                    <div class="report-card" data-report="sales">
+                        <div class="report-card-header">
+                            <div class="report-icon sales">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Sales Report</div>
+                                <div class="report-description">Daily sales, trends, and analysis</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="profit">
+                        <div class="report-card-header">
+                            <div class="report-icon profit">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Profit Report</div>
+                                <div class="report-description">Revenue, costs, and profit margins</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="inventory">
+                        <div class="report-card-header">
+                            <div class="report-icon inventory">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Inventory Report</div>
+                                <div class="report-description">Stock levels, movement, and valuation</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="customers">
+                        <div class="report-card-header">
+                            <div class="report-icon customers">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Customer Report</div>
+                                <div class="report-description">Customer demographics and behavior</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="pocket-money">
+                        <div class="report-card-header">
+                            <div class="report-icon pocket-money">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Pocket Money Report</div>
+                                <div class="report-description">Pocket money transactions and balances</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="suppliers">
+                        <div class="report-card-header">
+                            <div class="report-icon suppliers">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Supplier Report</div>
+                                <div class="report-description">Supplier performance and credits</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="allocations">
+                        <div class="report-card-header">
+                            <div class="report-icon allocations">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Allocation Report</div>
+                                <div class="report-description">Program allocations and utilization</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card" data-report="installments">
+                        <div class="report-card-header">
+                            <div class="report-icon installments">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div>
+                                <div class="report-title">Installment Report</div>
+                                <div class="report-description">Installment payments and schedules</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Panel -->
+                <div class="filters-panel" id="filtersPanel" style="display: none;">
+                    <div class="filters-header">
+                        <h3>Report Filters</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline" id="clearFiltersBtn">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                            <button class="btn btn-sm btn-primary" id="applyFiltersBtn">
+                                <i class="fas fa-filter"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Start Date</label>
+                            <input type="text" class="form-control datepicker" id="startDate" placeholder="Select start date">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">End Date</label>
+                            <input type="text" class="form-control datepicker" id="endDate" placeholder="Select end date">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Department</label>
+                            <select class="form-control" id="departmentFilter">
+                                <option value="">All Departments</option>
+                                <option value="stationery">Stationery</option>
+                                <option value="uniform">Uniform</option>
+                                <option value="bookstore">Bookstore</option>
+                                <option value="cafeteria">Cafeteria</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Report Type</label>
+                            <select class="form-control" id="reportType">
+                                <option value="summary">Summary</option>
+                                <option value="detailed">Detailed</option>
+                                <option value="comparative">Comparative</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="export-options">
+                        <button class="export-btn excel" id="exportExcelBtn">
+                            <i class="fas fa-file-excel"></i>
+                            Export to Excel
+                        </button>
+                        <button class="export-btn pdf" id="exportPdfBtn">
+                            <i class="fas fa-file-pdf"></i>
+                            Export to PDF
+                        </button>
+                        <button class="export-btn" id="printReportBtn">
+                            <i class="fas fa-print"></i>
+                            Print Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Content Area -->
+                <div class="report-content" id="reportContent">
+                    <div class="report-header">
+                        <h2 id="reportTitle">Select a Report</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline" id="backToCardsBtn">
+                                <i class="fas fa-arrow-left"></i> Back to Reports
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="report-body" id="reportBody">
+                        <!-- Report content will be loaded here -->
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h3>No Report Selected</h3>
+                            <p>Select a report type from the cards above to view detailed analytics.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/reports.js"></script>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <script>
+                    // Auth check
+                    document.addEventListener('DOMContentLoaded', async function() {
+                        if (window.auth) {
+                            const authenticated = await window.auth.requireAuth();
+                            if (!authenticated) return;
+                        }
+                    });
+                
+        // Mobile functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('active');
+                    }
+                });
+                
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    });
+                }
+            }
+            
+            // Dropdown menus
+            const userMenu = document.getElementById('userMenu');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (userMenu && dropdownMenu) {
+                userMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.innerWidth <= 768) {
+                        dropdownMenu.classList.toggle('active');
+                    } else {
+                        dropdownMenu.style.display = 
+                            dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                    }
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        if (window.innerWidth <= 768) {
+                            dropdownMenu.classList.remove('active');
+                        } else {
+                            dropdownMenu.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        if (typeof auth !== 'undefined' && auth.logout) {
+                            await auth.logout();
+                        }
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+            
+            // Window resize handling
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Close mobile dropdowns on resize to desktop
+                    if (window.innerWidth > 768) {
+                        const dropdowns = document.querySelectorAll('.dropdown-menu.active');
+                        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+                    }
+                }, 250);
+            });
+        });
+        
+        // Helper functions
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Simple notification implementation
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+        
+        // Make functions available globally
+        window.showLoading = showLoading;
+        window.showNotification = showNotification;
+    </script>
+        </body>
+</html>

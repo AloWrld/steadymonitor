@@ -1,0 +1,125 @@
+// Minimal API helper for SteadyMonitor
+// Use this for all API calls
+
+const API_BASE = 'http://localhost:3001';
+
+async function apiCall(endpoint, options = {}) {
+  const url = endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : endpoint;
+  
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    mode: 'cors'
+  };
+
+  const config = { ...defaultOptions, ...options };
+  
+  try {
+    console.log('[API] Calling:', url);
+    const response = await fetch(url, config);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[API] Error:', response.status, errorText);
+      
+      if (response.status === 401) {
+        window.location.href = '/login.html';
+        return null;
+      }
+      
+      throw new Error(`API Error ${response.status}: ${errorText.substring(0, 100)}`);
+    }
+    
+    const data = await response.json();
+    console.log('[API] Success:', data);
+    return data;
+  } catch (error) {
+    console.error('[API] Fetch failed:', error);
+    throw error;
+  }
+}
+
+// Export common API calls
+export async function getCustomers() {
+  return apiCall('/api/customers');
+}
+
+export async function getProducts() {
+  return apiCall('/api/inventory/products');
+}
+
+export async function getDashboardStats() {
+  return apiCall('/api/dashboard/stats');
+}
+
+export async function getLowStock() {
+  return apiCall('/api/inventory/low-stock');
+}
+
+export async function getDepartments() {
+  return apiCall('/api/pos/departments');
+}
+
+export async function getClasses() {
+  return apiCall('/api/pos/classes');
+}
+
+export async function searchLearners(query) {
+  return apiCall(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+}
+
+export async function login(username, password) {
+  return apiCall('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password })
+  });
+}
+
+export async function logout() {
+  return apiCall('/api/auth/logout', { method: 'POST' });
+}
+
+export async function checkout(saleData) {
+  return apiCall('/api/pos/checkout', {
+    method: 'POST',
+    body: JSON.stringify(saleData)
+  });
+}
+
+export async function createCustomer(customerData) {
+  return apiCall('/api/customers', {
+    method: 'POST',
+    body: JSON.stringify(customerData)
+  });
+}
+
+// Test function
+export async function testAPI() {
+  console.log('Testing API connectivity...');
+  
+  const endpoints = [
+    '/api/auth/check',
+    '/api/customers',
+    '/api/inventory/products',
+    '/api/dashboard/stats',
+    '/api/pos/departments'
+  ];
+  
+  const results = {};
+  
+  for (const endpoint of endpoints) {
+    try {
+      const data = await apiCall(endpoint);
+      results[endpoint] = { success: true, data: data ? 'OK' : 'No data' };
+    } catch (error) {
+      results[endpoint] = { success: false, error: error.message };
+    }
+  }
+  
+  return results;
+}
+
+// Make apiCall available for custom calls
+export { apiCall };

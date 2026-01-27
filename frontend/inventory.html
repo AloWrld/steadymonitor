@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Hattyjohns Investments</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Inventory-specific styles */
+        .inventory-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card.critical {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .stock-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .stock-good { background: #d1fae5; color: #065f46; }
+        .stock-low { background: #fef3c7; color: #92400e; }
+        .stock-critical { background: #fee2e2; color: #991b1b; }
+        
+        .modal-large {
+            max-width: 800px;
+        }
+        
+        .product-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .product-form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-filters {
+                flex-direction: column;
+            }
+            
+            .inventory-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <nav id="sidebarNav" class="sidebar-nav"></nav>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <button id="menuToggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-brand">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory Management</span>
+            </div>
+            <div class="nav-user">
+                <span id="currentUser" class="user-greeting">Loading...</span>
+                <div class="dropdown">
+                    <button class="btn btn-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <div class="page-title">
+                        <h1>Inventory Management</h1>
+                        <div class="quick-actions">
+                            <button class="btn btn-primary" onclick="window.inventoryManagerInstance?.showAddProductModal()">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                            <button class="btn btn-outline" onclick="window.inventoryManagerInstance?.refreshInventory()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Dashboard -->
+            <div class="container">
+                <!-- Stats Overview -->
+                <div id="inventoryStats" class="inventory-stats">
+                    <!-- Stats will be loaded here -->
+                    <div class="loading-placeholder" style="height: 100px;"></div>
+                </div>
+
+                <!-- Filters -->
+                <div class="inventory-filters">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Search Products</label>
+                        <input type="text" id="searchProducts" class="form-control" 
+                        placeholder="Search by name, SKU, or description..."
+                        onkeyup="window.inventoryManagerInstance?.searchProducts(this.value)">
+                    </div>
+                    <div class="form-group" style="min-width: 200px;">
+                        <label>Department</label>
+                        <select id="filterDepartment" class="form-control" 
+                        onchange="window.inventoryManagerInstance?.applyFilters()">
+                            <option value="all">All Departments</option>
+                            <option value="Uniform">Uniform</option>
+                            <option value="Stationery">Stationery</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="min-width: 200px;">
+                        <label>Stock Status</label>
+                        <select id="filterStock" class="form-control" 
+                        onchange="window.inventoryManagerInstance?.applyFilters()">
+                            <option value="all">All Stock</option>
+                            <option value="low">Low Stock</option>
+                            <option value="critical">Out of Stock</option>
+                            <option value="good">Good Stock</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline" onclick="window.inventoryManagerInstance?.clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Products</h3>
+                        <div class="product-actions">
+                            <button class="btn btn-sm btn-outline" onclick="window.inventoryManagerInstance?.exportInventory()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="window.inventoryManagerInstance?.loadLowStock()">
+                                <i class="fas fa-exclamation-triangle"></i> Low Stock
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table" id="productsTable">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Product Name</th>
+                                        <th>Department</th>
+                                        <th>Category</th>
+                                        <th>Stock</th>
+                                        <th>Buy Price</th>
+                                        <th>Sell Price</th>
+                                        <th>Value</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsBody">
+                                    <!-- Products will be loaded here -->
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            <div class="loading-spinner" style="margin: 20px auto;"></div>
+                                            <p>Loading products...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pagination" style="margin-top: 20px; text-align: center;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New Product</h3>
+                <button class="modal-close" onclick="InventoryManager.closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="product-form-grid">
+                        <div class="form-group">
+                            <label>Product Name *</label>
+                            <input type="text" id="productName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>SKU (Auto-generated if empty)</label>
+                            <input type="text" id="productSku" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Department *</label>
+                            <select id="productDepartment" class="form-control" required>
+                                <option value="">Select Department</option>
+                                <option value="Uniform">Uniform</option>
+                                <option value="Stationery">Stationery</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input type="text" id="productCategory" class="form-control" 
+                                   placeholder="e.g., Shirts, Books, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label>Buy Price (KES) *</label>
+                            <input type="number" id="productBuyPrice" class="form-control" 
+                                   step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sell Price (KES) *</label>
+                            <input type="number" id="productSellPrice" class="form-control" 
+                                   step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Stock Quantity</label>
+                            <input type="number" id="productStockQty" class="form-control" 
+                                   min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Reorder Level</label>
+                            <input type="number" id="productReorderLevel" class="form-control" 
+                                   min="0" value="5">
+                            <small class="form-text">Alert when stock falls below this level</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier ID (Optional)</label>
+                        <input type="text" id="productSupplierId" class="form-control">
+                    </div>
+                    <div class="form-check" style="margin: 15px 0;">
+                        <input type="checkbox" id="productIsAllocatable" class="form-check-input">
+                        <label class="form-check-label" for="productIsAllocatable">
+                            This product can be allocated to learners
+                        </label>
+                    </div>
+                    <input type="hidden" id="productId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="window.inventoryManagerInstance?.closeProductModal()">Cancel</button>
+<button class="btn btn-primary" onclick="window.inventoryManagerInstance?.saveProduct()">
+    <i class="fas fa-save"></i> Save Product
+</button>
+<button class="modal-close" onclick="window.inventoryManagerInstance?.closeProductModal()">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restock Modal -->
+    <div id="restockModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Restock Product</h3>
+                <button class="modal-close" onclick="InventoryManager.closeRestockModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="restockForm">
+                    <div class="form-group">
+                        <label>Product</label>
+                        <input type="text" id="restockProductName" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Stock</label>
+                        <input type="text" id="restockCurrentStock" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity to Add *</label>
+                        <input type="number" id="restockQuantity" class="form-control" 
+                               min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Buy Price (KES)</label>
+                        <input type="number" id="restockBuyPrice" class="form-control" 
+                               step="0.01" min="0">
+                        <small class="form-text">Leave empty to keep current price</small>
+                    </div>
+                    <div class="form-group">
+                        <label>New Sell Price (KES)</label>
+                        <input type="number" id="restockSellPrice" class="form-control" 
+                               step="0.01" min="0">
+                        <small class="form-text">Leave empty to keep current price</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier ID</label>
+                        <input type="text" id="restockSupplierId" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="restockNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <input type="hidden" id="restockProductId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-close" onclick="window.inventoryManagerInstance?.closeRestockModal()">&times;</button>
+                <button class="btn btn-outline" onclick="window.inventoryManagerInstance?.closeRestockModal()">Cancel</button>
+                <button class="btn btn-success" onclick="window.inventoryManagerInstance?.processRestock()">
+                <i class="fas fa-boxes"></i> Restock
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationMessage">Notification message</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/menu.js"></script>
+    
+    <script>
+        // Inventory Manager - Complete implementation
+        class InventoryManager {
+            constructor() {
+                this.products = [];
+                this.filteredProducts = [];
+                this.currentFilters = {
+                    department: 'all',
+                    stockStatus: 'all',
+                    searchQuery: ''
+                };
+                this.currentProductId = null;
+                this.searchTimeout = null;
+            }
+            
+            async init() {
+                // Check authentication and permissions
+                await auth.requireAuth();
+                
+                // Check if user is admin (inventory is admin-only)
+                const user = auth.getUser();
+                if (user.role !== 'admin') {
+                    alert('Access denied. Inventory management is for administrators only.');
+                    window.location.href = '/admin.html';
+                    return;
+                }
+                
+                // Load user info
+                document.getElementById('currentUser').textContent = 
+                    `Welcome, ${user.display_name || user.username}`;
+                
+                // Setup logout button
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                });
+                
+                // Load inventory data
+                await this.loadInventory();
+                await this.loadDashboardStats();
+            }
+            
+            async loadInventory() {
+                try {
+                    const response = await API.call('/api/inventory/products');
+                    
+                    if (response.success) {
+                        this.products = response.products;
+                        this.filteredProducts = [...this.products];
+                        this.renderProducts();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading inventory:', error);
+                    this.showNotification('Failed to load inventory: ' + error.message, 'error');
+                }
+            }
+            
+            async loadDashboardStats() {
+                try {
+                    const response = await API.call('/api/inventory/dashboard');
+                    
+                    if (response.success) {
+                        this.renderStats(response.stats);
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard stats:', error);
+                }
+            }
+            
+            async loadLowStock() {
+                try {
+                    const response = await API.call('/api/inventory/low-stock');
+                    
+                    if (response.success) {
+                        // Show low stock alert
+                        const critical = response.critical || [];
+                        const warning = response.warning || [];
+                        
+                        if (critical.length === 0 && warning.length === 0) {
+                            this.showNotification('No low stock items found', 'success');
+                            return;
+                        }
+                        
+                        // Filter to show only low stock items
+                        this.currentFilters.stockStatus = 'low';
+                        this.applyFilters();
+                        
+                        this.showNotification(
+                            `Found ${critical.length} out of stock and ${warning.length} low stock items`,
+                            warning.length > 0 || critical.length > 0 ? 'warning' : 'info'
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error loading low stock:', error);
+                    this.showNotification('Failed to load low stock items', 'error');
+                }
+            }
+            
+            renderStats(stats) {
+                const statsContainer = document.getElementById('inventoryStats');
+                
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <h4>Total Products</h4>
+                        <div class="stat-value">${stats.total_products || 0}</div>
+                        <p>Active inventory items</p>
+                    </div>
+                    <div class="stat-card ${stats.low_stock_items > 0 ? 'warning' : 'success'}">
+                        <h4>Low Stock</h4>
+                        <div class="stat-value">${stats.low_stock_items || 0}</div>
+                        <p>Items needing restock</p>
+                    </div>
+                    <div class="stat-card ${stats.out_of_stock > 0 ? 'critical' : 'success'}">
+                        <h4>Out of Stock</h4>
+                        <div class="stat-value">${stats.out_of_stock || 0}</div>
+                        <p>Critical items</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Inventory Value</h4>
+                        <div class="stat-value">KES ${parseFloat(stats.total_inventory_value || 0).toLocaleString()}</div>
+                        <p>Total sell value</p>
+                    </div>
+                `;
+            }
+            
+            renderProducts() {
+                const productsBody = document.getElementById('productsBody');
+                
+                if (this.filteredProducts.length === 0) {
+                    productsBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div class="empty-state">
+                                    <i class="fas fa-search"></i>
+                                    <h4>No products found</h4>
+                                    <p>Try adjusting your filters or add a new product</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                productsBody.innerHTML = this.filteredProducts.map(product => {
+                    const stockQty = parseInt(product.stock_qty) || 0;
+                    const reorderLevel = parseInt(product.reorder_level) || 5;
+                    let stockClass = 'stock-good';
+                    let stockText = 'Good';
+                    
+                    if (stockQty === 0) {
+                        stockClass = 'stock-critical';
+                        stockText = 'Out of Stock';
+                    } else if (stockQty <= reorderLevel) {
+                        stockClass = 'stock-low';
+                        stockText = 'Low';
+                    }
+                    
+                    const inventoryValue = stockQty * (parseFloat(product.sell_price) || 0);
+                    
+                    return `
+                        <tr>
+                            <td><strong>${product.sku || 'N/A'}</strong></td>
+                            <td>
+                                <strong>${product.name}</strong>
+                                ${product.description ? `<br><small class="text-muted">${product.description.substring(0, 50)}${product.description.length > 50 ? '...' : ''}</small>` : ''}
+                            </td>
+                            <td>${product.department || 'N/A'}</td>
+                            <td>${product.category || 'Uncategorized'}</td>
+                            <td>
+                                <div class="stock-indicator ${stockClass}">
+                                    <i class="fas fa-${stockQty === 0 ? 'times-circle' : stockQty <= reorderLevel ? 'exclamation-triangle' : 'check-circle'}"></i>
+                                    ${stockQty} ${stockText !== 'Good' ? `(${stockText})` : ''}
+                                </div>
+                            </td>
+                            <td>KES ${parseFloat(product.buy_price || 0).toFixed(2)}</td>
+                            <td>KES ${parseFloat(product.sell_price || 0).toFixed(2)}</td>
+                            <td><strong>KES ${inventoryValue.toFixed(2)}</strong></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-outline" onclick="InventoryManager.editProduct('${product.product_id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="InventoryManager.showRestockModal('${product.product_id}')">
+                                        <i class="fas fa-boxes"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="InventoryManager.deleteProduct('${product.product_id}', '${product.name}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            searchProducts(query) {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.currentFilters.searchQuery = query.toLowerCase();
+                    this.applyFilters();
+                }, 300);
+            }
+            
+            applyFilters() {
+                const department = document.getElementById('filterDepartment').value;
+                const stockStatus = document.getElementById('filterStock').value;
+                
+                this.currentFilters.department = department;
+                this.currentFilters.stockStatus = stockStatus;
+                
+                this.filteredProducts = this.products.filter(product => {
+                    // Department filter
+                    if (department !== 'all' && product.department !== department) {
+                        return false;
+                    }
+                    
+                    // Stock status filter
+                    const stockQty = parseInt(product.stock_qty) || 0;
+                    const reorderLevel = parseInt(product.reorder_level) || 5;
+                    
+                    if (stockStatus === 'low' && stockQty > reorderLevel) {
+                        return false;
+                    }
+                    if (stockStatus === 'critical' && stockQty > 0) {
+                        return false;
+                    }
+                    if (stockStatus === 'good' && (stockQty === 0 || stockQty <= reorderLevel)) {
+                        return false;
+                    }
+                    
+                    // Search query filter
+                    if (this.currentFilters.searchQuery) {
+                        const searchTerm = this.currentFilters.searchQuery;
+                        const searchFields = [
+                            product.name,
+                            product.sku,
+                            product.description,
+                            product.category
+                        ].filter(field => field).map(field => field.toLowerCase());
+                        
+                        if (!searchFields.some(field => field.includes(searchTerm))) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                this.renderProducts();
+            }
+            
+            clearFilters() {
+                document.getElementById('filterDepartment').value = 'all';
+                document.getElementById('filterStock').value = 'all';
+                document.getElementById('searchProducts').value = '';
+                
+                this.currentFilters = {
+                    department: 'all',
+                    stockStatus: 'all',
+                    searchQuery: ''
+                };
+                
+                this.filteredProducts = [...this.products];
+                this.renderProducts();
+            }
+            
+            showAddProductModal() {
+                document.getElementById('modalTitle').textContent = 'Add New Product';
+                document.getElementById('productForm').reset();
+                document.getElementById('productId').value = '';
+                document.getElementById('productModal').classList.add('active');
+            }
+            
+            closeProductModal() {
+                document.getElementById('productModal').classList.remove('active');
+            }
+            
+            async editProduct(productId) {
+                try {
+                    const response = await API.call(`/api/inventory/products/${productId}`);
+                    
+                    if (response.success) {
+                        const product = response.product;
+                        document.getElementById('modalTitle').textContent = 'Edit Product';
+                        document.getElementById('productId').value = product.product_id;
+                        document.getElementById('productSku').value = product.sku || '';
+                        document.getElementById('productName').value = product.name;
+                        document.getElementById('productDepartment').value = product.department;
+                        document.getElementById('productCategory').value = product.category || '';
+                        document.getElementById('productDescription').value = product.description || '';
+                        document.getElementById('productBuyPrice').value = parseFloat(product.buy_price || 0);
+                        document.getElementById('productSellPrice').value = parseFloat(product.sell_price || 0);
+                        document.getElementById('productStockQty').value = parseInt(product.stock_qty || 0);
+                        document.getElementById('productReorderLevel').value = parseInt(product.reorder_level || 5);
+                        document.getElementById('productSupplierId').value = product.supplier_id || '';
+                        document.getElementById('productIsAllocatable').checked = product.is_allocatable || false;
+                        
+                        document.getElementById('productModal').classList.add('active');
+                    }
+                } catch (error) {
+                    console.error('Error loading product:', error);
+                    this.showNotification('Failed to load product details', 'error');
+                }
+            }
+            
+            async saveProduct() {
+                const productId = document.getElementById('productId').value;
+                const isEdit = !!productId;
+                
+                const productData = {
+                    name: document.getElementById('productName').value,
+                    department: document.getElementById('productDepartment').value,
+                    category: document.getElementById('productCategory').value,
+                    description: document.getElementById('productDescription').value,
+                    buy_price: parseFloat(document.getElementById('productBuyPrice').value),
+                    sell_price: parseFloat(document.getElementById('productSellPrice').value),
+                    stock_qty: parseInt(document.getElementById('productStockQty').value),
+                    reorder_level: parseInt(document.getElementById('productReorderLevel').value),
+                    sku: document.getElementById('productSku').value || undefined,
+                    supplier_id: document.getElementById('productSupplierId').value || '',
+                    is_allocatable: document.getElementById('productIsAllocatable').checked
+                };
+                
+                // Validate sell price > buy price
+                if (productData.sell_price <= productData.buy_price) {
+                    this.showNotification('Sell price must be greater than buy price', 'error');
+                    return;
+                }
+                
+                try {
+                    let response;
+                    
+                    if (isEdit) {
+                        response = await API.call(`/api/inventory/products/${productId}`, {
+                            method: 'PUT',
+                            body: JSON.stringify(productData)
+                        });
+                    } else {
+                        response = await API.call('/api/inventory/products', {
+                            method: 'POST',
+                            body: JSON.stringify(productData)
+                        });
+                    }
+                    
+                    if (response.success) {
+                        this.showNotification(
+                            `Product ${isEdit ? 'updated' : 'created'} successfully`,
+                            'success'
+                        );
+                        this.closeProductModal();
+                        await this.loadInventory();
+                        await this.loadDashboardStats();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error saving product:', error);
+                    this.showNotification(`Failed to ${isEdit ? 'update' : 'create'} product: ${error.message}`, 'error');
+                }
+            }
+            
+            async deleteProduct(productId, productName) {
+                if (!confirm(`Are you sure you want to delete "${productName}"? This will deactivate the product.`)) {
+                    return;
+                }
+                
+                try {
+                    const response = await API.call(`/api/inventory/products/${productId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification('Product deactivated successfully', 'success');
+                        await this.loadInventory();
+                        await this.loadDashboardStats();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    this.showNotification('Failed to delete product: ' + error.message, 'error');
+                }
+            }
+            
+            async showRestockModal(productId) {
+                try {
+                    const response = await API.call(`/api/inventory/products/${productId}`);
+                    
+                    if (response.success) {
+                        const product = response.product;
+                        this.currentProductId = productId;
+                        
+                        document.getElementById('restockProductId').value = productId;
+                        document.getElementById('restockProductName').value = product.name;
+                        document.getElementById('restockCurrentStock').value = `${product.stock_qty || 0} units`;
+                        document.getElementById('restockQuantity').value = '';
+                        document.getElementById('restockBuyPrice').value = '';
+                        document.getElementById('restockSellPrice').value = '';
+                        document.getElementById('restockSupplierId').value = product.supplier_id || '';
+                        document.getElementById('restockNotes').value = '';
+                        
+                        document.getElementById('restockModal').classList.add('active');
+                    }
+                } catch (error) {
+                    console.error('Error loading product for restock:', error);
+                    this.showNotification('Failed to load product details', 'error');
+                }
+            }
+            
+            closeRestockModal() {
+                document.getElementById('restockModal').classList.remove('active');
+                this.currentProductId = null;
+            }
+            
+            async processRestock() {
+                const productId = this.currentProductId;
+                const quantity = parseInt(document.getElementById('restockQuantity').value);
+                
+                if (!quantity || quantity <= 0) {
+                    this.showNotification('Please enter a valid quantity', 'error');
+                    return;
+                }
+                
+                const restockData = {
+                    quantity: quantity,
+                    buy_price: document.getElementById('restockBuyPrice').value || undefined,
+                    sell_price: document.getElementById('restockSellPrice').value || undefined,
+                    supplier_id: document.getElementById('restockSupplierId').value || undefined,
+                    notes: document.getElementById('restockNotes').value || ''
+                };
+                
+                try {
+                    const response = await API.call(`/api/inventory/products/${productId}/restock`, {
+                        method: 'POST',
+                        body: JSON.stringify(restockData)
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification(`Restocked ${quantity} units successfully`, 'success');
+                        this.closeRestockModal();
+                        await this.loadInventory();
+                        await this.loadDashboardStats();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    console.error('Error restocking:', error);
+                    this.showNotification('Failed to restock product: ' + error.message, 'error');
+                }
+            }
+            
+            refreshInventory() {
+                this.loadInventory();
+                this.loadDashboardStats();
+                this.showNotification('Inventory refreshed', 'success');
+            }
+            
+            exportInventory() {
+                // Simple CSV export
+                const headers = ['SKU', 'Name', 'Department', 'Category', 'Stock', 'Buy Price', 'Sell Price', 'Value', 'Status'];
+                const data = this.filteredProducts.map(product => [
+                    product.sku || '',
+                    product.name,
+                    product.department || '',
+                    product.category || '',
+                    product.stock_qty || 0,
+                    parseFloat(product.buy_price || 0).toFixed(2),
+                    parseFloat(product.sell_price || 0).toFixed(2),
+                    (parseFloat(product.sell_price || 0) * parseInt(product.stock_qty || 0)).toFixed(2),
+                    parseInt(product.stock_qty || 0) === 0 ? 'Out of Stock' : 
+                    parseInt(product.stock_qty || 0) <= parseInt(product.reorder_level || 5) ? 'Low Stock' : 'Good'
+                ]);
+                
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(row => row.join(','))
+                ].join('\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `inventory-export-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                this.showNotification('Inventory exported successfully', 'success');
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                const messageEl = document.getElementById('notificationMessage');
+                const icon = notification.querySelector('i');
+                
+                switch (type) {
+                    case 'success':
+                        icon.className = 'fas fa-check-circle';
+                        notification.className = 'notification success';
+                        break;
+                    case 'error':
+                        icon.className = 'fas fa-exclamation-circle';
+                        notification.className = 'notification error';
+                        break;
+                    case 'warning':
+                        icon.className = 'fas fa-exclamation-triangle';
+                        notification.className = 'notification warning';
+                        break;
+                    default:
+                        icon.className = 'fas fa-info-circle';
+                        notification.className = 'notification';
+                }
+                
+                messageEl.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+       // Create and expose the instance
+const inventoryManagerInstance = new InventoryManager();
+window.inventoryManagerInstance = inventoryManagerInstance;
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        console.log('🚀 Initializing Inventory Manager...');
+        await inventoryManagerInstance.init();
+        console.log('✅ Inventory Manager ready!');
+        
+        // Optional: Add safety checks
+        if (!window.inventoryManagerInstance) {
+            console.error('❌ Instance not available');
+            return;
+        }
+        
+        // Enable buttons after initialization
+        document.querySelectorAll('[onclick*="inventoryManagerInstance"]').forEach(btn => {
+            btn.disabled = false;
+        });
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize inventory:', error);
+        
+        // Show user-friendly error
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.querySelector('i').className = 'fas fa-exclamation-triangle';
+            notification.className = 'notification error';
+            notification.querySelector('span').textContent = 
+                'Failed to load inventory. Please refresh the page.';
+            notification.classList.add('show');
+        }
+    }
+});
+
+// Optional: Add a loading indicator
+document.addEventListener('DOMContentLoaded', () => {
+    // Disable buttons until initialized
+    document.querySelectorAll('[onclick*="inventoryManagerInstance"]').forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading...`;
+    });
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "name": "SmartPOS DB",
+            "connectString": "postgresql://steadyuser:steady123@localhost:5432/steadymonitor"
+        }
+    ]
+}

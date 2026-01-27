@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Money Management - Hattyjohns Investments</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Pocket Money Specific Styles */
+        .wallet-icon {
+            color: #F59E0B;
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        
+        .balance-badge {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .balance-positive {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+        }
+        
+        .balance-low {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .balance-zero {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .transaction-type {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .transaction-purchase {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+        
+        .transaction-topup {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+        
+        .transaction-deduction {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+        
+        .product-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .product-card.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+        
+        .product-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--background);
+        }
+        
+        .product-card.disabled:hover {
+            border-color: var(--border);
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .product-image {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 8px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+        
+        .product-image i {
+            font-size: 2rem;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .product-price {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        
+        .product-stock {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stock-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+        }
+        
+        .stock-ok {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+        
+        .stock-low {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .cart-item-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .cart-item-qty {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .qty-control {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .qty-control:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-cart i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem 1.25rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .toast-success {
+            border-left-color: var(--success);
+        }
+        
+        .toast-error {
+            border-left-color: var(--danger);
+        }
+        
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+        
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .quick-action-btn:hover {
+            background: var(--background);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+        
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        /* Form enhancements */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+        }
+        
+        /* Scrollbar styling */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        
+        /* Loading spinner */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 0.75rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .quick-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .cart-item-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .toast {
+                left: 1rem;
+                right: 1rem;
+                min-width: auto;
+                max-width: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <i class="fas fa-wallet"></i>
+            <span>SteadyMonitor</span>
+        </div>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="userGreeting">Welcome</span>
+            <button class="btn btn-icon btn-outline" id="notificationBtn">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+    </aside>
+    
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <div>
+                    <h1><i class="fas fa-wallet wallet-icon"></i> Pocket Money Management</h1>
+                    <p class="text-muted">Manage boarder pocket money transactions and balances</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="newTransactionBtn">
+                        <i class="fas fa-plus-circle"></i> New Transaction
+                    </button>
+                    <button class="btn btn-outline" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="transactions">Make Purchase</button>
+            <button class="tab-btn" data-tab="learners">Boarders</button>
+            <button class="tab-btn" data-tab="topup">Top Up</button>
+            <button class="tab-btn" data-tab="history">Transaction History</button>
+            <button class="tab-btn" data-tab="reports">Reports</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane active" id="dashboard">
+                <!-- Summary Statistics -->
+                <div class="summary-stats">
+                    <div class="summary-card">
+                        <h4>Total Pocket Money</h4>
+                        <h2 id="totalBalance">KES 0</h2>
+                        <p><span class="text-success" id="totalBoarders">0</span> active boarders</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Today's Spending</h4>
+                        <h2 id="todaySpending">KES 0</h2>
+                        <p><span class="text-primary" id="todayTransactions">0</span> transactions</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>This Month</h4>
+                        <h2 id="monthSpending">KES 0</h2>
+                        <p><span class="text-warning" id="monthTransactions">0</span> transactions</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Zero Balance</h4>
+                        <h2 id="zeroBalance">0</h2>
+                        <p>boarders need top-up</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" id="quickPurchaseBtn">
+                                <i class="fas fa-shopping-cart"></i> Quick Purchase
+                            </button>
+                            <button class="quick-action-btn" id="quickTopupBtn">
+                                <i class="fas fa-plus-circle"></i> Quick Top-up
+                            </button>
+                            <button class="quick-action-btn" id="viewLowBalanceBtn">
+                                <i class="fas fa-exclamation-triangle"></i> View Low Balances
+                            </button>
+                            <button class="quick-action-btn" id="exportReportBtn">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Transactions</h3>
+                        <button class="btn btn-sm btn-outline" id="viewAllTransactions">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="recentTransactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Learner</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Balance After</th>
+                                    <th>Processed By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading recent transactions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div class="tab-pane" id="transactions">
+                <div class="grid grid-2">
+                    <!-- Left Column: Learner & Products -->
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Select Boarder</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Search Boarder</label>
+                                    <div class="search-box">
+                                        <input type="text" class="form-control" id="learnerSearch" 
+                                               placeholder="Enter name, ID, or class">
+                                        <button class="btn btn-outline" id="searchLearnerBtn">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="learnerResults" class="hidden">
+                                    <div class="table-container" style="max-height: 200px;">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Balance</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="learnerResultsBody">
+                                                <!-- Search results will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div id="selectedLearnerInfo" class="hidden">
+                                    <div class="learner-header">
+                                        <h4>Selected Boarder</h4>
+                                        <div class="totals">
+                                            <div class="total-item">
+                                                <span class="total-label">Name</span>
+                                                <span class="total-value" id="selectedLearnerName">-</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Class</span>
+                                                <span class="total-value" id="selectedLearnerClass">-</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Pocket Money Balance</span>
+                                                <span class="total-value" id="selectedLearnerBalance">KES 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <h3 class="card-title">Available Products</h3>
+                                <select class="form-control" id="productDepartment" style="width: auto;">
+                                    <option value="">All Departments</option>
+                                    <option value="Stationery">Stationery</option>
+                                    <option value="Uniform">Uniform</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <div id="productsGrid" class="product-grid">
+                                    <!-- Products will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Cart & Checkout -->
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Shopping Cart</h3>
+                                <span id="cartCount">0 items</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="cartItems" class="cart-items-list" style="max-height: 300px;">
+                                    <div class="empty-cart">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <p>Your cart is empty</p>
+                                        <p class="text-muted" style="font-size: 0.9rem;">Select a boarder and add products</p>
+                                    </div>
+                                </div>
+                                
+                                <div id="cartSummary" class="hidden">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Subtotal</span>
+                                        <span class="detail-value" id="cartSubtotal">KES 0</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Pocket Money Balance</span>
+                                        <span class="detail-value" id="pocketMoneyBalance">KES 0</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Remaining Balance</span>
+                                        <span class="detail-value" id="remainingBalance">KES 0</span>
+                                    </div>
+                                    <div class="modal-actions">
+                                        <button class="btn btn-outline" id="clearCartBtn">
+                                            Clear Cart
+                                        </button>
+                                        <button class="btn btn-primary" id="validatePurchaseBtn">
+                                            Validate Purchase
+                                        </button>
+                                        <button class="btn btn-success" id="processPurchaseBtn">
+                                            <i class="fas fa-check-circle"></i> Process Purchase
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <h3 class="card-title">Purchase Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="purchaseForm">
+                                    <div class="form-group">
+                                        <label class="form-label">Department</label>
+                                        <select class="form-control" id="purchaseDepartment" required>
+                                            <option value="">Select department</option>
+                                            <option value="Stationery">Stationery</option>
+                                            <option value="Uniform">Uniform</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Notes (Optional)</label>
+                                        <textarea class="form-control" id="purchaseNotes" 
+                                                  placeholder="Additional notes about this purchase" 
+                                                  rows="2"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="sendNotification">
+                                        <label class="form-check-label" for="sendNotification">
+                                            Send SMS notification to parent
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learners Tab -->
+            <div class="tab-pane" id="learners">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Boarder Pocket Money Summary</h3>
+                        <div class="filter-controls">
+                            <select class="form-control" id="filterClass">
+                                <option value="">All Classes</option>
+                                <!-- Classes will be populated by JavaScript -->
+                            </select>
+                            <select class="form-control" id="filterStatus">
+                                <option value="">All Status</option>
+                                <option value="enabled">Enabled</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                            <button class="btn btn-outline" id="exportBoardersBtn">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="boardersTable">
+                            <thead>
+                                <tr>
+                                    <th>Learner ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Boarding Status</th>
+                                    <th>Pocket Money Status</th>
+                                    <th>Balance</th>
+                                    <th>Total Spent</th>
+                                    <th>Last Transaction</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" class="text-center">Loading boarder data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Up Tab -->
+            <div class="tab-pane" id="topup">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Top Up Pocket Money</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <h4>Select Boarder</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Search Boarder</label>
+                                    <div class="search-box">
+                                        <input type="text" class="form-control" id="topupLearnerSearch" 
+                                               placeholder="Enter name or ID">
+                                        <button class="btn btn-outline" id="searchTopupLearnerBtn">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="topupLearnerInfo" class="hidden">
+                                    <div class="learner-header">
+                                        <h4>Selected Boarder</h4>
+                                        <div class="totals">
+                                            <div class="total-item">
+                                                <span class="total-label">Name</span>
+                                                <span class="total-value" id="topupLearnerName">-</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Current Balance</span>
+                                                <span class="total-value" id="topupCurrentBalance">KES 0</span>
+                                            </div>
+                                            <div class="total-item">
+                                                <span class="total-label">Last Top-up</span>
+                                                <span class="total-value" id="lastTopupDate">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4>Top-up Details</h4>
+                                <form id="topupForm">
+                                    <div class="form-group">
+                                        <label class="form-label">Amount (KES)</label>
+                                        <input type="number" class="form-control" id="topupAmount" 
+                                               placeholder="Enter amount" min="1" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-control" id="topupNotes" 
+                                                  placeholder="Reason for top-up (e.g., Monthly allowance)" 
+                                                  rows="3" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="topupSendNotification">
+                                        <label class="form-check-label" for="topupSendNotification">
+                                            Send SMS notification to parent
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="modal-actions">
+                                        <button type="submit" class="btn btn-primary" id="processTopupBtn">
+                                            <i class="fas fa-plus-circle"></i> Process Top-up
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-pane" id="history">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Transaction History</h3>
+                        <div class="filter-controls">
+                            <input type="text" class="form-control" id="historySearch" placeholder="Search by learner or product">
+                            <div class="date-filter">
+                                <input type="date" class="form-control" id="historyStartDate">
+                                <span>to</span>
+                                <input type="date" class="form-control" id="historyEndDate">
+                            </div>
+                            <select class="form-control" id="historyType">
+                                <option value="">All Types</option>
+                                <option value="purchase">Purchase</option>
+                                <option value="topup">Top-up</option>
+                                <option value="deduction">Deduction</option>
+                            </select>
+                            <button class="btn btn-primary" id="searchHistoryBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Learner</th>
+                                    <th>Type</th>
+                                    <th>Product/Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>Processed By</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" class="text-center">Use filters to search transactions</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-pane" id="reports">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pocket Money Reports</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-outline" id="generateMonthlyReport">
+                                <i class="fas fa-chart-line"></i> Monthly Report
+                            </button>
+                            <button class="btn btn-outline" id="generateClassReport">
+                                <i class="fas fa-users"></i> Class Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <h4>Monthly Spending Trends</h4>
+                                <canvas id="monthlySpendingChart" height="250"></canvas>
+                            </div>
+                            <div>
+                                <h4>Class Distribution</h4>
+                                <canvas id="classDistributionChart" height="250"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <h4>Report Generation</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Report Type</label>
+                                    <select class="form-control" id="reportType">
+                                        <option value="monthly">Monthly Summary</option>
+                                        <option value="class">Class-wise</option>
+                                        <option value="learner">Learner Statement</option>
+                                        <option value="detailed">Detailed Transactions</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Month</label>
+                                    <input type="month" class="form-control" id="reportMonth">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Format</label>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline active" data-format="pdf">PDF</button>
+                                    <button type="button" class="btn btn-outline" data-format="excel">Excel</button>
+                                    <button type="button" class="btn btn-outline" data-format="csv">CSV</button>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-actions">
+                                <button class="btn btn-primary" id="generateReportBtn">
+                                    <i class="fas fa-file-export"></i> Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="quickPurchaseModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Quick Purchase</h3>
+                <button class="modal-close" id="closeQuickPurchase">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Quick purchase form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deductMoneyModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Deduct Pocket Money</h3>
+                <button class="modal-close" id="closeDeductModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="deductForm">
+                    <div class="form-group">
+                        <label class="form-label">Amount to Deduct (KES)</label>
+                        <input type="number" class="form-control" id="deductAmount" 
+                               placeholder="Enter amount" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Reason for Deduction</label>
+                        <textarea class="form-control" id="deductReason" 
+                                  placeholder="Enter reason for deduction" 
+                                  rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="cancelDeductBtn">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger" id="confirmDeductBtn">
+                            <i class="fas fa-minus-circle"></i> Deduct Amount
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="enableDisableModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="enableDisableTitle">Enable/Disable Pocket Money</h3>
+                <button class="modal-close" id="closeEnableDisableModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="enableDisableForm">
+                    <div class="form-group">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" id="enableDisableReason" 
+                                  placeholder="Enter reason for this action" 
+                                  rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="cancelEnableDisableBtn">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="confirmEnableDisableBtn">
+                            Confirm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // API Configuration
+        (function() {
+            'use strict';
+            
+            const API_BASE = '';
+            
+            // Main API object
+            const API = {
+                
+                // Core fetch wrapper
+                call: async function(endpoint, options = {}) {
+                    const url = endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : endpoint;
+                    
+                    const defaultOptions = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include', // Important for session cookies
+                        mode: 'cors'
+                    };
+
+                    const config = { ...defaultOptions, ...options };
+                    
+                    try {
+                        console.log('[API] Calling:', url);
+                        const response = await fetch(url, config);
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('[API] Error:', response.status, errorText);
+                            
+                            if (response.status === 401) {
+                                // Only redirect if not already on login page
+                                if (!window.location.pathname.includes('login.html')) {
+                                    window.location.href = '/login.html';
+                                }
+                                return null;
+                            }
+                            
+                            throw new Error(`API Error ${response.status}: ${errorText.substring(0, 100)}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('[API] Success:', data);
+                        return data;
+                    } catch (error) {
+                        console.error('[API] Fetch failed:', error);
+                        throw error;
+                    }
+                },
+                
+                // Authentication
+                login: async function(username, password) {
+                    return this.call('/api/auth/login', {
+                        method: 'POST',
+                        body: JSON.stringify({ username, password })
+                    });
+                },
+                
+                logout: async function() {
+                    return this.call('/api/auth/logout', { method: 'POST' });
+                },
+                
+                checkAuth: async function() {
+                    return this.call('/api/auth/check');
+                },
+                
+                // Pocket Money API
+                getPocketMoneySummary: async function(filters = {}) {
+                    const query = new URLSearchParams(filters).toString();
+                    return this.call(`/api/pocket-money/summary?${query}`);
+                },
+                
+                getPocketMoneyStats: async function() {
+                    return this.call('/api/pocket-money/stats');
+                },
+                
+                getLearnerPocketMoneyHistory: async function(learnerId, filters = {}) {
+                    const query = new URLSearchParams(filters).toString();
+                    return this.call(`/api/pocket-money/history/${learnerId}?${query}`);
+                },
+                
+                getLearnerPocketMoneyStatus: async function(learnerId) {
+                    return this.call(`/api/pocket-money/status/${learnerId}`);
+                },
+                
+                validatePocketMoneyTransaction: async function(data) {
+                    return this.call('/api/pocket-money/validate', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                processPocketMoneyPurchase: async function(data) {
+                    return this.call('/api/pocket-money/purchase', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                topUpPocketMoney: async function(data) {
+                    return this.call('/api/pocket-money/topup', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                deductPocketMoney: async function(data) {
+                    return this.call('/api/pocket-money/deduct', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                enablePocketMoney: async function(learnerId) {
+                    return this.call(`/api/pocket-money/enable/${learnerId}`, {
+                        method: 'POST'
+                    });
+                },
+                
+                disablePocketMoney: async function(learnerId, data) {
+                    return this.call(`/api/pocket-money/disable/${learnerId}`, {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                // Products API
+                getProducts: async function(department = '') {
+                    if (department) {
+                        return this.call(`/api/pos/products/${department}`);
+                    }
+                    return this.call('/api/inventory/products');
+                },
+                
+                // Learners API
+                searchLearners: async function(query) {
+                    return this.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                },
+                
+                getClasses: async function() {
+                    return this.call('/api/pos/classes');
+                },
+                
+                // Test function
+                testConnection: async function() {
+                    try {
+                        const auth = await this.call('/api/auth/health');
+                        const pocket = await this.call('/api/pocket-money/summary');
+                        return { auth, pocket };
+                    } catch (error) {
+                        console.error('Connection test failed:', error);
+                        return { error: error.message };
+                    }
+                }
+            };
+            
+            // Expose to window
+            window.API = API;
+            window.apiCall = API.call.bind(API);
+            
+            console.log('API loaded successfully');
+        })();
+    </script>
+    
+    <script>
+        // Pocket Money Manager
+        (function() {
+            'use strict';
+
+            class PocketMoneyManager {
+                constructor() {
+                    this.currentTab = 'dashboard';
+                    this.selectedLearner = null;
+                    this.cart = [];
+                    this.charts = {};
+                    this.currentTopupLearner = null;
+                    this.currentDeductLearner = null;
+                    this.currentEnableDisableLearner = null;
+                    this.actionType = null; // 'enable' or 'disable'
+                    this.initialize();
+                }
+
+                initialize() {
+                    // Setup event listeners
+                    this.setupEventListeners();
+                    
+                    // Load initial data
+                    this.loadDashboardData();
+                    this.loadBoardersSummary();
+                    this.loadRecentTransactions();
+                    
+                    // Initialize charts
+                    this.initializeCharts();
+                    
+                    console.log('Pocket Money Manager initialized');
+                }
+
+                setupEventListeners() {
+                    // Tab navigation
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                    });
+
+                    // Main buttons
+                    document.getElementById('newTransactionBtn').addEventListener('click', () => {
+                        this.switchTab('transactions');
+                    });
+
+                    document.getElementById('refreshBtn').addEventListener('click', () => {
+                        this.refreshCurrentTab();
+                    });
+
+                    document.getElementById('viewAllTransactions').addEventListener('click', () => {
+                        this.switchTab('history');
+                    });
+
+                    // Quick actions
+                    document.getElementById('quickPurchaseBtn').addEventListener('click', () => {
+                        this.switchTab('transactions');
+                    });
+
+                    document.getElementById('quickTopupBtn').addEventListener('click', () => {
+                        this.switchTab('topup');
+                    });
+
+                    document.getElementById('viewLowBalanceBtn').addEventListener('click', () => {
+                        this.showLowBalanceBoarders();
+                    });
+
+                    document.getElementById('exportReportBtn').addEventListener('click', () => {
+                        this.exportReport();
+                    });
+
+                    document.getElementById('exportBoardersBtn').addEventListener('click', () => {
+                        this.exportBoarders();
+                    });
+
+                    // Learner search
+                    document.getElementById('searchLearnerBtn').addEventListener('click', () => {
+                        this.searchLearners();
+                    });
+
+                    document.getElementById('learnerSearch').addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.searchLearners();
+                    });
+
+                    // Product department filter
+                    document.getElementById('productDepartment').addEventListener('change', () => {
+                        this.loadProducts();
+                    });
+
+                    // Cart actions
+                    document.getElementById('clearCartBtn')?.addEventListener('click', () => {
+                        this.clearCart();
+                    });
+
+                    document.getElementById('validatePurchaseBtn')?.addEventListener('click', () => {
+                        this.validatePurchase();
+                    });
+
+                    document.getElementById('processPurchaseBtn')?.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.processPurchase();
+                    });
+
+                    // Purchase form
+                    document.getElementById('purchaseForm')?.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.processPurchase();
+                    });
+
+                    // Top-up
+                    document.getElementById('searchTopupLearnerBtn').addEventListener('click', () => {
+                        this.searchTopupLearner();
+                    });
+
+                    document.getElementById('topupForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.processTopup();
+                    });
+
+                    // History search
+                    document.getElementById('searchHistoryBtn').addEventListener('click', () => {
+                        this.searchHistory();
+                    });
+
+                    // Reports
+                    document.getElementById('generateReportBtn').addEventListener('click', () => {
+                        this.generateReport();
+                    });
+
+                    // Modal close buttons
+                    document.getElementById('closeQuickPurchase')?.addEventListener('click', () => {
+                        this.closeModal('quickPurchaseModal');
+                    });
+
+                    document.getElementById('closeDeductModal')?.addEventListener('click', () => {
+                        this.closeModal('deductMoneyModal');
+                    });
+
+                    document.getElementById('closeEnableDisableModal')?.addEventListener('click', () => {
+                        this.closeModal('enableDisableModal');
+                    });
+
+                    // Close modals on overlay click
+                    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                        overlay.addEventListener('click', (e) => {
+                            if (e.target === overlay) {
+                                this.closeModal(overlay.id);
+                            }
+                        });
+                    });
+
+                    // Format buttons
+                    document.querySelectorAll('[data-format]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            document.querySelectorAll('[data-format]').forEach(b => b.classList.remove('active'));
+                            e.target.classList.add('active');
+                        });
+                    });
+                }
+
+                async loadDashboardData() {
+                    try {
+                        // Load pocket money summary
+                        const summary = await API.getPocketMoneySummary();
+                        if (summary.success) {
+                            this.updateDashboardSummary(summary);
+                        }
+
+                        // Load statistics
+                        const stats = await API.getPocketMoneyStats();
+                        if (stats.success) {
+                            this.updateCharts(stats);
+                        }
+
+                    } catch (error) {
+                        console.error('Error loading dashboard data:', error);
+                        this.showToast('Failed to load dashboard data', 'error');
+                    }
+                }
+
+                async loadBoardersSummary() {
+                    try {
+                        const classFilter = document.getElementById('filterClass').value;
+                        const statusFilter = document.getElementById('filterStatus').value;
+                        
+                        const filters = {};
+                        if (classFilter) filters.class = classFilter;
+                        
+                        const summary = await API.getPocketMoneySummary(filters);
+                        if (summary.success) {
+                            this.updateBoardersTable(summary.summary, statusFilter);
+                            
+                            // Update class filter options
+                            this.updateClassFilterOptions(summary.summary);
+                        }
+                    } catch (error) {
+                        console.error('Error loading boarders summary:', error);
+                    }
+                }
+
+                async loadRecentTransactions() {
+                    try {
+                        // Get recent transactions from the first boarder (for demo)
+                        const summary = await API.getPocketMoneySummary();
+                        if (summary.success && summary.summary.length > 0) {
+                            const firstLearner = summary.summary[0];
+                            const history = await API.getLearnerPocketMoneyHistory(firstLearner.customer_id, {
+                                start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+                            });
+                            
+                            if (history.success) {
+                                this.updateRecentTransactionsTable(history.history);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading recent transactions:', error);
+                    }
+                }
+
+                async loadProducts() {
+                    try {
+                        const department = document.getElementById('productDepartment').value;
+                        const response = await API.getProducts(department);
+                        
+                        if (response.success && response.products) {
+                            this.displayProducts(response.products);
+                        } else {
+                            this.displayProducts([]);
+                        }
+                    } catch (error) {
+                        console.error('Error loading products:', error);
+                        this.showToast('Failed to load products', 'error');
+                    }
+                }
+
+                async searchLearners() {
+                    const query = document.getElementById('learnerSearch').value.trim();
+                    if (!query) {
+                        this.showToast('Please enter search criteria', 'warning');
+                        return;
+                    }
+
+                    try {
+                        const response = await API.searchLearners(query);
+                        if (response.success && response.learners.length > 0) {
+                            this.displayLearnerResults(response.learners);
+                        } else {
+                            document.getElementById('learnerResultsBody').innerHTML = `
+                                <tr>
+                                    <td colspan="5" class="text-center">No boarders found</td>
+                                </tr>
+                            `;
+                            document.getElementById('learnerResults').classList.remove('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Error searching learners:', error);
+                        this.showToast('Failed to search boarders', 'error');
+                    }
+                }
+
+                displayLearnerResults(learners) {
+                    const tbody = document.getElementById('learnerResultsBody');
+                    tbody.innerHTML = '';
+
+                    // Filter to only show boarders
+                    const boarders = learners.filter(learner => learner.boarding_status === 'Boarding');
+
+                    if (boarders.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center">No boarders found. Only boarders can use pocket money.</td>
+                            </tr>
+                        `;
+                        document.getElementById('learnerResults').classList.remove('hidden');
+                        return;
+                    }
+
+                    boarders.forEach(learner => {
+                        const balance = parseFloat(learner.pocket_money_balance) || 0;
+                        const balanceClass = this.getBalanceClass(balance);
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${learner.customer_id}</td>
+                            <td>${learner.name}</td>
+                            <td>${learner.class || 'N/A'}</td>
+                            <td class="${balanceClass}">KES ${balance.toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary select-learner" 
+                                        data-id="${learner.customer_id}"
+                                        data-name="${learner.name}"
+                                        data-class="${learner.class || ''}"
+                                        data-balance="${balance}">
+                                    Select
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Add event listeners to select buttons
+                    document.querySelectorAll('.select-learner').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learner = {
+                                id: e.target.dataset.id,
+                                name: e.target.dataset.name,
+                                class: e.target.dataset.class,
+                                balance: parseFloat(e.target.dataset.balance)
+                            };
+                            this.selectLearner(learner);
+                        });
+                    });
+
+                    document.getElementById('learnerResults').classList.remove('hidden');
+                }
+
+                selectLearner(learner) {
+                    this.selectedLearner = learner;
+                    
+                    // Update UI
+                    document.getElementById('selectedLearnerName').textContent = learner.name;
+                    document.getElementById('selectedLearnerClass').textContent = learner.class || 'N/A';
+                    
+                    const balanceEl = document.getElementById('selectedLearnerBalance');
+                    balanceEl.textContent = `KES ${learner.balance.toLocaleString()}`;
+                    balanceEl.className = `total-value ${this.getBalanceClass(learner.balance)}`;
+                    
+                    document.getElementById('selectedLearnerInfo').classList.remove('hidden');
+                    document.getElementById('learnerResults').classList.add('hidden');
+                    
+                    // Load products for this learner
+                    this.loadProducts();
+                    
+                    // Update cart summary
+                    this.updateCartSummary();
+                    
+                    this.showToast(`Selected boarder: ${learner.name}`, 'success');
+                }
+
+                displayProducts(products) {
+                    const container = document.getElementById('productsGrid');
+                    container.innerHTML = '';
+
+                    if (!products || products.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state" style="grid-column: 1 / -1;">
+                                <i class="fas fa-box-open"></i>
+                                <p>No products found</p>
+                                <p class="text-muted" style="font-size: 0.9rem;">Try changing department filter</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Filter products for pocket money (Stationery and Uniform only)
+                    const pocketMoneyProducts = products.filter(product => 
+                        ['Stationery', 'Uniform'].includes(product.department)
+                    );
+
+                    pocketMoneyProducts.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+                        if (product.stock_qty <= 0) {
+                            productCard.classList.add('disabled');
+                        }
+                        
+                        const stockStatus = product.stock_qty <= 0 ? 'Out of stock' : 
+                                           product.stock_qty < 10 ? 'Low stock' : 'In stock';
+                        const stockClass = product.stock_qty <= 0 ? 'stock-zero' : 
+                                          product.stock_qty < 10 ? 'stock-low' : 'stock-ok';
+                        
+                        productCard.innerHTML = `
+                            <div class="product-image">
+                                <i class="fas ${product.department === 'Stationery' ? 'fa-pen' : 'fa-tshirt'}"></i>
+                            </div>
+                            <div class="product-name" title="${product.name}">${product.name}</div>
+                            <div class="product-price">KES ${parseFloat(product.sell_price || 0).toLocaleString()}</div>
+                            <div class="product-stock">
+                                <span>SKU: ${product.sku}</span>
+                                <span class="stock-badge ${stockClass}">${stockStatus}</span>
+                            </div>
+                        `;
+                        
+                        if (product.stock_qty > 0) {
+                            productCard.addEventListener('click', () => {
+                                this.addToCart(product);
+                            });
+                        }
+                        
+                        container.appendChild(productCard);
+                    });
+                }
+
+                addToCart(product) {
+                    if (!this.selectedLearner) {
+                        this.showToast('Please select a boarder first', 'warning');
+                        return;
+                    }
+
+                    // Check if product already in cart
+                    const existingItem = this.cart.find(item => item.product_id === product.product_id);
+                    
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        this.cart.push({
+                            product_id: product.product_id,
+                            sku: product.sku,
+                            name: product.name,
+                            department: product.department,
+                            unit_price: parseFloat(product.sell_price) || 0,
+                            quantity: 1,
+                            stock_qty: product.stock_qty || 0
+                        });
+                    }
+                    
+                    this.updateCartDisplay();
+                    this.showToast(`${product.name} added to cart`, 'success');
+                }
+
+                updateCartDisplay() {
+                    const cartItems = document.getElementById('cartItems');
+                    const cartCount = document.getElementById('cartCount');
+                    const cartSummary = document.getElementById('cartSummary');
+                    
+                    if (this.cart.length === 0) {
+                        cartItems.innerHTML = `
+                            <div class="empty-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Your cart is empty</p>
+                                <p class="text-muted" style="font-size: 0.9rem;">Select a boarder and add products</p>
+                            </div>
+                        `;
+                        cartCount.textContent = '0 items';
+                        cartSummary.classList.add('hidden');
+                        return;
+                    }
+                    
+                    // Update cart items
+                    cartItems.innerHTML = '';
+                    let subtotal = 0;
+                    
+                    this.cart.forEach((item, index) => {
+                        const itemTotal = item.unit_price * item.quantity;
+                        subtotal += itemTotal;
+                        
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'cart-item';
+                        cartItem.innerHTML = `
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-meta">
+                                    <span>KES ${item.unit_price.toLocaleString()}</span>
+                                    <span>SKU: ${item.sku}</span>
+                                    <span>Dept: ${item.department}</span>
+                                </div>
+                            </div>
+                            <div class="cart-item-actions">
+                                <div class="qty-control" data-index="${index}" data-action="decrease">
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                                <div class="cart-item-qty">${item.quantity}</div>
+                                <div class="qty-control" data-index="${index}" data-action="increase">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <button class="btn btn-sm btn-outline" data-index="${index}" data-action="remove">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        cartItems.appendChild(cartItem);
+                    });
+                    
+                    // Add event listeners for cart controls
+                    cartItems.querySelectorAll('.qty-control').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const index = parseInt(e.target.closest('[data-index]').dataset.index);
+                            const action = e.target.closest('[data-action]').dataset.action;
+                            this.updateCartItem(index, action);
+                        });
+                    });
+                    
+                    cartItems.querySelectorAll('[data-action="remove"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const index = parseInt(e.target.closest('[data-index]').dataset.index);
+                            this.removeFromCart(index);
+                        });
+                    });
+                    
+                    // Update summary
+                    cartCount.textContent = `${this.cart.length} ${this.cart.length === 1 ? 'item' : 'items'}`;
+                    
+                    const balance = this.selectedLearner ? this.selectedLearner.balance : 0;
+                    const remaining = balance - subtotal;
+                    
+                    document.getElementById('cartSubtotal').textContent = `KES ${subtotal.toLocaleString()}`;
+                    document.getElementById('pocketMoneyBalance').textContent = `KES ${balance.toLocaleString()}`;
+                    document.getElementById('remainingBalance').textContent = `KES ${remaining.toLocaleString()}`;
+                    
+                    if (remaining < 0) {
+                        document.getElementById('remainingBalance').classList.add('text-danger');
+                    } else {
+                        document.getElementById('remainingBalance').classList.remove('text-danger');
+                    }
+                    
+                    cartSummary.classList.remove('hidden');
+                }
+
+                updateCartItem(index, action) {
+                    if (index < 0 || index >= this.cart.length) return;
+                    
+                    const item = this.cart[index];
+                    
+                    switch (action) {
+                        case 'increase':
+                            if (item.quantity < item.stock_qty) {
+                                item.quantity += 1;
+                            } else {
+                                this.showToast(`Cannot add more. Only ${item.stock_qty} available in stock.`, 'warning');
+                            }
+                            break;
+                        case 'decrease':
+                            if (item.quantity > 1) {
+                                item.quantity -= 1;
+                            } else {
+                                this.removeFromCart(index);
+                                return;
+                            }
+                            break;
+                    }
+                    
+                    this.updateCartDisplay();
+                }
+
+                removeFromCart(index) {
+                    if (index >= 0 && index < this.cart.length) {
+                        const itemName = this.cart[index].name;
+                        this.cart.splice(index, 1);
+                        this.updateCartDisplay();
+                        this.showToast(`${itemName} removed from cart`, 'info');
+                    }
+                }
+
+                clearCart() {
+                    this.cart = [];
+                    this.updateCartDisplay();
+                    this.showToast('Cart cleared', 'info');
+                }
+
+                async validatePurchase() {
+                    if (!this.selectedLearner) {
+                        this.showToast('Please select a boarder first', 'warning');
+                        return;
+                    }
+
+                    if (this.cart.length === 0) {
+                        this.showToast('Cart is empty', 'warning');
+                        return;
+                    }
+
+                    const department = document.getElementById('purchaseDepartment').value;
+                    if (!department) {
+                        this.showToast('Please select a department', 'warning');
+                        return;
+                    }
+
+                    // Show loading
+                    const validateBtn = document.getElementById('validatePurchaseBtn');
+                    const originalText = validateBtn.innerHTML;
+                    validateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validating...';
+                    validateBtn.disabled = true;
+
+                    try {
+                        const items = this.cart.map(item => ({
+                            product_id: item.product_id,
+                            quantity: item.quantity,
+                            unit_price: item.unit_price
+                        }));
+
+                        const validation = await API.validatePocketMoneyTransaction({
+                            learner_id: this.selectedLearner.id,
+                            items: items,
+                            department: department
+                        });
+
+                        if (validation.success && validation.valid) {
+                            this.showToast('Purchase validation successful!', 'success');
+                        } else {
+                            this.showToast(validation.message || 'Validation failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error validating purchase:', error);
+                        this.showToast('Failed to validate purchase', 'error');
+                    } finally {
+                        validateBtn.innerHTML = originalText;
+                        validateBtn.disabled = false;
+                    }
+                }
+
+                async processPurchase() {
+                    if (!this.selectedLearner) {
+                        this.showToast('Please select a boarder first', 'warning');
+                        return;
+                    }
+
+                    if (this.cart.length === 0) {
+                        this.showToast('Cart is empty', 'warning');
+                        return;
+                    }
+
+                    const department = document.getElementById('purchaseDepartment').value;
+                    if (!department) {
+                        this.showToast('Please select a department', 'warning');
+                        return;
+                    }
+
+                    const notes = document.getElementById('purchaseNotes').value;
+                    const sendNotification = document.getElementById('sendNotification').checked;
+
+                    // Show loading
+                    const processBtn = document.getElementById('processPurchaseBtn');
+                    const originalText = processBtn.innerHTML;
+                    processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    processBtn.disabled = true;
+
+                    try {
+                        const items = this.cart.map(item => ({
+                            product_id: item.product_id,
+                            quantity: item.quantity,
+                            unit_price: item.unit_price
+                        }));
+
+                        const purchaseData = {
+                            learner_id: this.selectedLearner.id,
+                            items: items,
+                            department: department,
+                            notes: notes + (sendNotification ? ' (SMS sent)' : '')
+                        };
+
+                        const result = await API.processPocketMoneyPurchase(purchaseData);
+
+                        if (result.success) {
+                            this.showToast('Purchase processed successfully!', 'success');
+                            
+                            // Reset form and cart
+                            this.clearCart();
+                            document.getElementById('purchaseForm').reset();
+                            
+                            // Refresh data
+                            this.refreshCurrentTab();
+                            
+                            // Update learner balance
+                            if (result.learner) {
+                                this.selectedLearner.balance = result.learner.new_pocket_money;
+                                this.selectLearner(this.selectedLearner); // Refresh display
+                            }
+                        } else {
+                            this.showToast(result.message || 'Purchase failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error processing purchase:', error);
+                        this.showToast('Failed to process purchase', 'error');
+                    } finally {
+                        processBtn.innerHTML = originalText;
+                        processBtn.disabled = false;
+                    }
+                }
+
+                async searchTopupLearner() {
+                    const query = document.getElementById('topupLearnerSearch').value.trim();
+                    if (!query) {
+                        this.showToast('Please enter search criteria', 'warning');
+                        return;
+                    }
+
+                    try {
+                        const response = await API.searchLearners(query);
+                        if (response.success && response.learners.length > 0) {
+                            // Filter for boarders only
+                            const boarders = response.learners.filter(l => l.boarding_status === 'Boarding');
+                            
+                            if (boarders.length > 0) {
+                                const learner = boarders[0];
+                                this.currentTopupLearner = {
+                                    id: learner.customer_id,
+                                    name: learner.name,
+                                    class: learner.class,
+                                    balance: parseFloat(learner.pocket_money_balance) || 0
+                                };
+                                
+                                this.displayTopupLearnerInfo();
+                            } else {
+                                this.showToast('No boarders found', 'warning');
+                            }
+                        } else {
+                            this.showToast('Boarder not found', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Error searching topup learner:', error);
+                        this.showToast('Failed to search boarder', 'error');
+                    }
+                }
+
+                displayTopupLearnerInfo() {
+                    if (!this.currentTopupLearner) return;
+                    
+                    const learner = this.currentTopupLearner;
+                    
+                    document.getElementById('topupLearnerName').textContent = learner.name;
+                    document.getElementById('topupCurrentBalance').textContent = `KES ${learner.balance.toLocaleString()}`;
+                    
+                    // Try to get last top-up date
+                    this.getLastTopupDate(learner.id);
+                    
+                    document.getElementById('topupLearnerInfo').classList.remove('hidden');
+                }
+
+                async getLastTopupDate(learnerId) {
+                    try {
+                        const history = await API.getLearnerPocketMoneyHistory(learnerId, {
+                            transaction_type: 'topup'
+                        });
+                        
+                        if (history.success && history.history.length > 0) {
+                            const lastTopup = history.history[0];
+                            const date = new Date(lastTopup.given_date);
+                            document.getElementById('lastTopupDate').textContent = 
+                                date.toLocaleDateString();
+                        } else {
+                            document.getElementById('lastTopupDate').textContent = 'Never';
+                        }
+                    } catch (error) {
+                        console.error('Error getting last topup date:', error);
+                        document.getElementById('lastTopupDate').textContent = 'Unknown';
+                    }
+                }
+
+                async processTopup() {
+                    if (!this.currentTopupLearner) {
+                        this.showToast('Please select a boarder first', 'warning');
+                        return;
+                    }
+
+                    const amount = document.getElementById('topupAmount').value;
+                    const notes = document.getElementById('topupNotes').value;
+                    const sendNotification = document.getElementById('topupSendNotification').checked;
+
+                    if (!amount || parseFloat(amount) <= 0) {
+                        this.showToast('Please enter a valid amount', 'warning');
+                        return;
+                    }
+
+                    if (!notes) {
+                        this.showToast('Please enter notes for the top-up', 'warning');
+                        return;
+                    }
+
+                    // Show loading
+                    const processBtn = document.getElementById('processTopupBtn');
+                    const originalText = processBtn.innerHTML;
+                    processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    processBtn.disabled = true;
+
+                    try {
+                        const result = await API.topUpPocketMoney({
+                            learner_id: this.currentTopupLearner.id,
+                            amount: parseFloat(amount),
+                            notes: notes + (sendNotification ? ' (SMS sent)' : '')
+                        });
+
+                        if (result.success) {
+                            this.showToast('Top-up processed successfully!', 'success');
+                            
+                            // Reset form
+                            document.getElementById('topupForm').reset();
+                            document.getElementById('topupLearnerInfo').classList.add('hidden');
+                            document.getElementById('topupLearnerSearch').value = '';
+                            this.currentTopupLearner = null;
+                            
+                            // Refresh data
+                            this.refreshCurrentTab();
+                        } else {
+                            this.showToast(result.message || 'Top-up failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error processing top-up:', error);
+                        this.showToast('Failed to process top-up', 'error');
+                    } finally {
+                        processBtn.innerHTML = originalText;
+                        processBtn.disabled = false;
+                    }
+                }
+
+                async searchHistory() {
+                    const search = document.getElementById('historySearch').value;
+                    const startDate = document.getElementById('historyStartDate').value;
+                    const endDate = document.getElementById('historyEndDate').value;
+                    const type = document.getElementById('historyType').value;
+
+                    // This would normally search all transactions
+                    // For now, we'll use the summary and show a message
+                    this.showToast('History search would show results here', 'info');
+                    
+                    // In a real implementation, you would call an API endpoint
+                    // that searches across all pocket money transactions
+                }
+
+                async generateReport() {
+                    const reportType = document.getElementById('reportType').value;
+                    const month = document.getElementById('reportMonth').value;
+                    const format = document.querySelector('[data-format].active').dataset.format;
+
+                    this.showToast(`Generating ${reportType} report in ${format.toUpperCase()} format...`, 'info');
+                    
+                    // In a real implementation, this would generate and download a report
+                    setTimeout(() => {
+                        this.showToast('Report generated successfully!', 'success');
+                    }, 2000);
+                }
+
+                updateDashboardSummary(summary) {
+                    // Calculate totals
+                    const totals = summary.totals || {
+                        total_learners: 0,
+                        total_balance: 0,
+                        total_spent: 0,
+                        total_topups: 0,
+                        total_deductions: 0
+                    };
+
+                    document.getElementById('totalBalance').textContent = 
+                        `KES ${totals.total_balance.toLocaleString()}`;
+                    document.getElementById('totalBoarders').textContent = totals.total_learners;
+
+                    // For demo, set some values
+                    document.getElementById('todaySpending').textContent = 'KES 0';
+                    document.getElementById('todayTransactions').textContent = '0';
+                    document.getElementById('monthSpending').textContent = 'KES 0';
+                    document.getElementById('monthTransactions').textContent = '0';
+                    
+                    // Count zero balance boarders
+                    const zeroBalance = summary.summary?.filter(learner => 
+                        (parseFloat(learner.pocket_money_balance) || 0) <= 0
+                    ).length || 0;
+                    
+                    document.getElementById('zeroBalance').textContent = zeroBalance;
+                }
+
+                updateBoardersTable(boarders, statusFilter = '') {
+                    const tbody = document.getElementById('boardersTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+
+                    if (!boarders || boarders.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-center">No boarders found</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    // Apply status filter
+                    let filteredBoarders = boarders;
+                    if (statusFilter === 'enabled') {
+                        filteredBoarders = boarders.filter(b => b.pocket_money_enabled);
+                    } else if (statusFilter === 'disabled') {
+                        filteredBoarders = boarders.filter(b => !b.pocket_money_enabled);
+                    }
+
+                    filteredBoarders.forEach(learner => {
+                        const balance = parseFloat(learner.pocket_money_balance) || 0;
+                        const totalSpent = parseFloat(learner.total_spent) || 0;
+                        const lastTransaction = learner.last_transaction_date ? 
+                            new Date(learner.last_transaction_date).toLocaleDateString() : 'Never';
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${learner.customer_id}</td>
+                            <td><strong>${learner.name}</strong></td>
+                            <td>${learner.class || 'N/A'}</td>
+                            <td><span class="status-indicator status-active">Boarding</span></td>
+                            <td>
+                                ${learner.pocket_money_enabled ? 
+                                    '<span class="status-indicator status-active">Enabled</span>' : 
+                                    '<span class="status-indicator status-inactive">Disabled</span>'
+                                }
+                            </td>
+                            <td class="${this.getBalanceClass(balance)}">
+                                KES ${balance.toLocaleString()}
+                            </td>
+                            <td class="text-success">KES ${totalSpent.toLocaleString()}</td>
+                            <td>${lastTransaction}</td>
+                            <td class="table-actions">
+                                <button class="btn btn-sm btn-outline view-history" 
+                                        data-id="${learner.customer_id}">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary topup-action" 
+                                        data-id="${learner.customer_id}"
+                                        data-name="${learner.name}">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning deduct-action" 
+                                        data-id="${learner.customer_id}"
+                                        data-name="${learner.name}"
+                                        data-balance="${balance}">
+                                    <i class="fas fa-minus-circle"></i>
+                                </button>
+                                ${learner.pocket_money_enabled ? 
+                                    `<button class="btn btn-sm btn-danger disable-action" 
+                                             data-id="${learner.customer_id}"
+                                             data-name="${learner.name}">
+                                        <i class="fas fa-ban"></i>
+                                    </button>` :
+                                    `<button class="btn btn-sm btn-success enable-action" 
+                                             data-id="${learner.customer_id}"
+                                             data-name="${learner.name}">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>`
+                                }
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Add event listeners to action buttons
+                    tbody.querySelectorAll('.view-history').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learnerId = e.target.closest('button').dataset.id;
+                            this.viewLearnerHistory(learnerId);
+                        });
+                    });
+
+                    tbody.querySelectorAll('.topup-action').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learnerId = e.target.closest('button').dataset.id;
+                            const learnerName = e.target.closest('button').dataset.name;
+                            this.quickTopup(learnerId, learnerName);
+                        });
+                    });
+
+                    tbody.querySelectorAll('.deduct-action').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learnerId = e.target.closest('button').dataset.id;
+                            const learnerName = e.target.closest('button').dataset.name;
+                            const balance = parseFloat(e.target.closest('button').dataset.balance);
+                            this.openDeductModal(learnerId, learnerName, balance);
+                        });
+                    });
+
+                    tbody.querySelectorAll('.enable-action').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learnerId = e.target.closest('button').dataset.id;
+                            const learnerName = e.target.closest('button').dataset.name;
+                            this.openEnableDisableModal(learnerId, learnerName, 'enable');
+                        });
+                    });
+
+                    tbody.querySelectorAll('.disable-action').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const learnerId = e.target.closest('button').dataset.id;
+                            const learnerName = e.target.closest('button').dataset.name;
+                            this.openEnableDisableModal(learnerId, learnerName, 'disable');
+                        });
+                    });
+                }
+
+                updateClassFilterOptions(boarders) {
+                    const filterClass = document.getElementById('filterClass');
+                    const classes = [...new Set(boarders.map(b => b.class).filter(c => c))].sort();
+                    
+                    // Clear existing options (except first)
+                    while (filterClass.options.length > 1) {
+                        filterClass.remove(1);
+                    }
+                    
+                    // Add class options
+                    classes.forEach(className => {
+                        const option = document.createElement('option');
+                        option.value = className;
+                        option.textContent = className;
+                        filterClass.appendChild(option);
+                    });
+                }
+
+                updateRecentTransactionsTable(transactions) {
+                    const tbody = document.getElementById('recentTransactionsTable').querySelector('tbody');
+                    tbody.innerHTML = '';
+
+                    if (!transactions || transactions.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center">No recent transactions</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    // Show only first 5 transactions
+                    transactions.slice(0, 5).forEach(transaction => {
+                        const date = new Date(transaction.given_date);
+                        const amount = parseFloat(transaction.unit_price) * (parseInt(transaction.quantity) || 1);
+                        
+                        // Determine transaction type
+                        let type = 'Purchase';
+                        let typeClass = 'transaction-purchase';
+                        
+                        if (transaction.sku === 'TOPUP') {
+                            type = 'Top-up';
+                            typeClass = 'transaction-topup';
+                        } else if (transaction.sku === 'DEDUCT') {
+                            type = 'Deduction';
+                            typeClass = 'transaction-deduction';
+                        }
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${date.toLocaleDateString()}</td>
+                            <td>${transaction.customer_name}</td>
+                            <td><span class="transaction-type ${typeClass}">${type}</span></td>
+                            <td class="text-success">KES ${amount.toLocaleString()}</td>
+                            <td>${transaction.notes || '-'}</td>
+                            <td>${transaction.given_by || 'System'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                updateCartSummary() {
+                    if (!this.selectedLearner || this.cart.length === 0) return;
+                    
+                    const subtotal = this.cart.reduce((sum, item) => 
+                        sum + (item.unit_price * item.quantity), 0
+                    );
+                    
+                    const balance = this.selectedLearner.balance;
+                    const remaining = balance - subtotal;
+                    
+                    document.getElementById('cartSubtotal').textContent = `KES ${subtotal.toLocaleString()}`;
+                    document.getElementById('pocketMoneyBalance').textContent = `KES ${balance.toLocaleString()}`;
+                    document.getElementById('remainingBalance').textContent = `KES ${remaining.toLocaleString()}`;
+                    
+                    if (remaining < 0) {
+                        document.getElementById('remainingBalance').classList.add('text-danger');
+                    } else {
+                        document.getElementById('remainingBalance').classList.remove('text-danger');
+                    }
+                }
+
+                initializeCharts() {
+                    // Monthly Spending Chart
+                    const spendingCtx = document.getElementById('monthlySpendingChart').getContext('2d');
+                    this.charts.spending = new Chart(spendingCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Monthly Spending (KES)',
+                                data: [0, 0, 0, 0, 0, 0],
+                                borderColor: '#2563EB',
+                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'KES ' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Class Distribution Chart
+                    const classCtx = document.getElementById('classDistributionChart').getContext('2d');
+                    this.charts.class = new Chart(classCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Form 1', 'Form 2', 'Form 3', 'Form 4'],
+                            datasets: [{
+                                data: [0, 0, 0, 0],
+                                backgroundColor: [
+                                    '#10B981',
+                                    '#3B82F6',
+                                    '#8B5CF6',
+                                    '#F59E0B'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                updateCharts(stats) {
+                    // Update monthly spending chart
+                    if (stats.monthly_spending && stats.monthly_spending.length > 0) {
+                        const months = stats.monthly_spending.map(item => 
+                            new Date(item.month).toLocaleDateString('en-US', { month: 'short' })
+                        );
+                        const spending = stats.monthly_spending.map(item => 
+                            parseFloat(item.total_spent) || 0
+                        );
+                        
+                        this.charts.spending.data.labels = months.slice(-6); // Last 6 months
+                        this.charts.spending.data.datasets[0].data = spending.slice(-6);
+                        this.charts.spending.update();
+                    }
+
+                    // Update class distribution chart
+                    if (stats.by_class && stats.by_class.length > 0) {
+                        const classes = stats.by_class.map(item => item.class || 'Unknown');
+                        const balances = stats.by_class.map(item => parseFloat(item.total_balance) || 0);
+                        
+                        this.charts.class.data.labels = classes;
+                        this.charts.class.data.datasets[0].data = balances;
+                        this.charts.class.update();
+                    }
+                }
+
+                getBalanceClass(balance) {
+                    if (balance <= 0) return 'text-danger';
+                    if (balance < 500) return 'text-warning';
+                    return 'text-success';
+                }
+
+                viewLearnerHistory(learnerId) {
+                    this.switchTab('history');
+                    // In a real implementation, you would filter the history table by this learner
+                    this.showToast(`Viewing history for learner ${learnerId}`, 'info');
+                }
+
+                quickTopup(learnerId, learnerName) {
+                    this.switchTab('topup');
+                    document.getElementById('topupLearnerSearch').value = learnerName;
+                    this.currentTopupLearner = { id: learnerId, name: learnerName };
+                    this.searchTopupLearner();
+                }
+
+                openDeductModal(learnerId, learnerName, balance) {
+                    this.currentDeductLearner = { id: learnerId, name: learnerName, balance: balance };
+                    
+                    document.getElementById('deductAmount').max = balance;
+                    document.getElementById('deductAmount').placeholder = `Max: KES ${balance.toLocaleString()}`;
+                    
+                    // Add event listener for form submission
+                    document.getElementById('deductForm').onsubmit = (e) => {
+                        e.preventDefault();
+                        this.processDeduction();
+                    };
+                    
+                    this.openModal('deductMoneyModal');
+                }
+
+                async processDeduction() {
+                    if (!this.currentDeductLearner) return;
+
+                    const amount = document.getElementById('deductAmount').value;
+                    const reason = document.getElementById('deductReason').value;
+
+                    if (!amount || parseFloat(amount) <= 0) {
+                        this.showToast('Please enter a valid amount', 'warning');
+                        return;
+                    }
+
+                    if (parseFloat(amount) > this.currentDeductLearner.balance) {
+                        this.showToast('Amount exceeds available balance', 'error');
+                        return;
+                    }
+
+                    if (!reason) {
+                        this.showToast('Please enter a reason', 'warning');
+                        return;
+                    }
+
+                    // Show loading
+                    const deductBtn = document.getElementById('confirmDeductBtn');
+                    const originalText = deductBtn.innerHTML;
+                    deductBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    deductBtn.disabled = true;
+
+                    try {
+                        const result = await API.deductPocketMoney({
+                            learner_id: this.currentDeductLearner.id,
+                            amount: parseFloat(amount),
+                            reason: reason
+                        });
+
+                        if (result.success) {
+                            this.showToast('Deduction processed successfully!', 'success');
+                            this.closeModal('deductMoneyModal');
+                            this.refreshCurrentTab();
+                        } else {
+                            this.showToast(result.message || 'Deduction failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error processing deduction:', error);
+                        this.showToast('Failed to process deduction', 'error');
+                    } finally {
+                        deductBtn.innerHTML = originalText;
+                        deductBtn.disabled = false;
+                    }
+                }
+
+                openEnableDisableModal(learnerId, learnerName, action) {
+                    this.currentEnableDisableLearner = { id: learnerId, name: learnerName };
+                    this.actionType = action;
+                    
+                    const title = document.getElementById('enableDisableTitle');
+                    const confirmBtn = document.getElementById('confirmEnableDisableBtn');
+                    
+                    if (action === 'enable') {
+                        title.textContent = `Enable Pocket Money for ${learnerName}`;
+                        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Enable';
+                        confirmBtn.className = 'btn btn-success';
+                    } else {
+                        title.textContent = `Disable Pocket Money for ${learnerName}`;
+                        confirmBtn.innerHTML = '<i class="fas fa-ban"></i> Disable';
+                        confirmBtn.className = 'btn btn-danger';
+                    }
+                    
+                    // Add event listener for form submission
+                    document.getElementById('enableDisableForm').onsubmit = (e) => {
+                        e.preventDefault();
+                        this.processEnableDisable();
+                    };
+                    
+                    this.openModal('enableDisableModal');
+                }
+
+                async processEnableDisable() {
+                    if (!this.currentEnableDisableLearner || !this.actionType) return;
+
+                    const reason = document.getElementById('enableDisableReason').value;
+                    if (!reason) {
+                        this.showToast('Please enter a reason', 'warning');
+                        return;
+                    }
+
+                    // Show loading
+                    const confirmBtn = document.getElementById('confirmEnableDisableBtn');
+                    const originalText = confirmBtn.innerHTML;
+                    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    confirmBtn.disabled = true;
+
+                    try {
+                        let result;
+                        if (this.actionType === 'enable') {
+                            result = await API.enablePocketMoney(this.currentEnableDisableLearner.id);
+                        } else {
+                            result = await API.disablePocketMoney(this.currentEnableDisableLearner.id, {
+                                reason: reason
+                            });
+                        }
+
+                        if (result.success) {
+                            this.showToast(
+                                `Pocket money ${this.actionType}d successfully!`, 
+                                'success'
+                            );
+                            this.closeModal('enableDisableModal');
+                            this.refreshCurrentTab();
+                        } else {
+                            this.showToast(result.message || 'Operation failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error processing enable/disable:', error);
+                        this.showToast('Failed to process request', 'error');
+                    } finally {
+                        confirmBtn.innerHTML = originalText;
+                        confirmBtn.disabled = false;
+                    }
+                }
+
+                showLowBalanceBoarders() {
+                    // Filter boarders table to show only low balance
+                    document.getElementById('filterStatus').value = '';
+                    document.getElementById('filterClass').value = '';
+                    
+                    // This would normally filter the table
+                    // For now, we'll just show a message
+                    this.showToast('Showing boarders with low balances', 'info');
+                }
+
+                async exportBoarders() {
+                    try {
+                        const summary = await API.getPocketMoneySummary();
+                        if (summary.success) {
+                            // Convert to CSV
+                            const csv = this.convertToCSV(summary.summary);
+                            
+                            // Download
+                            const blob = new Blob([csv], { type: 'text/csv' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `pocket_money_boarders_${new Date().toISOString().split('T')[0]}.csv`;
+                            a.click();
+                            
+                            this.showToast('Export started successfully', 'success');
+                        }
+                    } catch (error) {
+                        console.error('Error exporting boarders:', error);
+                        this.showToast('Failed to export data', 'error');
+                    }
+                }
+
+                exportReport() {
+                    this.showToast('Report export feature coming soon!', 'info');
+                }
+
+                convertToCSV(data) {
+                    if (!data.length) return '';
+                    
+                    const headers = ['Customer ID', 'Name', 'Class', 'Pocket Money Balance', 'Total Spent', 'Total Topups', 'Last Transaction'];
+                    const csvRows = [];
+                    
+                    // Add headers
+                    csvRows.push(headers.join(','));
+                    
+                    // Add data rows
+                    for (const row of data) {
+                        const values = [
+                            row.customer_id,
+                            `"${row.name}"`,
+                            row.class || '',
+                            row.pocket_money_balance || 0,
+                            row.total_spent || 0,
+                            row.total_topups || 0,
+                            row.last_transaction_date || ''
+                        ];
+                        csvRows.push(values.join(','));
+                    }
+                    
+                    return csvRows.join('\n');
+                }
+
+                switchTab(tabName) {
+                    // Update active tab button
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.tab === tabName) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    // Update active tab pane
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                        if (pane.id === tabName) {
+                            pane.classList.add('active');
+                        }
+                    });
+                    
+                    this.currentTab = tabName;
+                    
+                    // Load tab-specific data
+                    switch(tabName) {
+                        case 'dashboard':
+                            this.loadDashboardData();
+                            this.loadRecentTransactions();
+                            break;
+                        case 'learners':
+                            this.loadBoardersSummary();
+                            break;
+                        case 'transactions':
+                            this.loadProducts();
+                            break;
+                        case 'history':
+                            this.searchHistory();
+                            break;
+                        case 'reports':
+                            this.loadDashboardData(); // Reload stats for charts
+                            break;
+                    }
+                }
+
+                refreshCurrentTab() {
+                    switch(this.currentTab) {
+                        case 'dashboard':
+                            this.loadDashboardData();
+                            this.loadRecentTransactions();
+                            break;
+                        case 'learners':
+                            this.loadBoardersSummary();
+                            break;
+                        case 'transactions':
+                            this.loadProducts();
+                            if (this.selectedLearner) {
+                                // Refresh learner balance
+                                this.searchLearners();
+                            }
+                            break;
+                        case 'topup':
+                            // Refresh topup form
+                            document.getElementById('topupForm').reset();
+                            document.getElementById('topupLearnerInfo').classList.add('hidden');
+                            this.currentTopupLearner = null;
+                            break;
+                    }
+                    
+                    this.showToast('Data refreshed', 'success');
+                }
+
+                openModal(modalId) {
+                    document.getElementById(modalId).classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                closeModal(modalId) {
+                    document.getElementById(modalId).classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                    
+                    // Reset forms
+                    if (modalId === 'deductMoneyModal') {
+                        document.getElementById('deductForm').reset();
+                        this.currentDeductLearner = null;
+                    } else if (modalId === 'enableDisableModal') {
+                        document.getElementById('enableDisableForm').reset();
+                        this.currentEnableDisableLearner = null;
+                        this.actionType = null;
+                    }
+                }
+
+                showToast(message, type = 'info') {
+                    // Create toast element
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    toast.innerHTML = `
+                        <div class="toast-content">
+                            <i class="fas fa-${this.getToastIcon(type)}"></i>
+                            <span>${message}</span>
+                        </div>
+                        <button class="toast-close">&times;</button>
+                    `;
+                    
+                    // Add to page
+                    document.body.appendChild(toast);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 5000);
+                    
+                    // Close button
+                    toast.querySelector('.toast-close').addEventListener('click', () => {
+                        toast.remove();
+                    });
+                }
+
+                getToastIcon(type) {
+                    switch(type) {
+                        case 'success': return 'check-circle';
+                        case 'error': return 'exclamation-circle';
+                        case 'warning': return 'exclamation-triangle';
+                        default: return 'info-circle';
+                    }
+                }
+            }
+
+            // Initialize when DOM is ready
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    // First check if we're on login page - skip auth check
+                    if (window.location.pathname.includes('login.html')) {
+                        return;
+                    }
+                    
+                    console.log('🔐 Checking authentication status...');
+                    
+                    // Try to verify authentication
+                    const authCheck = await API.checkAuth().catch(error => {
+                        console.warn('Auth check failed:', error);
+                        return null;
+                    });
+                    
+                    if (authCheck && authCheck.success && authCheck.isAuthenticated) {
+                        console.log('✅ User authenticated:', authCheck.user?.username);
+                        
+                        // Initialize pocket money manager
+                        window.pocketMoneyManager = new PocketMoneyManager();
+                        
+                        // Update user greeting
+                        const user = authCheck.user;
+                        if (user) {
+                            document.getElementById('userGreeting').textContent = 
+                                `Welcome, ${user.display_name || user.username || 'User'}`;
+                        }
+                        
+                        // Initialize auth object for menu.js
+                        if (window.auth) {
+                            window.auth.user = user;
+                            window.auth.initialized = true;
+                        }
+                        
+                    } else if (authCheck && !authCheck.success) {
+                        console.warn('❌ Auth check returned failure, redirecting...');
+                        window.location.href = '/login.html';
+                        return;
+                    } else {
+                        console.warn('❌ Not authenticated, redirecting to login');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    
+                } catch (error) {
+                    console.error('Authentication initialization error:', error);
+                    window.location.href = '/login.html';
+                }
+            });
+
+        })();
+    </script>
+    
+    <script>
+        // Menu Manager (from your menu.js)
+        (function () {
+            'use strict';
+
+            const MENU_CONFIG = {
+                admin: [
+                    { icon: 'fas fa-tachometer-alt', label: 'Dashboard', page: 'admin.html' },
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
+                    { icon: 'fas fa-users', label: 'Customers', page: 'customers.html' },
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-boxes', label: 'Inventory', page: 'inventory.html' },
+                    { icon: 'fas fa-truck', label: 'Suppliers', page: 'suppliers.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-chart-bar', label: 'Reports', page: 'reports.html' },
+                    { icon: 'fas fa-chart-pie', label: 'Overview', page: 'overview.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ],
+                department_uniform: [
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },      
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ],
+                department_stationery: [
+                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
+                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
+                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
+                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
+                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
+                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
+                ]
+            };
+
+            class MenuManager {
+                constructor() {
+                    this.sidebarNav = document.getElementById('sidebarNav');
+                    this.menuToggle = document.getElementById('menuToggle');
+                    this.sidebar = document.getElementById('sidebar');
+                    this.sidebarOverlay = document.getElementById('sidebarOverlay');
+                    this.user = null;
+                }
+
+                async initialize() {
+                    if (!this.sidebarNav) {
+                        console.warn('Sidebar nav not found');
+                        return;
+                    }
+
+                    try {
+                        // Wait for auth to be ready
+                        await this.waitForAuth();
+                        
+                        // Get user info
+                        this.user = window.auth?.getUser();
+                        
+                        // Build menu
+                        this.buildMenu();
+                        
+                        // Setup mobile menu
+                        this.setupMobileMenu();
+                        
+                        // Highlight current page
+                        this.highlightCurrentPage();
+                        
+                        console.log('Menu initialized for user:', this.user?.role);
+                        
+                    } catch (error) {
+                        console.error('Menu initialization error:', error);
+                        this.buildDefaultMenu();
+                    }
+                }
+
+                async waitForAuth() {
+                    return new Promise((resolve) => {
+                        if (window.auth && window.auth.getUser()) {
+                            resolve();
+                            return;
+                        }
+
+                        let attempts = 0;
+                        const maxAttempts = 10;
+                        
+                        const checkAuth = setInterval(() => {
+                            attempts++;
+                            if (window.auth && window.auth.getUser()) {
+                                clearInterval(checkAuth);
+                                resolve();
+                            } else if (attempts >= maxAttempts) {
+                                clearInterval(checkAuth);
+                                console.warn('Auth not available, using default menu');
+                                resolve();
+                            }
+                        }, 100);
+                    });
+                }
+
+                buildMenu() {
+                    const role = this.user?.role || 'department_stationery';
+                    const items = MENU_CONFIG[role] || MENU_CONFIG.department_stationery;
+                    
+                    // Clear existing menu
+                    this.sidebarNav.innerHTML = '';
+                    
+                    // Add menu items
+                    items.forEach(item => {
+                        const menuItem = this.createMenuItem(item);
+                        this.sidebarNav.appendChild(menuItem);
+                    });
+                    
+                    // Add user info and logout
+                    this.addUserSection();
+                }
+
+                buildDefaultMenu() {
+                    const items = MENU_CONFIG.department_stationery;
+                    this.sidebarNav.innerHTML = '';
+                    
+                    items.forEach(item => {
+                        const menuItem = this.createMenuItem(item);
+                        this.sidebarNav.appendChild(menuItem);
+                    });
+                    
+                    this.addUserSection();
+                }
+
+                createMenuItem(item) {
+                    const a = document.createElement('a');
+                    a.href = item.page;
+                    a.className = 'nav-item';
+                    a.innerHTML = `
+                        <i class="${item.icon} nav-icon"></i>
+                        <span class="nav-label">${item.label}</span>
+                    `;
+                    
+                    a.addEventListener('click', (e) => {
+                        if (window.innerWidth <= 768) {
+                            this.closeMobileMenu();
+                        }
+                    });
+                    
+                    return a;
+                }
+
+                addUserSection() {
+                    const divider = document.createElement('div');
+                    divider.className = 'nav-divider';
+                    this.sidebarNav.appendChild(divider);
+                    
+                    // User info
+                    const userInfo = document.createElement('div');
+                    userInfo.className = 'nav-item';
+                    userInfo.style.pointerEvents = 'none';
+                    
+                    const userName = this.user?.displayName || this.user?.username || 'User';
+                    const userRole = this.user?.role || 'Staff';
+                    
+                    userInfo.innerHTML = `
+                        <i class="fas fa-user-circle nav-icon"></i>
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="nav-label" style="font-weight: 600;">${userName}</span>
+                            <small style="opacity: 0.8; font-size: 12px;">${userRole.replace('_', ' ').toUpperCase()}</small>
+                        </div>
+                    `;
+                    this.sidebarNav.appendChild(userInfo);
+                    
+                    // Logout button
+                    const logoutItem = document.createElement('a');
+                    logoutItem.href = '#';
+                    logoutItem.className = 'nav-item logout-item';
+                    logoutItem.innerHTML = `
+                        <i class="fas fa-sign-out-alt nav-icon"></i>
+                        <span class="nav-label">Logout</span>
+                    `;
+                    
+                    logoutItem.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleLogout();
+                    });
+                    
+                    this.sidebarNav.appendChild(logoutItem);
+                }
+
+                handleLogout() {
+                    if (confirm('Are you sure you want to logout?')) {
+                        if (window.auth && typeof window.auth.logout === 'function') {
+                            window.auth.logout()
+                                .then(() => {
+                                    window.location.href = 'login.html';
+                                })
+                                .catch(() => {
+                                    window.location.href = 'login.html';
+                                });
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    }
+                }
+
+                highlightCurrentPage() {
+                    const currentPage = window.location.pathname.split('/').pop() || 'admin.html';
+                    const navItems = this.sidebarNav.querySelectorAll('.nav-item:not(.logout-item)');
+                    
+                    navItems.forEach(item => {
+                        const href = item.getAttribute('href');
+                        if (href === currentPage) {
+                            item.classList.add('active');
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                }
+
+                setupMobileMenu() {
+                    // Create menu toggle button if it doesn't exist
+                    if (!document.getElementById('menuToggle')) {
+                        const menuToggle = document.createElement('button');
+                        menuToggle.id = 'menuToggle';
+                        menuToggle.className = 'menu-toggle';
+                        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                        document.querySelector('.nav-brand').appendChild(menuToggle);
+                    }
+                    
+                    const menuToggle = document.getElementById('menuToggle');
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    if (!menuToggle || !sidebar || !sidebarOverlay) {
+                        return;
+                    }
+
+                    menuToggle.addEventListener('click', () => {
+                        this.toggleMobileMenu();
+                    });
+
+                    sidebarOverlay.addEventListener('click', () => {
+                        this.closeMobileMenu();
+                    });
+
+                    // Close menu when window resizes to desktop
+                    window.addEventListener('resize', () => {
+                        if (window.innerWidth > 768) {
+                            this.closeMobileMenu();
+                        }
+                    });
+                }
+
+                toggleMobileMenu() {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    sidebar.classList.toggle('active');
+                    sidebarOverlay.classList.toggle('active');
+                    document.body.classList.toggle('no-scroll');
+                }
+
+                closeMobileMenu() {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.classList.remove('no-scroll');
+                }
+            }
+
+            // Initialize when DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                const menuManager = new MenuManager();
+                menuManager.initialize();
+            });
+
+            // Make MenuManager available globally
+            window.MenuManager = MenuManager;
+
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+
+import { authAPI, apiCall } from './api.js';
+
+export async function login(username, password) {
+  return apiCall(authAPI.login, {
+    method: 'POST',
+    body: JSON.stringify({ username, password })
+  });
+}
+
+export async function logout() {
+  return apiCall(authAPI.logout, { method: 'POST' });
+}
+
+export async function checkSession() {
+  return apiCall(authAPI.checkSession);
+}
+
+export async function verifyToken(token) {
+  return apiCall(authAPI.verify, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+}

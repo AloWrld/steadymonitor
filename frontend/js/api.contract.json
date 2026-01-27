@@ -1,0 +1,508 @@
+{
+  "allocation": [
+    {
+      "method": "POST",
+      "path": "/api/batch"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learner/:learnerId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/program/:programType"
+    },
+    {
+      "method": "GET",
+      "path": "/api/summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/batches"
+    },
+    {
+      "method": "GET",
+      "path": "/api/batch/:batchId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/eligible/:programType"
+    },
+    {
+      "method": "GET",
+      "path": "/api/stats"
+    }
+  ],
+  "auth": [
+    {
+      "method": "POST",
+      "path": "/api/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/logout"
+    },
+    {
+      "method": "GET",
+      "path": "/api/check"
+    },
+    {
+      "method": "GET",
+      "path": "/api/verify"
+    },
+    {
+      "method": "GET",
+      "path": "/api/permissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health"
+    }
+  ],
+  "checkout": [
+    {
+      "method": "POST",
+      "path": "/api/complete"
+    },
+    {
+      "method": "GET",
+      "path": "/api/receipt/:sale_id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lookup-receipt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mpesa-stk"
+    }
+  ],
+  "customer": [
+    {
+      "method": "GET",
+      "path": "/api/:identifier"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/pay"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/adjust-balance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/allocations"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/allocate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/fulfill-allocation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/allocation-history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/pocket-money-status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/exercise-book-eligibility"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/record-installment"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/installment-payments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/transactions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/batch/create"
+    },
+    {
+      "method": "GET",
+      "path": "/api/class/:className"
+    },
+    {
+      "method": "POST",
+      "path": "/api/batch/update-payment"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/promote"
+    },
+    {
+      "method": "POST",
+      "path": "/api/batch/promote"
+    },
+    {
+      "method": "POST",
+      "path": "/api/:id/change-class"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/promotion-history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/disbursement-history"
+    }
+  ],
+  "dashboard": [
+    {
+      "method": "GET",
+      "path": "/api/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/low-stock"
+    },
+    {
+      "method": "GET",
+      "path": "/api/recent-sales"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customers-balance"
+    }
+  ],
+  "inventory": [
+    {
+      "method": "GET",
+      "path": "/api/products"
+    },
+    {
+      "method": "GET",
+      "path": "/api/products/:identifier"
+    },
+    {
+      "method": "POST",
+      "path": "/api/products"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/products/:identifier"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/products/:identifier"
+    },
+    {
+      "method": "POST",
+      "path": "/api/products/:identifier/restock"
+    },
+    {
+      "method": "POST",
+      "path": "/api/products/:identifier/adjust-stock"
+    },
+    {
+      "method": "GET",
+      "path": "/api/low-stock"
+    },
+    {
+      "method": "GET",
+      "path": "/api/search"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/activity"
+    }
+  ],
+  "payment": [
+    {
+      "method": "POST",
+      "path": "/api/bulk"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learner/:learnerId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/outstanding"
+    },
+    {
+      "method": "POST",
+      "path": "/api/validate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:paymentId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/installments/:learnerId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/stats"
+    }
+  ],
+  "pocketMoney": [
+    {
+      "method": "POST",
+      "path": "/api/purchase"
+    },
+    {
+      "method": "POST",
+      "path": "/api/topup"
+    },
+    {
+      "method": "POST",
+      "path": "/api/deduct"
+    },
+    {
+      "method": "GET",
+      "path": "/api/history/:learnerId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/stats"
+    },
+    {
+      "method": "POST",
+      "path": "/api/enable/:learnerId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/disable/:learnerId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/validate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/status/:learnerId"
+    }
+  ],
+  "pos": [
+    {
+      "method": "GET",
+      "path": "/api/products/:department"
+    },
+    {
+      "method": "GET",
+      "path": "/api/search"
+    },
+    {
+      "method": "GET",
+      "path": "/api/product/sku/:sku"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mpesa-push"
+    },
+    {
+      "method": "POST",
+      "path": "/api/checkout"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lookup/:identifier"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learners/class/:className"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learners/search"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learners/:learnerId"
+    },
+    {
+      "method": "GET",
+      "path": "/api/classes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/departments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/debug/calls"
+    }
+  ],
+  "print": [
+    {
+      "method": "POST",
+      "path": "/api/receipt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/invoice"
+    },
+    {
+      "method": "GET",
+      "path": "/api/invoice/:invoiceId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/batch"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/invoices"
+    }
+  ],
+  "refund": [
+    {
+      "method": "GET",
+      "path": "/api/sale/:saleId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/receipt"
+    },
+    {
+      "method": "GET",
+      "path": "/api/summary"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lookup-receipt"
+    }
+  ],
+  "report": [
+    {
+      "method": "GET",
+      "path": "/api/sales"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profit"
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/allocations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pocket-money"
+    },
+    {
+      "method": "GET",
+      "path": "/api/installments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/suppliers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/export/excel"
+    },
+    {
+      "method": "GET",
+      "path": "/api/export/pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/api/data-status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/overview"
+    }
+  ],
+  "supplier": [
+    {
+      "method": "GET",
+      "path": "/api/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/search"
+    },
+    {
+      "method": "POST",
+      "path": "/api/restock"
+    },
+    {
+      "method": "GET",
+      "path": "/api/restocks/all"
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/credits"
+    },
+    {
+      "method": "GET",
+      "path": "/api/:id/transactions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/due-credits"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/low-stock"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/performance"
+    }
+  ]
+}

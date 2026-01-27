@@ -1,0 +1,38 @@
+{
+  "name": "steadymonitor-2.0",
+  "version": "1.0.0",
+  "main": "analyze-csv.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "migrate": "node migrate-enhanced.js",
+    "fix": "node fix-auth-flow.js",
+    "fix-auth": "node fix-backend-auth.js",
+    "create-session-table": "& \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\" -U steadyuser -d steadymonitor -c \"CREATE TABLE IF NOT EXISTS user_sessions (sid VARCHAR PRIMARY KEY, sess JSON NOT NULL, expire TIMESTAMP NOT NULL); CREATE INDEX IF NOT EXISTS idx_user_sessions_expire ON user_sessions(expire); SELECT 'Table ready' as result;\"",
+    "setup": "npm run create-session-table && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "chart.js": "^4.5.1",
+    "connect-pg-simple": "^8.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.0.0",
+    "node-fetch": "^3.3.2",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.17.2"
+  },
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

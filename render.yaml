@@ -1,0 +1,40 @@
+# Render Blueprint for STEADYMONITOR
+services:
+  # Backend API Service
+  - type: web
+    name: steadymonitor-backend
+    env: node
+    region: oregon  # or singapore, frankfurt, etc.
+    plan: free  # or starter, standard, etc.
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Will be set in Render dashboard
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+    
+    # Database (PostgreSQL)
+    databases:
+      - name: steadymonitor-db
+        databaseName: steadymonitor
+        plan: free  # or starter, standard, etc.
+    
+    # Disk (for file uploads if needed)
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+
+# Cron jobs (optional)
+jobs:
+  - type: cron
+    name: cleanup-sessions
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    startCommand: node scripts/cleanup-sessions.js

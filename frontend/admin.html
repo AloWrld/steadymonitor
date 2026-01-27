@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hattyjohns Investments</title>
+    
+    <meta name="theme-color" content="#2563EB">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card:nth-child(2) {
+            background: var(--warning);
+        }
+        
+        .stat-card:nth-child(3) {
+            background: var(--success);
+        }
+        
+        .stat-card:nth-child(4) {
+            background: var(--secondary);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .recent-activity {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2563EB;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .main-content.with-sidebar {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1100;
+                transition: transform var(--transition);
+                box-shadow: var(--shadow-lg);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .grid.grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .btn-group {
+                width: 100%;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .card-header .btn,
+            .card-header .form-control {
+                width: 100%;
+            }
+            
+            .nav-brand h1 {
+                font-size: 1.25rem;
+            }
+            
+            .user-greeting {
+                font-size: 0.875rem;
+            }
+            
+            .dropdown-menu {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                border-radius: 12px 12px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .dropdown-menu.active {
+                transform: translateY(0);
+            }
+        }
+            
+            .main-content.with-sidebar {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 1.5rem 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .grid.grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+            
+            .card-header .form-control,
+            .card-header .btn {
+                width: 100%;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .activity-item {
+                padding: 0.75rem 0;
+            }
+            
+            .activity-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.875rem;
+                margin-right: 0.75rem;
+            }
+            
+            .activity-title {
+                font-size: 0.875rem;
+            }
+            
+            .activity-time {
+                font-size: 0.75rem;
+            }
+            
+            .nav-user {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            #salesChart {
+                height: 250px;
+            }
+        }
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .loading-overlay span {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Mobile-only and desktop-only utilities */
+        .mobile-only {
+            display: none !important;
+        }
+        
+        .desktop-only {
+            display: block !important;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block !important;
+            }
+            
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1090;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Better dropdown for mobile */
+        .dropdown {
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-height: 70vh;
+                overflow-y: auto;
+                border-radius: 12px 12px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            }
+            
+            .dropdown-menu.active {
+                transform: translateY(0);
+            }
+            
+            .dropdown-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+                display: none;
+            }
+            
+            .dropdown-backdrop.active {
+                display: block;
+            }
+        }
+
+        /* Prevent body scroll when sidebar/dropdown is open */
+        body.no-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Quick actions button improvements for mobile */
+        .btn.btn-outline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 0.75rem;
+            text-align: center;
+            min-height: 100px;
+        }
+        
+        .btn.btn-outline i {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Better stats card spacing */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(30deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .stat-card:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
+
+        /* Enhanced grid responsiveness */
+        @media (max-width: 1024px) {
+            .grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid.grid-4 {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn.btn-outline {
+                min-height: 80px;
+                padding: 1rem 0.5rem;
+            }
+            
+            .btn.btn-outline i {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Better button groups on mobile */
+        .btn-group-responsive {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .btn-group-responsive {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group-responsive .btn {
+                width: 100%;
+            }
+        }
+
+        /* Page title improvements for mobile */
+        .page-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title h1 {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        @media (max-width: 640px) {
+            .page-title {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .page-title h1 {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+            
+            .page-title .btn-group {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ===== RESPONSIVE DESIGN IMPROVEMENTS ===== */
+        
+        
+        /* ===== FLUID TYPOGRAPHY ===== */
+        
+        /* Base font size scales with viewport */
+        html {
+            font-size: 16px;
+        }
+        
+        @media (min-width: 320px) {
+            html {
+                font-size: calc(16px + (18 - 16) * ((100vw - 320px) / (1920 - 320)));
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            html {
+                font-size: 18px;
+            }
+        }
+        
+        /* Fluid headings */
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            line-height: clamp(1.2, 1.1, 1.05);
+        }
+        
+        h2 {
+            font-size: clamp(1.25rem, 4vw, 2.25rem);
+        }
+        
+        h3 {
+            font-size: clamp(1.125rem, 3vw, 1.75rem);
+        }
+        
+        h4 {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        }
+        
+        /* Fluid spacing */
+        :root {
+            --spacing-unit: clamp(0.5rem, 2vw, 1rem);
+            --section-spacing: clamp(2rem, 8vw, 4rem);
+        }
+        
+        .section {
+            padding: var(--section-spacing) 0;
+        }
+        
+        .gap-fluid {
+            gap: var(--spacing-unit);
+        }
+        
+        /* Fluid containers */
+        .container-fluid {
+            width: min(100% - 2rem, 1600px);
+            margin-inline: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .container-fluid {
+                width: min(100% - 3rem, 1600px);
+            }
+        }
+        
+        /* Fluid grid gaps */
+        .grid {
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+        
+        /* Fluid card padding */
+        .card {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+    
+        
+        
+        /* ===== COMPREHENSIVE RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Mobile Small (320px - 480px) - Smartphones */
+        @media (max-width: 480px) {
+            /* Extreme mobile optimizations */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Touch targets minimum 44px */
+            .btn, button, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Stack everything vertically */
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Reduce font sizes for small screens */
+            h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+            h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+            h3 { font-size: clamp(1.125rem, 3.5vw, 1.5rem); }
+            
+            /* Full-width tables with horizontal scroll */
+            .table-responsive {
+                margin: 0 -1rem;
+                width: calc(100% + 2rem);
+            }
+            
+            /* Hide non-essential elements */
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile Large (481px - 767px) - Larger phones, small tablets */
+        @media (min-width: 481px) and (max-width: 767px) {
+            /* 2-column grids where appropriate */
+            .grid-2, .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Slightly larger containers */
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            
+            /* Better spacing */
+            .card {
+                padding: 1.25rem;
+            }
+            
+            /* Adjust font sizes */
+            h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+        }
+        
+        /* Tablet (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            /* Tablet-specific layouts */
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            /* Adjust sidebar if present */
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content.with-sidebar {
+                margin-left: 220px;
+            }
+            
+            /* Tablet-optimized font sizes */
+            h1 { font-size: clamp(2rem, 3vw, 2.5rem); }
+            
+            /* Better button spacing */
+            .btn-group {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Desktop Small (1024px - 1365px) */
+        @media (min-width: 1024px) and (max-width: 1365px) {
+            /* Standard desktop layouts */
+            .container {
+                max-width: 1200px;
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            /* Optimize for laptop screens */
+            .card {
+                padding: 1.5rem;
+            }
+            
+            /* Comfortable reading line length */
+            p, li {
+                max-width: 70ch;
+            }
+        }
+        
+        /* Desktop Large (1366px - 1919px) */
+        @media (min-width: 1366px) and (max-width: 1919px) {
+            /* Larger container for wide screens */
+            .container {
+                max-width: 1400px;
+            }
+            
+            /* More spacious layouts */
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2rem;
+            }
+            
+            /* Increase font sizes for better readability */
+            :root {
+                --font-size-base: 1.0625rem; /* 17px */
+            }
+            
+            /* Larger click targets */
+            .btn {
+                padding: 0.75rem 1.5rem;
+            }
+        }
+        
+        /* Desktop XL (1920px+) */
+        @media (min-width: 1920px) {
+            /* Extra large containers */
+            .container {
+                max-width: 1600px;
+            }
+            
+            /* 5 or 6 column grids where appropriate */
+            .grid-4 {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            /* Larger font sizes */
+            :root {
+                --font-size-base: 1.125rem; /* 18px */
+                --font-size-lg: 1.375rem;   /* 22px */
+                --font-size-xl: 1.75rem;    /* 28px */
+                --font-size-2xl: 2.25rem;   /* 36px */
+                --font-size-3xl: 3rem;      /* 48px */
+            }
+            
+            /* More generous spacing */
+            .card {
+                padding: 2rem;
+            }
+            
+            .section-spacing {
+                padding: 3rem 0;
+            }
+        }
+        
+        /* Landscape orientation for mobile/tablet */
+        @media (max-height: 600px) and (orientation: landscape) {
+            /* Compact mode for landscape */
+            .hero-section {
+                padding: 1rem 1.5rem;
+                min-height: auto;
+            }
+            
+            /* Reduce vertical padding */
+            .card, .stat-card {
+                padding: 1rem;
+            }
+            
+            /* Stack elements horizontally when possible */
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            /* Shorter buttons */
+            .btn {
+                padding: 0.5rem 1rem;
+                min-height: 36px;
+            }
+        }
+        
+        /* High DPI/Retina screens */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            /* Crisper borders and shadows */
+            .card, .btn {
+                border-width: 0.5px;
+            }
+            
+            /* Better shadows for high DPI */
+            .card {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+        }
+        
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0f172a;
+                --card-bg: #1e293b;
+                --text-primary: #f8fafc;
+                --text-secondary: #cbd5e1;
+                --border: #334155;
+            }
+        }
+    
+        
+        
+        /* ===== RESPONSIVE UTILITY CLASSES ===== */
+        
+        /* Display utilities */
+        .mobile-only { display: none !important; }
+        .tablet-only { display: none !important; }
+        .desktop-only { display: block !important; }
+        .desktop-hidden { display: none !important; }
+        
+        /* Mobile */
+        @media (max-width: 767px) {
+            .mobile-only { display: block !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: none !important; }
+            .desktop-hidden { display: block !important; }
+            .mobile-hidden { display: none !important; }
+        }
+        
+        /* Tablet */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            .tablet-hidden { display: none !important; }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-only { display: none !important; }
+            .tablet-only { display: none !important; }
+            .desktop-only { display: block !important; }
+        }
+        
+        /* Grid column utilities */
+        .cols-1 { grid-template-columns: 1fr; }
+        .cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        @media (max-width: 767px) {
+            .cols-mobile-1 { grid-template-columns: 1fr !important; }
+            .cols-mobile-2 { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .cols-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
+            .cols-tablet-3 { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        
+        @media (min-width: 1024px) {
+            .cols-desktop-3 { grid-template-columns: repeat(3, 1fr) !important; }
+            .cols-desktop-4 { grid-template-columns: repeat(4, 1fr) !important; }
+            .cols-desktop-5 { grid-template-columns: repeat(5, 1fr) !important; }
+        }
+        
+        /* Spacing utilities */
+        .p-fluid { padding: clamp(1rem, 3vw, 2rem); }
+        .m-fluid { margin: clamp(1rem, 3vw, 2rem); }
+        
+        /* Text alignment by breakpoint */
+        .text-left-mobile { text-align: left; }
+        .text-center-mobile { text-align: center; }
+        .text-right-mobile { text-align: right; }
+        
+        @media (min-width: 768px) {
+            .text-left-tablet { text-align: left; }
+            .text-center-tablet { text-align: center; }
+            .text-right-tablet { text-align: right; }
+        }
+        
+        @media (min-width: 1024px) {
+            .text-left-desktop { text-align: left; }
+            .text-center-desktop { text-align: center; }
+            .text-right-desktop { text-align: right; }
+        }
+        
+        /* Order utilities for flex/grid */
+        .order-first-mobile { order: -1; }
+        .order-last-mobile { order: 999; }
+        
+        @media (min-width: 768px) {
+            .order-first-tablet { order: -1; }
+            .order-last-tablet { order: 999; }
+        }
+        
+        @media (min-width: 1024px) {
+            .order-first-desktop { order: -1; }
+            .order-last-desktop { order: 999; }
+        }
+        
+        /* Visibility utilities */
+        .visible-mobile { visibility: visible; }
+        .visible-tablet { visibility: visible; }
+        .visible-desktop { visibility: visible; }
+        
+        .hidden-mobile { visibility: hidden; }
+        .hidden-tablet { visibility: hidden; }
+        .hidden-desktop { visibility: hidden; }
+        
+        @media (max-width: 767px) {
+            .visible-tablet, .visible-desktop { visibility: hidden; }
+            .hidden-mobile { visibility: hidden; }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .visible-mobile, .visible-desktop { visibility: hidden; }
+            .hidden-tablet { visibility: hidden; }
+        }
+        
+        @media (min-width: 1024px) {
+            .visible-mobile, .visible-tablet { visibility: hidden; }
+            .hidden-desktop { visibility: hidden; }
+        }
+    
+        
+        /* ===== COMPONENT-SPECIFIC RESPONSIVENESS ===== */
+        
+        /* Responsive tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-width: 767px) {
+            /* Stack table rows on mobile */
+            .table-mobile-stack {
+                display: block;
+            }
+            
+            .table-mobile-stack thead {
+                display: none;
+            }
+            
+            .table-mobile-stack tbody,
+            .table-mobile-stack tr {
+                display: block;
+            }
+            
+            .table-mobile-stack td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .table-mobile-stack td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-right: 1rem;
+                min-width: 120px;
+            }
+            
+            /* Hide non-essential columns on mobile */
+            .table td.mobile-hide,
+            .table th.mobile-hide {
+                display: none;
+            }
+        }
+        
+        /* Responsive forms */
+        @media (max-width: 767px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+            }
+        }
+        
+        /* Responsive modals */
+        @media (max-width: 767px) {
+            .modal {
+                width: 95%;
+                margin: 1rem;
+                max-height: 90vh;
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+            }
+            
+            /* Full-screen modals on very small screens */
+            @media (max-width: 480px) {
+                .modal {
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    border-radius: 0;
+                }
+            }
+        }
+        
+        /* Responsive navigation */
+        @media (max-width: 1023px) {
+            .top-nav {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                background: var(--card-bg);
+            }
+            
+            .nav-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Responsive cards */
+        @media (max-width: 767px) {
+            .card {
+                border-radius: 8px;
+                margin: 0.5rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+        }
+        
+        /* Responsive buttons */
+        @media (max-width: 767px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Touch-friendly buttons */
+            .btn {
+                min-height: 44px;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        /* Responsive charts/graphs */
+        @media (max-width: 767px) {
+            .chart-container {
+                height: 250px !important;
+            }
+            
+            .chart-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+            
+            a[href]::after {
+                content: " (" attr(href) ")";
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+</style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <a href="admin.html" class="nav-brand">
+            <i class="fas fa-chart-line"></i>
+            STEADYMONITOR
+        </a>
+        
+        <div class="nav-user">
+            <span class="user-greeting" id="greeting">Good morning, Admin</span>
+            <div class="dropdown">
+                <button class="btn btn-outline btn-sm" id="userMenu">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item active">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            
+            <a href="department.html" class="nav-item">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-label">Departments</span>
+            </a>
+            
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Customers</span>
+            </a>
+            
+            <a href="payments.html" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-label">Payments</span>
+            </a>
+            
+            <a href="pos.html" class="nav-item">
+                <i class="fas fa-cash-register nav-icon"></i>
+                <span class="nav-label">POS</span>
+            </a>
+            
+            <a href="pocket_money.html" class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">Pocket Money</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-label">Inventory</span>
+            </a>
+            
+            <a href="suppliers.html" class="nav-item">
+                <i class="fas fa-truck nav-icon"></i>
+                <span class="nav-label">Suppliers</span>
+            </a>
+            
+            <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+            
+            <a href="overview.html" class="nav-item">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span class="nav-label">Overview</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content with-sidebar" id="mainContent">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Dashboard Overview</h1>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-outline" id="exportBtn">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be loaded dynamically -->
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSales">KES 0</div>
+                    <div class="stat-label">
+                        <i class="fas fa-shopping-cart"></i>
+                        Total Sales Today
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-label">
+                        <i class="fas fa-users"></i>
+                        Active Customers
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="lowStock">0</div>
+                    <div class="stat-label">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Low Stock Items
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingPayments">KES 0</div>
+                    <div class="stat-label">
+                        <i class="fas fa-clock"></i>
+                        Pending Payments
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Recent Activity -->
+            <div class="grid grid-2">
+                <!-- Sales Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Sales Trend</h3>
+                        <select class="form-control form-control-sm" style="width: auto;" id="chartPeriod">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="salesChart" style="height: 300px;">
+                            <!-- Chart will be rendered here -->
+                            
+                            <div class="empty-state">
+                                <i class="fas fa-chart-line"></i>
+                                <h4>No Data Available</h4>
+                                <p>Sales data will appear here once available</p>
+                                <button class="btn btn-sm btn-outline mt-2" id="retryChartBtn">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <button class="btn btn-sm btn-outline" id="viewAllActivity">
+                            View All
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="activity-list" id="activityList">
+                            <!-- Activity items will be loaded here -->
+                            
+                            <li class="activity-item" id="loadingActivity">
+                                <div class="activity-icon">
+                                    <div class="loading"></div>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">Loading activities...</div>
+                                    <div class="activity-time">Just now</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-4">
+                        <a href="pos.html" class="btn btn-outline">
+                            <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                            <div>New Sale</div>
+                        </a>
+                        
+                        <a href="customers.html" class="btn btn-outline">
+                            <i class="fas fa-user-plus fa-2x mb-2"></i>
+                            <div>Add Customer</div>
+                        </a>
+                        
+                        <a href="payments.html" class="btn btn-outline">
+                            <i class="fas fa-money-check-alt fa-2x mb-2"></i>
+                            <div>Record Payment</div>
+                        </a>
+                        
+                        <a href="reports.html" class="btn btn-outline">
+                            <i class="fas fa-file-export fa-2x mb-2"></i>
+                            <div>Generate Report</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+    <script>
+                    // Auth check
+                    document.addEventListener('DOMContentLoaded', async function() {
+                        if (window.auth) {
+                            const authenticated = await window.auth.requireAuth();
+                            if (!authenticated) return;
+                        }
+                    });
+                
+        // Mobile menu and dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('active');
+                    }
+                    document.body.classList.toggle('no-scroll');
+                });
+                
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.classList.remove('no-scroll');
+                    });
+                }
+            }
+            
+            // Mobile dropdown menu
+            const userMenu = document.getElementById('userMenu');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (userMenu && dropdownMenu) {
+                userMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('active');
+                    
+                    // Add backdrop for mobile
+                    if (window.innerWidth <= 768) {
+                        let backdrop = document.querySelector('.dropdown-backdrop');
+                        if (!backdrop) {
+                            backdrop = document.createElement('div');
+                            backdrop.className = 'dropdown-backdrop';
+                            document.body.appendChild(backdrop);
+                        }
+                        backdrop.classList.toggle('active');
+                        
+                        backdrop.addEventListener('click', () => {
+                            dropdownMenu.classList.remove('active');
+                            backdrop.classList.remove('active');
+                        });
+                    }
+                });
+                
+                // Close dropdown when clicking elsewhere
+                document.addEventListener('click', (e) => {
+                    if (!userMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('active');
+                        const backdrop = document.querySelector('.dropdown-backdrop');
+                        if (backdrop) backdrop.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        showLoading(true);
+                        try {
+                            // Call auth.js logout function
+                            if (typeof auth !== 'undefined' && auth.logout) {
+                                await auth.logout();
+                            }
+                            window.location.href = 'login.html';
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                            showLoading(false);
+                        }
+                    }
+                });
+            }
+            
+            // Retry chart button
+            const retryChartBtn = document.getElementById('retryChartBtn');
+            if (retryChartBtn) {
+                retryChartBtn.addEventListener('click', () => {
+                    // Reload chart data
+                    if (typeof loadChartData === 'function') {
+                        loadChartData();
+                    }
+                });
+            }
+            
+            // Refresh button
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    if (typeof loadDashboardData === 'function') {
+                        loadDashboardData();
+                    }
+                });
+            }
+            
+            // View all activity button
+            const viewAllActivityBtn = document.getElementById('viewAllActivity');
+            if (viewAllActivityBtn) {
+                viewAllActivityBtn.addEventListener('click', () => {
+                    window.location.href = 'reports.html?tab=activity';
+                });
+            }
+            
+            // Chart period change
+            const chartPeriod = document.getElementById('chartPeriod');
+            if (chartPeriod) {
+                chartPeriod.addEventListener('change', () => {
+                    if (typeof loadChartData === 'function') {
+                        loadChartData();
+                    }
+                });
+            }
+            
+            // Export button
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', async () => {
+                    showLoading(true);
+                    try {
+                        // Call export function from admin.js
+                        if (typeof exportDashboardData === 'function') {
+                            await exportDashboardData();
+                        } else {
+                            showNotification('Export functionality not available', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Export error:', error);
+                        showNotification('Export failed: ' + error.message, 'error');
+                    } finally {
+                        showLoading(false);
+                    }
+                });
+            }
+            
+            // Prevent body scroll when sidebar or dropdown is open
+            document.body.classList.remove('no-scroll');
+        });
+        
+        // Show/hide loading overlay
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+        
+        // Show notification (simple implementation)
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = `notification-toast notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add styles if not present
+            if (!document.querySelector('#notification-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'notification-styles';
+                styles.textContent = `
+                    .notification-toast {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: white;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        padding: 1rem 1.5rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        min-width: 300px;
+                        max-width: 400px;
+                        z-index: 9999;
+                        animation: slideIn 0.3s ease;
+                        border-left: 4px solid var(--primary);
+                    }
+                    
+                    .notification-success {
+                        border-left-color: var(--success);
+                    }
+                    
+                    .notification-error {
+                        border-left-color: var(--danger);
+                    }
+                    
+                    .notification-warning {
+                        border-left-color: var(--warning);
+                    }
+                    
+                    .notification-content {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.75rem;
+                        flex: 1;
+                    }
+                    
+                    .notification-content i {
+                        font-size: 1.25rem;
+                    }
+                    
+                    .notification-success .notification-content i {
+                        color: var(--success);
+                    }
+                    
+                    .notification-error .notification-content i {
+                        color: var(--danger);
+                    }
+                    
+                    .notification-warning .notification-content i {
+                        color: var(--warning);
+                    }
+                    
+                    .notification-close {
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        color: var(--text-muted);
+                        cursor: pointer;
+                        padding: 0 0.5rem;
+                    }
+                    
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    
+                    @media (max-width: 768px) {
+                        .notification-toast {
+                            left: 20px;
+                            right: 20px;
+                            min-width: auto;
+                            max-width: none;
+                        }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+            
+            // Close button
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.remove();
+            });
+            
+            // Add slideOut animation
+            const styleSheet = document.querySelector('#notification-styles');
+            if (styleSheet && !styleSheet.textContent.includes('slideOut')) {
+                styleSheet.textContent += `
+                    @keyframes slideOut {
+                        from {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                    }
+                `;
+            }
+        }
+        
+        // Prevent body scroll utility
+        const originalStyle = document.body.style.cssText;
+        function disableBodyScroll() {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+        }
+        
+        function enableBodyScroll() {
+            document.body.style.cssText = originalStyle;
+        }
+        
+        // Make functions available globally
+        window.showLoading = showLoading;
+        window.showNotification = showNotification;
+    </script>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+</body>
+</html>

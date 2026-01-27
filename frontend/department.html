@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management | Hattyjohns Investments/title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Department Management Specific Styles */
+        .department-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .quick-stat {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all var(--transition);
+        }
+
+        .quick-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quick-stat i {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .quick-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .quick-stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* Department Cards */
+        .departments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .department-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .department-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .department-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .department-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .department-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .department-icon.uniform {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .department-icon.stationery {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .department-icon.supplies {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .department-name h3 {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            color: var(--text-primary);
+        }
+
+        .department-name p {
+            margin: 4px 0 0;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .department-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+        }
+
+        .department-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .department-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Performance Chart */
+        .performance-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* Product List */
+        .products-table {
+            margin-top: 24px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Search and Filter */
+        .search-filter-bar {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            transition: border-color var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        /* Loading States */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: var(--text-muted);
+        }
+
+        .loading-container i {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stock Status Indicators */
+        .stock-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .stock-low {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
+
+        .stock-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stock-high {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+
+        /* Department Modal */
+        .department-modal .modal {
+            max-width: 600px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-section-title {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section-title i {
+            color: var(--primary);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .departments-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: unset;
+            }
+
+            .filter-group {
+                flex-wrap: wrap;
+            }
+
+            .department-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .departments-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .department-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .department-actions {
+                justify-content: stretch;
+            }
+
+            .department-actions .btn {
+                flex: 1;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .quick-stat {
+                padding: 16px;
+            }
+
+            .performance-section {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .department-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box input {
+                padding: 10px 14px 10px 36px;
+            }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast i {
+            font-size: 18px;
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.warning i {
+            color: var(--warning);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="#" class="nav-brand">
+                <i class="fas fa-building"></i>
+                <span>SteadyMonitor</span>
+            </a>
+            <div class="nav-user">
+                <span class="user-greeting" id="userGreeting">Welcome</span>
+                <button class="btn btn-sm btn-outline" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </div>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="container">
+                    <div class="page-title">
+                        <div>
+                            <h1>Department Management</h1>
+                            <p class="text-secondary">Manage departments, inventory, and performance metrics</p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="addDepartmentBtn">
+                                <i class="fas fa-plus"></i> Add Department
+                            </button>
+                            <button class="btn btn-outline" id="refreshBtn">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="department-container">
+                    <!-- Quick Stats -->
+                    <div class="quick-stats" id="quickStats">
+                        <div class="quick-stat">
+                            <i class="fas fa-cash-register"></i>
+                            <div class="quick-stat-value" id="totalSales">KSh 0</div>
+                            <div class="quick-stat-label">Today's Sales</div>
+                        </div>
+                        <div class="quick-stat">
+                            <i class="fas fa-box"></i>
+                            <div class="quick-stat-value" id="lowStockCount">0</div>
+                            <div class="quick-stat-label">Low Stock Items</div>
+                        </div>
+                        <div class="quick-stat">
+                            <i class="fas fa-users"></i>
+                            <div class="quick-stat-value" id="totalCustomers">0</div>
+                            <div class="quick-stat-label">Active Customers</div>
+                        </div>
+                        <div class="quick-stat">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="quick-stat-value" id="growthRate">0%</div>
+                            <div class="quick-stat-label">Monthly Growth</div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search departments, products, or staff...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="statusFilter">Status:</label>
+                            <select id="statusFilter" class="form-control">
+                                <option value="all">All Departments</option>
+                                <option value="active">Active Only</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="departmentFilter">Department:</label>
+                            <select id="departmentFilter" class="form-control">
+                                <option value="all">All Departments</option>
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                        <button class="btn btn-sm btn-primary" id="applyFiltersBtn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+
+                    <!-- Departments Grid -->
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-building"></i> Departments
+                        </h2>
+                        <div class="view-controls">
+                            <button class="btn btn-sm btn-outline" id="gridViewBtn">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline" id="listViewBtn">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="departmentsContainer">
+                        <div class="loading-container">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading departments...</p>
+                        </div>
+                    </div>
+
+                    <!-- Performance Chart -->
+                    <div class="performance-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="fas fa-chart-bar"></i> Sales Performance
+                            </h3>
+                            <select id="chartPeriod" class="form-control" style="width: 150px;">
+                                <option value="week">Last 7 Days</option>
+                                <option value="month" selected>Last 30 Days</option>
+                                <option value="quarter">Last 90 Days</option>
+                                <option value="year">Last Year</option>
+                            </select>
+                        </div>
+                        <div class="chart-container" id="performanceChart">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock Products -->
+                    <div class="performance-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="fas fa-exclamation-triangle"></i> Low Stock Alert
+                            </h3>
+                            <button class="btn btn-sm btn-outline" id="viewAllLowStockBtn">
+                                View All
+                            </button>
+                        </div>
+                        <div class="products-table">
+                            <div class="table-container">
+                                <table class="table" id="lowStockTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>SKU</th>
+                                            <th>Department</th>
+                                            <th>Current Stock</th>
+                                            <th>Min Stock</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Sales -->
+                    <div class="performance-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="fas fa-history"></i> Recent Sales
+                            </h3>
+                            <button class="btn btn-sm btn-outline" id="viewAllSalesBtn">
+                                View All
+                            </button>
+                        </div>
+                        <div class="products-table">
+                            <div class="table-container">
+                                <table class="table" id="recentSalesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Receipt</th>
+                                            <th>Customer</th>
+                                            <th>Amount</th>
+                                            <th>Department</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Department Modal -->
+    <div class="modal-overlay" id="departmentModal">
+        <div class="modal department-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New Department</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="departmentForm">
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-info-circle"></i> Basic Information
+                        </h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="deptName">Department Name *</label>
+                                <input type="text" id="deptName" class="form-control" placeholder="e.g., Uniforms, Stationery" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="deptCode">Department Code *</label>
+                                <input type="text" id="deptCode" class="form-control" placeholder="e.g., UNIFORM, STATIONERY" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="deptManager">Manager</label>
+                                <input type="text" id="deptManager" class="form-control" placeholder="Manager name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="deptStatus">Status</label>
+                                <select id="deptStatus" class="form-control">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-cog"></i> Settings
+                        </h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="deptColor">Color Theme</label>
+                                <input type="color" id="deptColor" class="form-control" value="#667eea">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="deptIcon">Icon</label>
+                                <select id="deptIcon" class="form-control">
+                                    <option value="fas fa-tshirt">Uniform</option>
+                                    <option value="fas fa-pen">Stationery</option>
+                                    <option value="fas fa-box">Supplies</option>
+                                    <option value="fas fa-book">Books</option>
+                                    <option value="fas fa-shoe-prints">Shoes</option>
+                                    <option value="fas fa-shopping-bag">Retail</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="targetSales">Monthly Sales Target (KSh)</label>
+                                <input type="number" id="targetSales" class="form-control" placeholder="e.g., 100000" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profitMargin">Target Profit Margin (%)</label>
+                                <input type="number" id="profitMargin" class="form-control" placeholder="e.g., 30" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-sticky-note"></i> Description
+                        </h4>
+                        <div class="form-group">
+                            <textarea id="deptDescription" class="form-control" rows="4" placeholder="Department description..."></textarea>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="deptId" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveDepartmentBtn">
+                    <i class="fas fa-save"></i> Save Department
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal department-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="productModalTitle">Add Product</h3>
+                <button class="modal-close" id="closeProductModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <!-- Will be populated by JS -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelProductBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveProductBtn">
+                    <i class="fas fa-save"></i> Save Product
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Department Management Application
+        class DepartmentManager {
+            constructor() {
+                this.currentDepartment = null;
+                this.departments = [];
+                this.user = null;
+                this.salesChart = null;
+                this.viewMode = 'grid'; // 'grid' or 'list'
+                this.filters = {
+                    search: '',
+                    status: 'all',
+                    department: 'all'
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                // Wait for auth to be ready
+                await this.waitForAuth();
+                
+                // Get user info
+                this.user = window.auth?.getUser();
+                
+                // Initialize UI
+                this.initUI();
+                
+                // Load initial data
+                this.loadDashboardData();
+                this.loadDepartments();
+                this.loadLowStockItems();
+                this.loadRecentSales();
+                
+                console.log('Department Manager initialized for user:', this.user?.role);
+            }
+
+            async waitForAuth() {
+                return new Promise((resolve) => {
+                    if (window.auth && window.auth.getUser()) {
+                        resolve();
+                        return;
+                    }
+
+                    let attempts = 0;
+                    const maxAttempts = 10;
+                    
+                    const checkAuth = setInterval(() => {
+                        attempts++;
+                        if (window.auth && window.auth.getUser()) {
+                            clearInterval(checkAuth);
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(checkAuth);
+                            console.warn('Auth not available');
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+
+            initUI() {
+                // Event Listeners
+                document.getElementById('addDepartmentBtn').addEventListener('click', () => this.showAddDepartmentModal());
+                document.getElementById('refreshBtn').addEventListener('click', () => this.refreshData());
+                document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e));
+                document.getElementById('statusFilter').addEventListener('change', (e) => this.handleFilterChange(e));
+                document.getElementById('departmentFilter').addEventListener('change', (e) => this.handleFilterChange(e));
+                document.getElementById('applyFiltersBtn').addEventListener('click', () => this.applyFilters());
+                document.getElementById('gridViewBtn').addEventListener('click', () => this.setViewMode('grid'));
+                document.getElementById('listViewBtn').addEventListener('click', () => this.setViewMode('list'));
+                document.getElementById('viewAllLowStockBtn').addEventListener('click', () => this.viewAllLowStock());
+                document.getElementById('viewAllSalesBtn').addEventListener('click', () => this.viewAllSales());
+                document.getElementById('chartPeriod').addEventListener('change', (e) => this.updateChart(e.target.value));
+
+                // Modal controls
+                document.getElementById('closeModal').addEventListener('click', () => this.hideDepartmentModal());
+                document.getElementById('cancelBtn').addEventListener('click', () => this.hideDepartmentModal());
+                document.getElementById('saveDepartmentBtn').addEventListener('click', () => this.saveDepartment());
+                document.getElementById('closeProductModal').addEventListener('click', () => this.hideProductModal());
+                document.getElementById('cancelProductBtn').addEventListener('click', () => this.hideProductModal());
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
+
+                // Initialize user greeting
+                if (this.user) {
+                    document.getElementById('userGreeting').textContent = `Welcome, ${this.user.displayName || this.user.username}`;
+                    
+                    // Set default department filter based on user's department
+                    if (this.user.department) {
+                        document.getElementById('departmentFilter').innerHTML = `
+                            <option value="all">All Departments</option>
+                            <option value="${this.user.department}" selected>${this.user.department.replace('_', ' ').toUpperCase()}</option>
+                        `;
+                        this.filters.department = this.user.department;
+                    }
+                }
+
+                // Initialize Chart.js
+                this.initChart();
+            }
+
+            async loadDashboardData() {
+    try {
+        // Load dashboard stats
+        const stats = await API.call('/api/dashboard/stats');
+        
+        if (stats && stats.success) { // Check for success flag
+            document.getElementById('totalSales').textContent = `KSh ${parseFloat(stats.today_sales).toLocaleString()}`;
+            document.getElementById('lowStockCount').textContent = stats.low_stock_count;
+            document.getElementById('totalCustomers').textContent = stats.total_customers;
+            document.getElementById('growthRate').textContent = '15%';
+        } else {
+            this.showToast('Failed to load dashboard stats', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        this.showToast('Failed to load dashboard data', 'error');
+    }
+}
+
+            async loadDepartments() {
+                const container = document.getElementById('departmentsContainer');
+                
+                try {
+                    // In production, call your departments endpoint
+                    // For now, simulate data
+                    await this.simulateDepartmentsData();
+                } catch (error) {
+                    console.error('Error loading departments:', error);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error Loading Departments</h3>
+                            <p>${error.message}</p>
+                            <button class="btn btn-primary" onclick="departmentManager.loadDepartments()">
+                                <i class="fas fa-redo"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            async simulateDepartmentsData() {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Generate sample department data
+                const sampleDepartments = [
+                    {
+                        id: 1,
+                        name: "Uniform Department",
+                        code: "UNIFORM",
+                        description: "School uniforms and related items",
+                        manager: "John Doe",
+                        status: "active",
+                        sales_today: 25480,
+                        sales_month: 452100,
+                        products_count: 42,
+                        low_stock_count: 3,
+                        target_sales: 500000,
+                        profit_margin: 35,
+                        color: "#667eea",
+                        icon: "fas fa-tshirt"
+                    },
+                    {
+                        id: 2,
+                        name: "Stationery Department",
+                        code: "STATIONERY",
+                        description: "Books, pens, and school supplies",
+                        manager: "Jane Smith",
+                        status: "active",
+                        sales_today: 18450,
+                        sales_month: 324800,
+                        products_count: 78,
+                        low_stock_count: 7,
+                        target_sales: 400000,
+                        profit_margin: 25,
+                        color: "#f5576c",
+                        icon: "fas fa-pen"
+                    }
+                ];
+
+                this.departments = sampleDepartments;
+                this.renderDepartments();
+            }
+
+            renderDepartments() {
+                const container = document.getElementById('departmentsContainer');
+                
+                if (this.departments.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-building"></i>
+                            <h3>No Departments Found</h3>
+                            <p>${this.filters.search ? 'Try a different search term' : 'No departments have been set up yet'}</p>
+                            <button class="btn btn-primary" onclick="departmentManager.showAddDepartmentModal()">
+                                <i class="fas fa-plus"></i> Add First Department
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (this.viewMode === 'grid') {
+                    this.renderGridView();
+                } else {
+                    this.renderListView();
+                }
+            }
+
+            renderGridView() {
+                const container = document.getElementById('departmentsContainer');
+                
+                container.innerHTML = `
+                    <div class="departments-grid">
+                        ${this.departments.map(dept => `
+                            <div class="department-card">
+                                <div class="department-header">
+                                    <div class="department-title">
+                                        <div class="department-icon ${dept.code.toLowerCase()}" style="background: ${dept.color}">
+                                            <i class="${dept.icon}"></i>
+                                        </div>
+                                        <div class="department-name">
+                                            <h3>${dept.name}</h3>
+                                            <p>${dept.code} • ${dept.manager || 'No manager'}</p>
+                                        </div>
+                                    </div>
+                                    <span class="department-status status-${dept.status}">
+                                        ${dept.status.toUpperCase()}
+                                    </span>
+                                </div>
+                                
+                                <div class="department-metrics">
+                                    <div class="metric">
+                                        <div class="metric-value">KSh ${dept.sales_today.toLocaleString()}</div>
+                                        <div class="metric-label">Today's Sales</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-value">${dept.products_count}</div>
+                                        <div class="metric-label">Products</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-value">${dept.low_stock_count}</div>
+                                        <div class="metric-label">Low Stock</div>
+                                    </div>
+                                </div>
+                                
+                                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
+                                    ${dept.description}
+                                </p>
+                                
+                                <div class="progress-bar" style="margin-bottom: 16px;">
+                                    <div class="progress" style="height: 6px; background: var(--background); border-radius: 3px;">
+                                        <div class="progress-fill" style="width: ${(dept.sales_month / dept.target_sales * 100)}%; height: 100%; background: ${dept.color}; border-radius: 3px;"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                        <span>Monthly Target</span>
+                                        <span>KSh ${dept.sales_month.toLocaleString()} / KSh ${dept.target_sales.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="department-actions">
+                                    <button class="btn btn-sm btn-outline view-dept-btn" data-dept-id="${dept.id}">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-sm btn-primary edit-dept-btn" data-dept-id="${dept.id}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-success add-product-btn" data-dept-id="${dept.id}">
+                                        <i class="fas fa-plus"></i> Add Product
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // Add event listeners
+                this.addDepartmentEventListeners();
+            }
+
+            renderListView() {
+                const container = document.getElementById('departmentsContainer');
+                
+                container.innerHTML = `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Manager</th>
+                                    <th>Today's Sales</th>
+                                    <th>Products</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${this.departments.map(dept => `
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div class="department-icon ${dept.code.toLowerCase()}" style="background: ${dept.color}; width: 36px; height: 36px;">
+                                                    <i class="${dept.icon}" style="font-size: 16px;"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>${dept.name}</strong><br>
+                                                    <small style="color: var(--text-secondary);">${dept.code}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>${dept.manager || 'N/A'}</td>
+                                        <td><strong>KSh ${dept.sales_today.toLocaleString()}</strong></td>
+                                        <td>${dept.products_count}</td>
+                                        <td>
+                                            <span class="department-status status-${dept.status}">
+                                                ${dept.status.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn btn-sm btn-outline view-dept-btn" data-dept-id="${dept.id}">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary edit-dept-btn" data-dept-id="${dept.id}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-success add-product-btn" data-dept-id="${dept.id}">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                // Add event listeners
+                this.addDepartmentEventListeners();
+            }
+
+            addDepartmentEventListeners() {
+                document.querySelectorAll('.view-dept-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const deptId = e.target.closest('button').dataset.deptId;
+                        this.viewDepartment(deptId);
+                    });
+                });
+
+                document.querySelectorAll('.edit-dept-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const deptId = e.target.closest('button').dataset.deptId;
+                        this.editDepartment(deptId);
+                    });
+                });
+
+                document.querySelectorAll('.add-product-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const deptId = e.target.closest('button').dataset.deptId;
+                        this.showAddProductModal(deptId);
+                    });
+                });
+            }
+
+            async loadLowStockItems() {
+    try {
+        const data = await API.call('/api/dashboard/low-stock');
+        
+        if (data && data.success) {
+            this.renderLowStockTable(data.items); // Access items property
+        } else {
+            // Simulate data for demo
+            this.simulateLowStockData();
+        }
+    } catch (error) {
+        console.error('Error loading low stock items:', error);
+        this.simulateLowStockData();
+    }
+}
+
+            simulateLowStockData() {
+                const sampleData = [
+                    {
+                        product_id: 1,
+                        name: "School Shirt Size M",
+                        sku: "SHIRT-M-2024",
+                        department: "uniform",
+                        stock_quantity: 5,
+                        minimum_stock: 20,
+                        status: "low"
+                    },
+                    {
+                        product_id: 2,
+                        name: "Exercise Books 200p",
+                        sku: "EXB-200-2024",
+                        department: "stationery",
+                        stock_quantity: 12,
+                        minimum_stock: 50,
+                        status: "low"
+                    },
+                    {
+                        product_id: 3,
+                        name: "School Tie",
+                        sku: "TIE-BLUE-2024",
+                        department: "uniform",
+                        stock_quantity: 8,
+                        minimum_stock: 30,
+                        status: "low"
+                    },
+                    {
+                        product_id: 4,
+                        name: "Black Pens Pack",
+                        sku: "PEN-BLK-50",
+                        department: "stationery",
+                        stock_quantity: 15,
+                        minimum_stock: 100,
+                        status: "low"
+                    }
+                ];
+
+                this.renderLowStockTable(sampleData);
+            }
+
+            renderLowStockTable(items) {
+                const tbody = document.querySelector('#lowStockTable tbody');
+                
+                if (!items || items.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="empty-state" style="padding: 20px;">
+                                    <i class="fas fa-check-circle"></i>
+                                    <p>All stock levels are good</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = items.map(item => `
+                    <tr>
+                        <td>
+                            <strong>${item.name}</strong><br>
+                            <small style="color: var(--text-secondary);">${item.sku}</small>
+                        </td>
+                        <td>${item.sku}</td>
+                        <td>
+                            <span class="badge ${item.department === 'uniform' ? 'badge-primary' : 'badge-success'}">
+                                ${item.department.toUpperCase()}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-danger">${item.stock_quantity}</span>
+                        </td>
+                        <td>${item.minimum_stock}</td>
+                        <td>
+                            <span class="stock-indicator stock-low">
+                                <i class="fas fa-exclamation-circle"></i>
+                                LOW STOCK
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline" onclick="departmentManager.reorderProduct(${item.product_id})">
+                                    <i class="fas fa-shopping-cart"></i> Reorder
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="departmentManager.viewProduct(${item.product_id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async loadRecentSales() {
+    try {
+        const data = await API.call('/api/dashboard/recent-sales');
+        
+        if (data && data.success) {
+            this.renderRecentSalesTable(data.sales); // Access sales property
+        } else {
+            // Simulate data for demo
+            this.simulateRecentSalesData();
+        }
+    } catch (error) {
+        console.error('Error loading recent sales:', error);
+        this.simulateRecentSalesData();
+    }
+}
+
+            simulateRecentSalesData() {
+                const sampleData = [
+                    {
+                        sale_id: "SALE-001",
+                        total_amount: 2450,
+                        payment_method: "cash",
+                        created_at: new Date().toISOString(),
+                        customer_name: "John Doe",
+                        admission_number: "ADM001",
+                        department: "uniform"
+                    },
+                    {
+                        sale_id: "SALE-002",
+                        total_amount: 1250,
+                        payment_method: "mpesa",
+                        created_at: new Date(Date.now() - 3600000).toISOString(),
+                        customer_name: "Jane Smith",
+                        admission_number: "ADM002",
+                        department: "stationery"
+                    },
+                    {
+                        sale_id: "SALE-003",
+                        total_amount: 3250,
+                        payment_method: "cash",
+                        created_at: new Date(Date.now() - 7200000).toISOString(),
+                        customer_name: "Robert Johnson",
+                        admission_number: "ADM003",
+                        department: "uniform"
+                    }
+                ];
+
+                this.renderRecentSalesTable(sampleData);
+            }
+
+            renderRecentSalesTable(sales) {
+                const tbody = document.querySelector('#recentSalesTable tbody');
+                
+                tbody.innerHTML = sales.map(sale => `
+                    <tr>
+                        <td>
+                            ${new Date(sale.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}<br>
+                            <small style="color: var(--text-secondary);">${new Date(sale.created_at).toLocaleDateString()}</small>
+                        </td>
+                        <td>
+                            <strong>${sale.sale_id}</strong><br>
+                            <small style="color: var(--text-secondary);">${sale.payment_method.toUpperCase()}</small>
+                        </td>
+                        <td>
+                            ${sale.customer_name}<br>
+                            <small style="color: var(--text-secondary);">${sale.admission_number}</small>
+                        </td>
+                        <td><strong>KSh ${parseFloat(sale.total_amount).toLocaleString()}</strong></td>
+                        <td>
+                            <span class="badge ${sale.department === 'uniform' ? 'badge-primary' : 'badge-success'}">
+                                ${sale.department.toUpperCase()}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-success">Completed</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            initChart() {
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                
+                // Sample data for chart
+                const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const uniformData = [12000, 19000, 15000, 25000, 22000, 18000, 24000];
+                const stationeryData = [8000, 12000, 10000, 15000, 13000, 9000, 14000];
+                
+                this.salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Uniform Department',
+                                data: uniformData,
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Stationery Department',
+                                data: stationeryData,
+                                borderColor: '#f5576c',
+                                backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: KSh ${context.raw.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'KSh ' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateChart(period) {
+                // In production, this would fetch new data based on the period
+                // For demo, we'll just update the chart title
+                console.log('Updating chart for period:', period);
+                
+                // You would call API to get new data and update the chart
+                // this.salesChart.data.datasets[0].data = newData;
+                // this.salesChart.update();
+            }
+
+            showAddDepartmentModal() {
+                document.getElementById('modalTitle').textContent = 'Add New Department';
+                document.getElementById('deptId').value = '';
+                document.getElementById('departmentForm').reset();
+                document.getElementById('departmentModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            showEditDepartmentModal(deptId) {
+                const department = this.departments.find(d => d.id == deptId);
+                if (!department) return;
+
+                this.currentDepartment = department;
+                
+                document.getElementById('modalTitle').textContent = 'Edit Department';
+                document.getElementById('deptId').value = department.id;
+                document.getElementById('deptName').value = department.name;
+                document.getElementById('deptCode').value = department.code;
+                document.getElementById('deptManager').value = department.manager || '';
+                document.getElementById('deptStatus').value = department.status;
+                document.getElementById('deptColor').value = department.color;
+                document.getElementById('deptIcon').value = department.icon;
+                document.getElementById('targetSales').value = department.target_sales;
+                document.getElementById('profitMargin').value = department.profit_margin;
+                document.getElementById('deptDescription').value = department.description;
+                
+                document.getElementById('departmentModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            hideDepartmentModal() {
+                document.getElementById('departmentModal').classList.remove('active');
+                document.body.style.overflow = '';
+                this.currentDepartment = null;
+            }
+
+            async saveDepartment() {
+                const form = document.getElementById('departmentForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const departmentData = {
+                    name: document.getElementById('deptName').value,
+                    code: document.getElementById('deptCode').value,
+                    manager: document.getElementById('deptManager').value,
+                    status: document.getElementById('deptStatus').value,
+                    color: document.getElementById('deptColor').value,
+                    icon: document.getElementById('deptIcon').value,
+                    target_sales: document.getElementById('targetSales').value,
+                    profit_margin: document.getElementById('profitMargin').value,
+                    description: document.getElementById('deptDescription').value
+                };
+
+                const deptId = document.getElementById('deptId').value;
+                const isEdit = !!deptId;
+
+                const saveBtn = document.getElementById('saveDepartmentBtn');
+                const originalText = saveBtn.innerHTML;
+                
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                saveBtn.disabled = true;
+
+                try {
+                    // In production, call your API endpoint
+                    // const endpoint = isEdit ? `/api/departments/${deptId}` : '/api/departments';
+                    // const method = isEdit ? 'PUT' : 'POST';
+                    // const data = await API.call(endpoint, { method, body: JSON.stringify(departmentData) });
+
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    if (isEdit) {
+                        // Update existing department
+                        const index = this.departments.findIndex(d => d.id == deptId);
+                        if (index !== -1) {
+                            this.departments[index] = { ...this.departments[index], ...departmentData };
+                        }
+                        this.showToast('Department updated successfully', 'success');
+                    } else {
+                        // Add new department
+                        const newDept = {
+                            id: this.departments.length + 1,
+                            ...departmentData,
+                            sales_today: 0,
+                            sales_month: 0,
+                            products_count: 0,
+                            low_stock_count: 0
+                        };
+                        this.departments.push(newDept);
+                        this.showToast('Department added successfully', 'success');
+                    }
+
+                    this.hideDepartmentModal();
+                    this.renderDepartments();
+                } catch (error) {
+                    console.error('Error saving department:', error);
+                    this.showToast('Failed to save department', 'error');
+                } finally {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                }
+            }
+
+            showAddProductModal(deptId) {
+                const department = this.departments.find(d => d.id == deptId);
+                if (!department) return;
+
+                this.currentDepartment = department;
+                
+                document.getElementById('productModalTitle').textContent = `Add Product to ${department.name}`;
+                
+                const formContainer = document.getElementById('productForm');
+                formContainer.innerHTML = `
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-box"></i> Product Information
+                        </h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="productName">Product Name *</label>
+                                <input type="text" id="productName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productSKU">SKU *</label>
+                                <input type="text" id="productSKU" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productCategory">Category</label>
+                                <select id="productCategory" class="form-control">
+                                    <option value="clothing">Clothing</option>
+                                    <option value="stationery">Stationery</option>
+                                    <option value="books">Books</option>
+                                    <option value="supplies">Supplies</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productUnit">Unit</label>
+                                <select id="productUnit" class="form-control">
+                                    <option value="piece">Piece</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="set">Set</option>
+                                    <option value="dozen">Dozen</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-money-bill-wave"></i> Pricing
+                        </h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="costPrice">Cost Price (KSh) *</label>
+                                <input type="number" id="costPrice" class="form-control" required min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="sellingPrice">Selling Price (KSh) *</label>
+                                <input type="number" id="sellingPrice" class="form-control" required min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profitMargin">Profit Margin (%)</label>
+                                <input type="number" id="profitMargin" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-warehouse"></i> Inventory
+                        </h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="currentStock">Current Stock *</label>
+                                <input type="number" id="currentStock" class="form-control" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="minimumStock">Minimum Stock *</label>
+                                <input type="number" id="minimumStock" class="form-control" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="reorderPoint">Reorder Point</label>
+                                <input type="number" id="reorderPoint" class="form-control" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-sticky-note"></i> Description
+                        </h4>
+                        <div class="form-group">
+                            <textarea id="productDescription" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="productDeptId" value="${department.id}">
+                    <input type="hidden" id="productDeptName" value="${department.name}">
+                `;
+
+                // Add event listener to calculate profit margin
+                document.getElementById('costPrice').addEventListener('input', this.calculateProfitMargin);
+                document.getElementById('sellingPrice').addEventListener('input', this.calculateProfitMargin);
+
+                document.getElementById('productModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            calculateProfitMargin() {
+                const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
+                const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+                
+                if (costPrice > 0 && sellingPrice > costPrice) {
+                    const margin = ((sellingPrice - costPrice) / costPrice * 100).toFixed(1);
+                    document.getElementById('profitMargin').value = margin;
+                } else {
+                    document.getElementById('profitMargin').value = '';
+                }
+            }
+
+            hideProductModal() {
+                document.getElementById('productModal').classList.remove('active');
+                document.body.style.overflow = '';
+                this.currentDepartment = null;
+            }
+
+            async saveProduct() {
+                // Similar to saveDepartment, but for products
+                // This would call your /api/products endpoint
+                this.showToast('Product functionality coming soon', 'warning');
+                this.hideProductModal();
+            }
+
+            setViewMode(mode) {
+                this.viewMode = mode;
+                this.renderDepartments();
+                
+                // Update button states
+                if (mode === 'grid') {
+                    document.getElementById('gridViewBtn').classList.add('active');
+                    document.getElementById('listViewBtn').classList.remove('active');
+                } else {
+                    document.getElementById('listViewBtn').classList.add('active');
+                    document.getElementById('gridViewBtn').classList.remove('active');
+                }
+            }
+
+            handleSearch(e) {
+                this.filters.search = e.target.value;
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => this.applyFilters(), 300);
+            }
+
+            handleFilterChange(e) {
+                const filterName = e.target.id.replace('Filter', '');
+                this.filters[filterName] = e.target.value;
+            }
+
+            applyFilters() {
+                // Filter departments based on current filters
+                let filtered = [...this.departments];
+                
+                if (this.filters.search) {
+                    const searchLower = this.filters.search.toLowerCase();
+                    filtered = filtered.filter(dept => 
+                        dept.name.toLowerCase().includes(searchLower) ||
+                        dept.code.toLowerCase().includes(searchLower) ||
+                        dept.manager?.toLowerCase().includes(searchLower)
+                    );
+                }
+                
+                if (this.filters.status !== 'all') {
+                    filtered = filtered.filter(dept => dept.status === this.filters.status);
+                }
+                
+                if (this.filters.department !== 'all') {
+                    filtered = filtered.filter(dept => dept.code === this.filters.department);
+                }
+                
+                this.departments = filtered;
+                this.renderDepartments();
+            }
+
+            refreshData() {
+                this.loadDashboardData();
+                this.loadDepartments();
+                this.loadLowStockItems();
+                this.loadRecentSales();
+                this.showToast('Data refreshed successfully', 'success');
+            }
+
+            viewDepartment(deptId) {
+                const department = this.departments.find(d => d.id == deptId);
+                if (department) {
+                    this.showToast(`Viewing ${department.name}`, 'info');
+                    // In production, would redirect to department detail page
+                    // window.location.href = `department-detail.html?id=${deptId}`;
+                }
+            }
+
+            editDepartment(deptId) {
+                this.showEditDepartmentModal(deptId);
+            }
+
+            viewAllLowStock() {
+                this.showToast('Viewing all low stock items', 'info');
+                // In production, would redirect to inventory page with low stock filter
+                // window.location.href = 'inventory.html?filter=low-stock';
+            }
+
+            viewAllSales() {
+                this.showToast('Viewing all sales', 'info');
+                // In production, would redirect to sales report page
+                // window.location.href = 'reports.html?type=sales';
+            }
+
+            reorderProduct(productId) {
+                this.showToast(`Reorder request sent for product #${productId}`, 'success');
+            }
+
+            viewProduct(productId) {
+                this.showToast(`Viewing product #${productId}`, 'info');
+                // In production, would show product details modal
+            }
+
+            showToast(message, type = 'info') {
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Animate in
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            handleLogout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    if (window.auth && typeof window.auth.logout === 'function') {
+                        window.auth.logout()
+                            .then(() => {
+                                window.location.href = 'login.html';
+                            })
+                            .catch(() => {
+                                window.location.href = 'login.html';
+                            });
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                }
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.departmentManager = new DepartmentManager();
+        });
+    </script>
+</body>
+</html>
