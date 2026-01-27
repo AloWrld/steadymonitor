@@ -161,10 +161,10 @@ if (!isProduction) {
         }
     });
 
-    // Frontend 404 handler - FIXED SYNTAX
-    app.use('(.*)', (req, res, next) => {
+    // Frontend 404 handler - UPDATED FOR EXPRESS 5
+    app.use('/:path*', (req, res, next) => {
         // If the path starts with /api, pass it to the API 404 handler
-        if (req.baseUrl.startsWith('/api')) return next();
+        if (req.originalUrl.startsWith('/api')) return next();
         res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
     });
 }
@@ -173,20 +173,20 @@ if (!isProduction) {
 // API 404 HANDLER (ALWAYS ACTIVE)
 // ============================================
 
-app.use('/api', (req, res) => {
+app.use('/api/:path*', (req, res) => {
     res.status(404).json({ 
         success: false,
         message: 'API endpoint not found',
-        path: req.path
+        path: req.params.path || req.path
     });
 });
 
 // ============================================
-// PRODUCTION CATCH-ALL (API ONLY) - FIXED SYNTAX
+// PRODUCTION CATCH-ALL (API ONLY) - UPDATED FOR EXPRESS 5
 // ============================================
 
 if (isProduction) {
-    app.use('(.*)', (req, res) => {
+    app.use('/:path*', (req, res) => {
         res.status(404).json({
             success: false,
             message: 'Not found. This is an API-only server in production.',
@@ -213,13 +213,18 @@ app.use((err, req, res, next) => {
 // ============================================
 
 app.listen(PORT, () => {
+    const frontendUrl = isProduction ? process.env.FRONTEND_URL : 'http://localhost:3000';
+    const apiUrl = isProduction ? (process.env.API_URL || `http://localhost:${PORT}/api`) : `http://localhost:${PORT}/api`;
+    const dbStatus = process.env.DATABASE_URL ? 'Connected' : 'Not configured';
+    const servingFrontend = !isProduction ? 'Yes (development only)' : 'No (API only)';
+
     console.log(`
 🚀 Server running in ${NODE_ENV} mode
 📡 Port: ${PORT}
-🌐 Frontend: ${isProduction ? process.env.FRONTEND_URL : 'http://localhost:3000'}
-🔗 API: ${isProduction ? process.env.API_URL || `http://localhost:${PORT}/api` : 'http://localhost:' + PORT + '/api'}
-🗄️  Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}
-📦 Serving frontend: ${!isProduction ? 'Yes (development only)' : 'No (API only)'}
+🌐 Frontend: ${frontendUrl}
+🔗 API: ${apiUrl}
+🗄️  Database: ${dbStatus}
+📦 Serving frontend: ${servingFrontend}
     `);
 });
 
