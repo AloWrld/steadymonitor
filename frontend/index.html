@@ -480,140 +480,240 @@
     </style>
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="welcome-container">
-            <h1 class="welcome-title">Welcome to Hattyjohns Investments!</h1>
-            <p class="welcome-subtitle">Beyond Expectations</p>
-        </div>
+    <!-- ONLY WRAP EXISTING CONTENT IN THIS DIV -->
+    <div id="appRoot">
+        <div class="login-wrapper">
+            <div class="welcome-container">
+                <h1 class="welcome-title">Welcome to Hattyjohns Investments!</h1>
+                <p class="welcome-subtitle">Beyond Expectations</p>
+            </div>
 
-        <div class="login-container">
-            <div class="login-card">
-                <div class="login-header">
-                    <div class="logo-container">
-                        <div class="logo">H.J.I</div>
-                    </div>
-                   
-                </div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username" class="form-label">Username</label>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            class="form-input" 
-                            placeholder="Enter your username"
-                            required
-                            autocomplete="username"
-                            aria-describedby="usernameError"
-                        >
-                        <div id="usernameError" class="error-message" role="alert" aria-live="polite"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="password-container">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                class="form-input" 
-                                placeholder="Enter your password"
-                                required
-                                autocomplete="current-password"
-                                aria-describedby="passwordError"
-                            >
-                            <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
-                                👁
-                            </button>
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo-container">
+                            <div class="logo">H.J.I</div>
                         </div>
-                        <div id="passwordError" class="error-message" role="alert" aria-live="polite"></div>
                     </div>
 
-                    <button type="submit" class="login-button" id="loginButton">
-                        <span id="buttonText">Sign In</span>
-                        <div class="spinner" id="spinner"></div>
-                    </button>
-                </form>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                class="form-input" 
+                                placeholder="Enter your username"
+                                required
+                                autocomplete="username"
+                                aria-describedby="usernameError"
+                            >
+                            <div id="usernameError" class="error-message" role="alert" aria-live="polite"></div>
+                        </div>
 
-             <div class="session-info">
-                    Session expires after 2 hours of inactivity
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="password-container">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    class="form-input" 
+                                    placeholder="Enter your password"
+                                    required
+                                    autocomplete="current-password"
+                                    aria-describedby="passwordError"
+                                >
+                                <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
+                                    👁
+                                </button>
+                            </div>
+                            <div id="passwordError" class="error-message" role="alert" aria-live="polite"></div>
+                        </div>
+
+                        <button type="submit" class="login-button" id="loginButton">
+                            <span id="buttonText">Sign In</span>
+                            <div class="spinner" id="spinner"></div>
+                        </button>
+                    </form>
+
+                    <div class="session-info">
+                        Session expires after 2 hours of inactivity
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="footer">
+            <div class="footer-brand">© 2026 Mr. V Solutions</div>
+            <div class="footer-copyright">Custom POS and Smart Inventory System. All rights reserved.</div>
+        </div>
     </div>
 
-    <div class="footer">
-        <div class="footer-brand">© 2026 Mr. V Solutions</div>
-        <div class="footer-copyright">Custom POS and Smart Inventory System. All rights reserved.</div>
-    </div>
-
-    <!-- Update the script section at the bottom of your existing login.html -->
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('loginForm');
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        const loginButton = document.getElementById('loginButton');
-        const buttonText = document.getElementById('buttonText');
-        const spinner = document.getElementById('spinner');
-        const errorDiv = document.getElementById('errorMessage');
+    <!-- KEEP ALL EXISTING SCRIPTS, BUT ADD THE HYBRID LOADER AFTER THEM -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/login-helper.js"></script>
     
-        // Toggle password visibility
-        togglePassword?.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? '👁' : '👁‍🗨';
-        });
-    
-        // Handle form submission
-        loginForm?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-    
-            // Clear previous errors
-            if (errorDiv) errorDiv.style.display = 'none';
-            
-            // Show loading state
-            if (buttonText) buttonText.style.display = 'none';
-            if (spinner) spinner.style.display = 'block';
-            if (loginButton) loginButton.disabled = true;
-    
-            // Call auth login
-            const result = await window.auth.login(username, password);
-            
-            if (!result.success) {
-                // Show error
-                if (errorDiv) {
-                    errorDiv.textContent = result.message;
-                    errorDiv.style.display = 'block';
-                } else {
-                    alert(result.message);
-                }
+    <!-- ADD THIS SINGLE SCRIPT AT THE VERY BOTTOM -->
+    <script>
+        // ===== GLOBAL PAGE LOADER =====
+        const API_URL = "https://steadymonitor-backend.onrender.com/api";
+        const appRoot = document.getElementById('appRoot');
+        
+        window.loadPage = async function(pageName) {
+            try {
+                const response = await fetch(`${pageName}.html`);
+                if (!response.ok) throw new Error('Page not found');
                 
-                // Reset button
-                if (buttonText) buttonText.style.display = 'block';
-                if (spinner) spinner.style.display = 'none';
-                if (loginButton) loginButton.disabled = false;
+                const html = await response.text();
+                appRoot.innerHTML = html;
+                
+                history.pushState({ page: pageName }, '', `/#${pageName}`);
+                window.scrollTo(0, 0);
+                return true;
+            } catch (err) {
+                console.error('Page load failed:', err);
+                appRoot.innerHTML = `
+                    <div style="padding:2rem;text-align:center">
+                        <h3>Failed to load ${pageName}</h3>
+                        <button onclick="window.location.href='/'">Back to Login</button>
+                    </div>
+                `;
+                return false;
+            }
+        };
+        
+        // ===== BROWSER NAVIGATION =====
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.page) {
+                window.loadPage(e.state.page);
             }
         });
-    
-        // Auto-redirect if already logged in
-        window.auth.checkAuth().then(isAuthenticated => {
-            if (isAuthenticated) {
-                const user = window.auth.getUser();
-                if (user.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'department.html';
+        
+        // ===== LOGOUT FUNCTION =====
+        window.logout = function() {
+            fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            }).finally(() => {
+                localStorage.clear();
+                window.location.href = '/';
+            });
+        };
+        
+        // ===== MODIFY EXISTING LOGIN HANDLER =====
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Override the existing auto-redirect in auth.js
+            const originalCheckAuth = window.auth?.checkAuth;
+            if (originalCheckAuth) {
+                window.auth.checkAuth = async function() {
+                    const result = await originalCheckAuth.call(this);
+                    if (result && window.auth.getUser) {
+                        const user = window.auth.getUser();
+                        if (user) {
+                            localStorage.setItem('user', JSON.stringify(user));
+                            if (user.role === 'admin') {
+                                window.loadPage('admin');
+                            } else {
+                                window.loadPage('department');
+                            }
+                        }
+                    }
+                    return result;
+                };
+            }
+            
+            // Check if already logged in on page load
+            const user = localStorage.getItem('user');
+            const hash = window.location.hash.replace('#', '');
+            
+            if (user && hash) {
+                try {
+                    const res = await fetch(`${API_URL}/auth/check`, {
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    if (data.authenticated) {
+                        const u = JSON.parse(user);
+                        window.loadPage(u.role === 'admin' ? 'admin' : 'department');
+                        return;
+                    }
+                } catch (error) {
+                    // Session invalid
                 }
             }
+            
+            // Keep existing login form initialization
+            const loginForm = document.getElementById('loginForm');
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.textContent = type === 'password' ? '👁' : '👁‍🗨';
+                });
+            }
+            
+            if (loginForm) {
+                // Override the existing submit handler
+                const originalSubmit = loginForm.onsubmit;
+                loginForm.onsubmit = null;
+                
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('username').value.trim();
+                    const password = document.getElementById('password').value;
+                    const loginButton = document.getElementById('loginButton');
+                    const buttonText = document.getElementById('buttonText');
+                    const spinner = document.getElementById('spinner');
+                    
+                    if (!username || !password) {
+                        alert('Please enter username and password');
+                        return;
+                    }
+                    
+                    // Show loading
+                    if (buttonText) buttonText.style.display = 'none';
+                    if (spinner) spinner.style.display = 'block';
+                    if (loginButton) loginButton.disabled = true;
+                    
+                    try {
+                        const response = await fetch(`${API_URL}/auth/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ username, password })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            localStorage.setItem('user', JSON.stringify(data.user));
+                            
+                            if (data.user.role === 'admin') {
+                                await window.loadPage('admin');
+                            } else {
+                                await window.loadPage('department');
+                            }
+                        } else {
+                            alert(data.message || 'Login failed');
+                        }
+                    } catch (error) {
+                        alert('Network error: ' + error.message);
+                    } finally {
+                        // Reset button
+                        if (buttonText && spinner && loginButton) {
+                            buttonText.style.display = 'block';
+                            spinner.style.display = 'none';
+                            loginButton.disabled = false;
+                        }
+                    }
+                });
+            }
         });
-    });
     </script>
-
-    <script src="js/login-helper.js"></script></body>
+</body>
 </html>
