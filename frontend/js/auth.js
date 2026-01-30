@@ -4,6 +4,15 @@
 (function() {
     'use strict';
     
+    // Add this function at the top (as instructed)
+    function goToPage(page) {
+        if (typeof window.loadPage === 'function') {
+            window.loadPage(page);
+        } else {
+            window.location.hash = `#${page}`;
+        }
+    }
+    
     const Auth = {
         user: null,
         initialized: false,
@@ -46,7 +55,7 @@
                     this.user = response.user;
                     this.initialized = true;
                     
-                    // Redirect based on role
+                    // Redirect based on role (using goToPage)
                     this.redirectByRole(response.user);
                     
                     return response;
@@ -79,7 +88,8 @@
             }
             
             if (!this.user) {
-                window.location.href = '/login.html';
+                // Use goToPage instead of direct redirect
+                goToPage('login');
                 return false;
             }
             
@@ -89,28 +99,28 @@
         // Redirect based on role (matching your menu.js structure)
         redirectByRole(user) {
             if (!user || !user.role) {
-                window.location.href = '/login.html';
+                goToPage('login');
                 return;
             }
             
             const role = user.role;
-            let redirectTo = '/login.html';
+            let pageName = 'login';
             
-            // Admin goes to admin.html
+            // Admin goes to admin
             if (role === 'admin') {
-                redirectTo = '/admin.html';
+                pageName = 'admin';
             }
-            // Department users go to department.html
+            // Department users go to department
             else if (role.startsWith('department_')) {
-                redirectTo = '/department.html';
+                pageName = 'department';
             }
             // Cashier/manager roles
             else if (role === 'cashier' || role === 'manager') {
-                redirectTo = '/pos.html';
+                pageName = 'pos';
             }
             
-            console.log(`Redirecting ${role} to ${redirectTo}`);
-            window.location.href = redirectTo;
+            console.log(`Redirecting ${role} to ${pageName}`);
+            goToPage(pageName);
         },
         
         // Check permissions
@@ -131,6 +141,14 @@
         // Get department
         getDepartment() {
             return this.user?.department || null;
+        },
+        
+        // Add checkAuth function (used by index.html)
+        async checkAuth() {
+            if (!this.initialized) {
+                await this.init();
+            }
+            return !!this.user;
         }
     };
     
@@ -140,7 +158,7 @@
     // Auto-initialize on pages that need auth
     document.addEventListener('DOMContentLoaded', async function() {
         // Don't auto-init on login page
-        if (window.location.pathname.includes('login.html')) {
+        if (window.location.pathname.includes('login.html') || window.location.pathname === '/') {
             return;
         }
         
@@ -149,7 +167,7 @@
         
         // Check if we need to redirect to login
         if (!Auth.user && !window.location.pathname.includes('login.html')) {
-            window.location.href = '/login.html';
+            goToPage('login');
         }
     });
     
