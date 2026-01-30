@@ -1012,7 +1012,7 @@
             async loadSummaryStats() {
                 try {
                     // In production, call your refund summary endpoint
-                    // const summary = await API.call('/api/refunds/summary?period=month');
+                    // const summary = await API.call('https://steadymonitor-backend.onrender.com/api/refunds/summary?period=month');
                     
                     // For now, simulate data
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1055,7 +1055,7 @@
 
                 try {
                     // Call your refund lookup endpoint
-                    const data = await API.call('/api/refunds/lookup-receipt', {
+                    const data = await API.call('https://steadymonitor-backend.onrender.com/api/refunds/lookup-receipt', {
                         method: 'POST',
                         body: JSON.stringify({
                             sale_id: saleId,
@@ -1208,7 +1208,7 @@
                     };
 
                     // Call your refund processing endpoint
-                    const data = await API.call('/api/refunds', {
+                    const data = await API.call('https://steadymonitor-backend.onrender.com/api/refunds', {
                         method: 'POST',
                         body: JSON.stringify(refundData)
                     });
@@ -1235,7 +1235,7 @@
             async viewReceipt(refundId) {
                 try {
                     // Call your receipt generation endpoint
-                    const data = await API.call('/api/refunds/receipt', {
+                    const data = await API.call('https://steadymonitor-backend.onrender.com/api/refunds/receipt', {
                         method: 'POST',
                         body: JSON.stringify({
                             transaction_id: refundId,

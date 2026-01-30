@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Overview - Hattyjohns Investments</title>
+    <title>System Overview - SteadyMonitor</title>
+    
     <!-- Mobile Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#2563EB">
-    <link rel="stylesheet" href="css/base.css">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <script src="js/menu.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
+        /* Overview Specific Styles */
         .overview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -23,10 +31,17 @@
         }
         
         .overview-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
             padding: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+        
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
         .overview-card-header {
@@ -35,7 +50,7 @@
             justify-content: space-between;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #E5E7EB;
+            border-bottom: 1px solid var(--border);
         }
         
         .card-icon {
@@ -50,11 +65,11 @@
         }
         
         .card-icon.blue { background: var(--primary); }
-        .card-icon.green { background: var(--secondary); }
-        .card-icon.red { background: var(--warning); }
-        .card-icon.yellow { background: var(--secondary); }
-        .card-icon.purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
-        .card-icon.teal { background: var(--success); }
+        .card-icon.green { background: var(--success); }
+        .card-icon.red { background: var(--danger); }
+        .card-icon.yellow { background: var(--warning); }
+        .card-icon.purple { background: linear-gradient(135deg, #a78bfa, #c084fc); }
+        .card-icon.teal { background: #0d9488; }
         
         .metric-grid {
             display: grid;
@@ -65,21 +80,28 @@
         .metric-item {
             text-align: center;
             padding: 1rem;
-            background: #F8FAFC;
+            background: var(--background);
             border-radius: 8px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+        
+        .metric-item:hover {
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--primary-light);
         }
         
         .metric-value {
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
-            color: #0F172A;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
         }
         
         .metric-label {
             font-size: 0.85rem;
-            color: #64748B;
+            color: var(--text-secondary);
         }
         
         .trend-indicator {
@@ -103,8 +125,8 @@
         }
         
         .trend-neutral {
-            background: #F3F4F6;
-            color: #6B7280;
+            background: var(--background);
+            color: var(--text-muted);
         }
         
         .system-status {
@@ -150,10 +172,18 @@
         }
         
         .chart-container {
-            background: white;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
             padding: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
         
         .quick-actions {
@@ -168,18 +198,19 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
-            background: white;
-            border-radius: 12px;
-            border: 2px solid #E5E7EB;
-            color: #475569;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-decoration: none;
         }
         
         .action-btn:hover {
-            border-color: #2563EB;
-            color: #2563EB;
+            border-color: var(--primary);
+            color: var(--primary);
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1);
         }
@@ -193,662 +224,54 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: #6B7280;
+            color: var(--text-muted);
             font-size: 0.85rem;
             margin-top: 1rem;
         }
         
-        @media (max-width: 768px) {
-            .overview-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .performance-charts {
-                grid-template-columns: 1fr;
-            }
-            
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    
-.empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-muted);
-}
-
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.empty-state h3 {
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-
-        /* ===== RESPONSIVE DESIGN IMPROVEMENTS ===== */
-        
-        
-        /* ===== FLUID TYPOGRAPHY ===== */
-        
-        /* Base font size scales with viewport */
-        html {
-            font-size: 16px;
+        .recent-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
         }
         
-        @media (min-width: 320px) {
-            html {
-                font-size: calc(16px + (18 - 16) * ((100vw - 320px) / (1920 - 320)));
-            }
+        .recent-table th {
+            background: var(--background);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
         }
         
-        @media (min-width: 1920px) {
-            html {
-                font-size: 18px;
-            }
+        .recent-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
         }
         
-        /* Fluid headings */
-        h1 {
-            font-size: clamp(1.5rem, 5vw, 3rem);
-            line-height: clamp(1.2, 1.1, 1.05);
+        .recent-table tbody tr:hover {
+            background-color: rgba(37, 99, 235, 0.02);
         }
         
-        h2 {
-            font-size: clamp(1.25rem, 4vw, 2.25rem);
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
         }
         
-        h3 {
-            font-size: clamp(1.125rem, 3vw, 1.75rem);
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
         
-        h4 {
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
         
-        /* Fluid spacing */
-        :root {
-            --spacing-unit: clamp(0.5rem, 2vw, 1rem);
-            --section-spacing: clamp(2rem, 8vw, 4rem);
-        }
-        
-        .section {
-            padding: var(--section-spacing) 0;
-        }
-        
-        .gap-fluid {
-            gap: var(--spacing-unit);
-        }
-        
-        /* Fluid containers */
-        .container-fluid {
-            width: min(100% - 2rem, 1600px);
-            margin-inline: auto;
-        }
-        
-        @media (min-width: 768px) {
-            .container-fluid {
-                width: min(100% - 3rem, 1600px);
-            }
-        }
-        
-        /* Fluid grid gaps */
-        .grid {
-            gap: clamp(1rem, 3vw, 2rem);
-        }
-        
-        /* Fluid card padding */
-        .card {
-            padding: clamp(1rem, 3vw, 2rem);
-        }
-    
-        
-        
-        /* ===== COMPREHENSIVE RESPONSIVE BREAKPOINTS ===== */
-        
-        /* Mobile Small (320px - 480px) - Smartphones */
-        @media (max-width: 480px) {
-            /* Extreme mobile optimizations */
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            
-            /* Touch targets minimum 44px */
-            .btn, button, [role="button"] {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            /* Stack everything vertically */
-            .grid-2, .grid-3, .grid-4 {
-                grid-template-columns: 1fr !important;
-            }
-            
-            /* Reduce font sizes for small screens */
-            h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
-            h2 { font-size: clamp(1.25rem, 4vw, 1.75rem); }
-            h3 { font-size: clamp(1.125rem, 3.5vw, 1.5rem); }
-            
-            /* Full-width tables with horizontal scroll */
-            .table-responsive {
-                margin: 0 -1rem;
-                width: calc(100% + 2rem);
-            }
-            
-            /* Hide non-essential elements */
-            .mobile-hide {
-                display: none !important;
-            }
-        }
-        
-        /* Mobile Large (481px - 767px) - Larger phones, small tablets */
-        @media (min-width: 481px) and (max-width: 767px) {
-            /* 2-column grids where appropriate */
-            .grid-2, .grid-4 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            /* Slightly larger containers */
-            .container {
-                padding-left: 1.5rem;
-                padding-right: 1.5rem;
-            }
-            
-            /* Better spacing */
-            .card {
-                padding: 1.25rem;
-            }
-            
-            /* Adjust font sizes */
-            h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
-        }
-        
-        /* Tablet (768px - 1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            /* Tablet-specific layouts */
-            .grid-2 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .grid-3 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .grid-4 {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            /* Adjust sidebar if present */
-            .sidebar {
-                width: 220px;
-            }
-            
-            .main-content.with-sidebar {
-                margin-left: 220px;
-            }
-            
-            /* Tablet-optimized font sizes */
-            h1 { font-size: clamp(2rem, 3vw, 2.5rem); }
-            
-            /* Better button spacing */
-            .btn-group {
-                gap: 0.75rem;
-            }
-        }
-        
-        /* Desktop Small (1024px - 1365px) */
-        @media (min-width: 1024px) and (max-width: 1365px) {
-            /* Standard desktop layouts */
-            .container {
-                max-width: 1200px;
-            }
-            
-            .grid-3 {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .grid-4 {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            /* Optimize for laptop screens */
-            .card {
-                padding: 1.5rem;
-            }
-            
-            /* Comfortable reading line length */
-            p, li {
-                max-width: 70ch;
-            }
-        }
-        
-        /* Desktop Large (1366px - 1919px) */
-        @media (min-width: 1366px) and (max-width: 1919px) {
-            /* Larger container for wide screens */
-            .container {
-                max-width: 1400px;
-            }
-            
-            /* More spacious layouts */
-            .grid-4 {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 2rem;
-            }
-            
-            /* Increase font sizes for better readability */
-            :root {
-                --font-size-base: 1.0625rem; /* 17px */
-            }
-            
-            /* Larger click targets */
-            .btn {
-                padding: 0.75rem 1.5rem;
-            }
-        }
-        
-        /* Desktop XL (1920px+) */
-        @media (min-width: 1920px) {
-            /* Extra large containers */
-            .container {
-                max-width: 1600px;
-            }
-            
-            /* 5 or 6 column grids where appropriate */
-            .grid-4 {
-                grid-template-columns: repeat(5, 1fr);
-            }
-            
-            /* Larger font sizes */
-            :root {
-                --font-size-base: 1.125rem; /* 18px */
-                --font-size-lg: 1.375rem;   /* 22px */
-                --font-size-xl: 1.75rem;    /* 28px */
-                --font-size-2xl: 2.25rem;   /* 36px */
-                --font-size-3xl: 3rem;      /* 48px */
-            }
-            
-            /* More generous spacing */
-            .card {
-                padding: 2rem;
-            }
-            
-            .section-spacing {
-                padding: 3rem 0;
-            }
-        }
-        
-        /* Landscape orientation for mobile/tablet */
-        @media (max-height: 600px) and (orientation: landscape) {
-            /* Compact mode for landscape */
-            .hero-section {
-                padding: 1rem 1.5rem;
-                min-height: auto;
-            }
-            
-            /* Reduce vertical padding */
-            .card, .stat-card {
-                padding: 1rem;
-            }
-            
-            /* Stack elements horizontally when possible */
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-            
-            /* Shorter buttons */
-            .btn {
-                padding: 0.5rem 1rem;
-                min-height: 36px;
-            }
-        }
-        
-        /* High DPI/Retina screens */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            /* Crisper borders and shadows */
-            .card, .btn {
-                border-width: 0.5px;
-            }
-            
-            /* Better shadows for high DPI */
-            .card {
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            }
-        }
-        
-        /* Reduced motion preference */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: #0f172a;
-                --card-bg: #1e293b;
-                --text-primary: #f8fafc;
-                --text-secondary: #cbd5e1;
-                --border: #334155;
-            }
-        }
-    
-        
-        
-        /* ===== RESPONSIVE UTILITY CLASSES ===== */
-        
-        /* Display utilities */
-        .mobile-only { display: none !important; }
-        .tablet-only { display: none !important; }
-        .desktop-only { display: block !important; }
-        .desktop-hidden { display: none !important; }
-        
-        /* Mobile */
-        @media (max-width: 767px) {
-            .mobile-only { display: block !important; }
-            .tablet-only { display: none !important; }
-            .desktop-only { display: none !important; }
-            .desktop-hidden { display: block !important; }
-            .mobile-hidden { display: none !important; }
-        }
-        
-        /* Tablet */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .mobile-only { display: none !important; }
-            .tablet-only { display: block !important; }
-            .desktop-only { display: none !important; }
-            .tablet-hidden { display: none !important; }
-        }
-        
-        /* Desktop */
-        @media (min-width: 1024px) {
-            .mobile-only { display: none !important; }
-            .tablet-only { display: none !important; }
-            .desktop-only { display: block !important; }
-        }
-        
-        /* Grid column utilities */
-        .cols-1 { grid-template-columns: 1fr; }
-        .cols-2 { grid-template-columns: repeat(2, 1fr); }
-        .cols-3 { grid-template-columns: repeat(3, 1fr); }
-        .cols-4 { grid-template-columns: repeat(4, 1fr); }
-        
-        @media (max-width: 767px) {
-            .cols-mobile-1 { grid-template-columns: 1fr !important; }
-            .cols-mobile-2 { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .cols-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
-            .cols-tablet-3 { grid-template-columns: repeat(3, 1fr) !important; }
-        }
-        
-        @media (min-width: 1024px) {
-            .cols-desktop-3 { grid-template-columns: repeat(3, 1fr) !important; }
-            .cols-desktop-4 { grid-template-columns: repeat(4, 1fr) !important; }
-            .cols-desktop-5 { grid-template-columns: repeat(5, 1fr) !important; }
-        }
-        
-        /* Spacing utilities */
-        .p-fluid { padding: clamp(1rem, 3vw, 2rem); }
-        .m-fluid { margin: clamp(1rem, 3vw, 2rem); }
-        
-        /* Text alignment by breakpoint */
-        .text-left-mobile { text-align: left; }
-        .text-center-mobile { text-align: center; }
-        .text-right-mobile { text-align: right; }
-        
-        @media (min-width: 768px) {
-            .text-left-tablet { text-align: left; }
-            .text-center-tablet { text-align: center; }
-            .text-right-tablet { text-align: right; }
-        }
-        
-        @media (min-width: 1024px) {
-            .text-left-desktop { text-align: left; }
-            .text-center-desktop { text-align: center; }
-            .text-right-desktop { text-align: right; }
-        }
-        
-        /* Order utilities for flex/grid */
-        .order-first-mobile { order: -1; }
-        .order-last-mobile { order: 999; }
-        
-        @media (min-width: 768px) {
-            .order-first-tablet { order: -1; }
-            .order-last-tablet { order: 999; }
-        }
-        
-        @media (min-width: 1024px) {
-            .order-first-desktop { order: -1; }
-            .order-last-desktop { order: 999; }
-        }
-        
-        /* Visibility utilities */
-        .visible-mobile { visibility: visible; }
-        .visible-tablet { visibility: visible; }
-        .visible-desktop { visibility: visible; }
-        
-        .hidden-mobile { visibility: hidden; }
-        .hidden-tablet { visibility: hidden; }
-        .hidden-desktop { visibility: hidden; }
-        
-        @media (max-width: 767px) {
-            .visible-tablet, .visible-desktop { visibility: hidden; }
-            .hidden-mobile { visibility: hidden; }
-        }
-        
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .visible-mobile, .visible-desktop { visibility: hidden; }
-            .hidden-tablet { visibility: hidden; }
-        }
-        
-        @media (min-width: 1024px) {
-            .visible-mobile, .visible-tablet { visibility: hidden; }
-            .hidden-desktop { visibility: hidden; }
-        }
-    
-        
-        /* ===== COMPONENT-SPECIFIC RESPONSIVENESS ===== */
-        
-        /* Responsive tables */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        @media (max-width: 767px) {
-            /* Stack table rows on mobile */
-            .table-mobile-stack {
-                display: block;
-            }
-            
-            .table-mobile-stack thead {
-                display: none;
-            }
-            
-            .table-mobile-stack tbody,
-            .table-mobile-stack tr {
-                display: block;
-            }
-            
-            .table-mobile-stack td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.75rem 0.5rem;
-                border-bottom: 1px solid var(--border);
-            }
-            
-            .table-mobile-stack td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--text-secondary);
-                margin-right: 1rem;
-                min-width: 120px;
-            }
-            
-            /* Hide non-essential columns on mobile */
-            .table td.mobile-hide,
-            .table th.mobile-hide {
-                display: none;
-            }
-        }
-        
-        /* Responsive forms */
-        @media (max-width: 767px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            input, select, textarea {
-                font-size: 16px; /* Prevents iOS zoom on focus */
-            }
-        }
-        
-        /* Responsive modals */
-        @media (max-width: 767px) {
-            .modal {
-                width: 95%;
-                margin: 1rem;
-                max-height: 90vh;
-            }
-            
-            .modal-content {
-                border-radius: 12px;
-            }
-            
-            /* Full-screen modals on very small screens */
-            @media (max-width: 480px) {
-                .modal {
-                    width: 100%;
-                    height: 100%;
-                    margin: 0;
-                    border-radius: 0;
-                }
-            }
-        }
-        
-        /* Responsive navigation */
-        @media (max-width: 1023px) {
-            .top-nav {
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                background: var(--card-bg);
-            }
-            
-            .nav-actions {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-        
-        /* Responsive cards */
-        @media (max-width: 767px) {
-            .card {
-                border-radius: 8px;
-                margin: 0.5rem;
-            }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1rem;
-            }
-        }
-        
-        /* Responsive buttons */
-        @media (max-width: 767px) {
-            .btn-group {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn-group .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            
-            /* Touch-friendly buttons */
-            .btn {
-                min-height: 44px;
-                padding: 0.75rem 1rem;
-            }
-        }
-        
-        /* Responsive charts/graphs */
-        @media (max-width: 767px) {
-            .chart-container {
-                height: 250px !important;
-            }
-            
-            .chart-legend {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-        
-        /* Print styles */
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            
-            .container {
-                width: 100%;
-                max-width: none;
-            }
-            
-            a[href]::after {
-                content: " (" attr(href) ")";
-            }
-            
-            .page-break {
-                page-break-before: always;
-            }
-        }
-        
-
         /* Loading states */
-        .loading {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-        .loading-placeholder {
-            height: 20px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -862,207 +285,158 @@
             z-index: 2000;
         }
         
-        /* Utility classes */
-        .hidden { display: none !important; }
-        .mobile-only { display: none !important; }
-        .desktop-only { display: block !important; }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
         
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-placeholder {
+            height: 20px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .mobile-only { display: block !important; }
-            .desktop-only { display: none !important; }
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
-
-        /* Empty states */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-muted);
+        @media (max-width: 480px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-card {
+                padding: 1rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
         }
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .overview-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+            
+            .action-btn {
+                display: none;
+            }
         }
-</style>
+    </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <nav class="sidebar-nav">
-            <a href="admin.html" class="nav-item">
-                <i class="fas fa-tachometer-alt nav-icon"></i>
-                <span class="nav-label">Dashboard</span>
+    <div class="main-content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <a href="admin.html" class="nav-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>SteadyMonitor</span>
             </a>
             
-            <a href="department.html" class="nav-item">
-                <i class="fas fa-building nav-icon"></i>
-                <span class="nav-label">Departments</span>
-            </a>
-            
-            <a href="customers.html" class="nav-item">
-                <i class="fas fa-users nav-icon"></i>
-                <span class="nav-label">Customers</span>
-            </a>
-            
-            <a href="payments.html" class="nav-item">
-                <i class="fas fa-credit-card nav-icon"></i>
-                <span class="nav-label">Payments</span>
-            </a>
-            
-            <a href="pos.html" class="nav-item">
-                <i class="fas fa-cash-register nav-icon"></i>
-                <span class="nav-label">POS</span>
-            </a>
-            
-            <!-- Allocations - based on auth.js permissions -->
-            <a href="allocations.html" class="nav-item" data-permission="allocations">
-                <i class="fas fa-graduation-cap nav-icon"></i>
-                <span class="nav-label">Allocations</span>
-            </a>
-            
-            <a href="pocket_money.html" class="nav-item">
-                <i class="fas fa-wallet nav-icon"></i>
-                <span class="nav-label">Pocket Money</span>
-            </a>
-            
-            <div class="nav-divider"></div>
-            
-            <!-- Inventory and Suppliers - admin only -->
-            <a href="inventory.html" class="nav-item" data-permission="inventory">
-                <i class="fas fa-boxes nav-icon"></i>
-                <span class="nav-label">Inventory</span>
-            </a>
-            
-            <a href="suppliers.html" class="nav-item" data-permission="suppliers">
-                <i class="fas fa-truck nav-icon"></i>
-                <span class="nav-label">Suppliers</span>
-            </a>
-            
-            <!-- Reports and Overview - admin only -->
-            <a href="reports.html" class="nav-item" data-permission="reports">
-                <i class="fas fa-chart-bar nav-icon"></i>
-                <span class="nav-label">Reports</span>
-            </a>
-            
-            <a href="overview.html" class="nav-item" data-permission="overview">
-                <i class="fas fa-chart-pie nav-icon"></i>
-                <span class="nav-label">Overview</span>
-            </a>
-            
-            <!-- Refunds -->
-            <a href="refunds.html" class="nav-item" data-permission="refunds">
-                <i class="fas fa-exchange-alt nav-icon"></i>
-                <span class="nav-label">Refunds</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Top Navigation -->
-    <nav class="top-nav">
-        <button class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <a href="admin.html" class="nav-brand">
-            <i class="fas fa-chart-line"></i>
-            STEADYMONITOR
-        </a>
-        
-        <div class="nav-user">
-            <span class="user-greeting" id="greeting">Good morning, Admin</span>
-            <div class="dropdown">
-                <button class="btn btn-outline btn-sm" id="userMenu">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="userName">Admin</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
-                    <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item text-danger" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+            <div class="nav-user">
+                <span class="user-greeting" id="userGreeting">Good morning</span>
+                <div class="dropdown">
+                    <button class="btn btn-outline btn-sm" id="userMenu">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Loading...</span>
+                    </button>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="#" class="dropdown-item" id="profileLink">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="#" class="dropdown-item" id="settingsLink">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-danger" id="logoutLink">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <nav class="sidebar-nav">
-            <a href="admin.html" class="nav-item">
-                <i class="fas fa-tachometer-alt nav-icon"></i>
-                <span class="nav-label">Dashboard</span>
-            </a>
-            
-            <a href="department.html" class="nav-item">
-                <i class="fas fa-building nav-icon"></i>
-                <span class="nav-label">Departments</span>
-            </a>
-            
-            <a href="customers.html" class="nav-item">
-                <i class="fas fa-users nav-icon"></i>
-                <span class="nav-label">Customers</span>
-            </a>
-            
-            <a href="payments.html" class="nav-item">
-                <i class="fas fa-credit-card nav-icon"></i>
-                <span class="nav-label">Payments</span>
-            </a>
-            
-            <a href="pos.html" class="nav-item">
-                <i class="fas fa-cash-register nav-icon"></i>
-                <span class="nav-label">POS</span>
-            </a>
-            
-            <a href="pocket_money.html" class="nav-item">
-                <i class="fas fa-wallet nav-icon"></i>
-                <span class="nav-label">Pocket Money</span>
-            </a>
-            
-            <div class="nav-divider"></div>
-            
-            <a href="inventory.html" class="nav-item">
-                <i class="fas fa-boxes nav-icon"></i>
-                <span class="nav-label">Inventory</span>
-            </a>
-            
-            <a href="suppliers.html" class="nav-item">
-                <i class="fas fa-truck nav-icon"></i>
-                <span class="nav-label">Suppliers</span>
-            </a>
-            
-            <a href="reports.html" class="nav-item">
-                <i class="fas fa-chart-bar nav-icon"></i>
-                <span class="nav-label">Reports</span>
-            </a>
-            
-            <a href="overview.html" class="nav-item active">
-                <i class="fas fa-chart-pie nav-icon"></i>
-                <span class="nav-label">Overview</span>
-            </a>
         </nav>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content with-sidebar" id="mainContent">
-        <div class="container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Menu will be loaded by menu.js -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
             <!-- Page Header -->
-            <div class="page-header">
+            <header class="page-header">
                 <div class="page-title">
-                    <h1>System Overview</h1>
+                    <div>
+                        <h1><i class="fas fa-chart-pie"></i> System Overview</h1>
+                        <p class="text-muted">Comprehensive system analytics and metrics</p>
+                    </div>
                     <div class="btn-group">
                         <button class="btn btn-primary" id="refreshBtn">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
-                        <button class="btn btn-outline" id="exportOverviewBtn">
+                        <button class="btn btn-outline" id="exportBtn">
                             <i class="fas fa-download"></i> Export
                         </button>
                     </div>
                 </div>
-            </div>
+            </header>
 
             <!-- System Status -->
             <div class="card mb-3">
@@ -1070,7 +444,7 @@
                     <h3 class="card-title">System Status</h3>
                     <div class="system-status status-online" id="systemStatus">
                         <div class="status-indicator"></div>
-                        <span>All Systems Operational</span>
+                        <span id="statusText">All Systems Operational</span>
                     </div>
                 </div>
                 <div class="card-body">
@@ -1080,16 +454,16 @@
                             <div class="metric-label">Uptime (30 days)</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="responseTime">142ms</div>
-                            <div class="metric-label">Avg Response Time</div>
+                            <div class="metric-value" id="totalProducts">0</div>
+                            <div class="metric-label">Total Products</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="activeUsers">24</div>
-                            <div class="metric-label">Active Users</div>
+                            <div class="metric-value" id="totalCustomers">0</div>
+                            <div class="metric-label">Total Customers</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="dataRefresh">5 min</div>
-                            <div class="metric-label">Data Refresh Rate</div>
+                            <div class="metric-value" id="todaySales">₵0</div>
+                            <div class="metric-label">Today's Sales</div>
                         </div>
                     </div>
                 </div>
@@ -1101,10 +475,10 @@
                 <div class="overview-card">
                     <div class="overview-card-header">
                         <div>
-                            <h3 class="card-title">Sales</h3>
+                            <h3 class="card-title">Sales Performance</h3>
                             <div class="data-refresh">
                                 <i class="fas fa-clock"></i>
-                                <span id="salesLastUpdate">Just now</span>
+                                <span id="salesLastUpdate">Loading...</span>
                             </div>
                         </div>
                         <div class="card-icon blue">
@@ -1113,19 +487,19 @@
                     </div>
                     <div class="metric-grid">
                         <div class="metric-item">
-                            <div class="metric-value" id="todaySales">KES 0</div>
-                            <div class="metric-label">Today</div>
+                            <div class="metric-value" id="todaySalesCount">0</div>
+                            <div class="metric-label">Today's Transactions</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="weekSales">KES 0</div>
+                            <div class="metric-value" id="weekSales">₵0</div>
                             <div class="metric-label">This Week</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="monthSales">KES 0</div>
+                            <div class="metric-value" id="monthSales">₵0</div>
                             <div class="metric-label">This Month</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="avgTransaction">KES 0</div>
+                            <div class="metric-value" id="avgTransaction">₵0</div>
                             <div class="metric-label">Avg Transaction</div>
                         </div>
                     </div>
@@ -1138,7 +512,7 @@
                             <h3 class="card-title">Customers</h3>
                             <div class="data-refresh">
                                 <i class="fas fa-clock"></i>
-                                <span id="customersLastUpdate">Just now</span>
+                                <span id="customersLastUpdate">Loading...</span>
                             </div>
                         </div>
                         <div class="card-icon green">
@@ -1147,7 +521,7 @@
                     </div>
                     <div class="metric-grid">
                         <div class="metric-item">
-                            <div class="metric-value" id="totalCustomers">0</div>
+                            <div class="metric-value" id="totalCustomersDetailed">0</div>
                             <div class="metric-label">Total</div>
                         </div>
                         <div class="metric-item">
@@ -1159,8 +533,8 @@
                             <div class="metric-label">New (30 days)</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="customerGrowth">0%</div>
-                            <div class="metric-label">Growth</div>
+                            <div class="metric-value" id="pendingBalance">₵0</div>
+                            <div class="metric-label">Pending Balance</div>
                         </div>
                     </div>
                 </div>
@@ -1172,7 +546,7 @@
                             <h3 class="card-title">Inventory</h3>
                             <div class="data-refresh">
                                 <i class="fas fa-clock"></i>
-                                <span id="inventoryLastUpdate">Just now</span>
+                                <span id="inventoryLastUpdate">Loading...</span>
                             </div>
                         </div>
                         <div class="card-icon red">
@@ -1180,10 +554,6 @@
                         </div>
                     </div>
                     <div class="metric-grid">
-                        <div class="metric-item">
-                            <div class="metric-value" id="totalProducts">0</div>
-                            <div class="metric-label">Total Products</div>
-                        </div>
                         <div class="metric-item">
                             <div class="metric-value" id="lowStockItems">0</div>
                             <div class="metric-label">Low Stock</div>
@@ -1193,8 +563,12 @@
                             <div class="metric-label">Out of Stock</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="inventoryValue">KES 0</div>
+                            <div class="metric-value" id="totalInventoryValue">₵0</div>
                             <div class="metric-label">Total Value</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" id="reorderNeeded">0</div>
+                            <div class="metric-label">Need Reorder</div>
                         </div>
                     </div>
                 </div>
@@ -1206,7 +580,7 @@
                             <h3 class="card-title">Financial</h3>
                             <div class="data-refresh">
                                 <i class="fas fa-clock"></i>
-                                <span id="financialLastUpdate">Just now</span>
+                                <span id="financialLastUpdate">Loading...</span>
                             </div>
                         </div>
                         <div class="card-icon yellow">
@@ -1215,15 +589,15 @@
                     </div>
                     <div class="metric-grid">
                         <div class="metric-item">
-                            <div class="metric-value" id="revenue">KES 0</div>
+                            <div class="metric-value" id="monthRevenue">₵0</div>
                             <div class="metric-label">Revenue (MTD)</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="expenses">KES 0</div>
+                            <div class="metric-value" id="monthExpenses">₵0</div>
                             <div class="metric-label">Expenses (MTD)</div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-value" id="profit">KES 0</div>
+                            <div class="metric-value" id="monthProfit">₵0</div>
                             <div class="metric-label">Profit (MTD)</div>
                         </div>
                         <div class="metric-item">
@@ -1238,11 +612,14 @@
             <div class="performance-charts">
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3 class="card-title">Sales Trend (Last 6 Months)</h3>
-                        <select class="form-control form-control-sm" style="width: auto;" id="salesTrendFilter">
-                            <option value="amount">Sales Amount</option>
-                            <option value="transactions">Transactions</option>
-                        </select>
+                        <h3 class="card-title">Sales Trend (Last 30 Days)</h3>
+                        <div>
+                            <select class="form-control form-control-sm" id="salesChartFilter" style="width: auto;">
+                                <option value="amount">Sales Amount</option>
+                                <option value="transactions">Transactions</option>
+                                <option value="customers">Customers</option>
+                            </select>
+                        </div>
                     </div>
                     <canvas id="salesTrendChart" height="250"></canvas>
                 </div>
@@ -1250,13 +627,78 @@
                 <div class="chart-container">
                     <div class="chart-header">
                         <h3 class="card-title">Department Performance</h3>
-                        <select class="form-control form-control-sm" style="width: auto;" id="deptPerformanceFilter">
-                            <option value="revenue">Revenue</option>
-                            <option value="transactions">Transactions</option>
-                            <option value="profit">Profit</option>
-                        </select>
+                        <div>
+                            <select class="form-control form-control-sm" id="deptChartFilter" style="width: auto;">
+                                <option value="revenue">Revenue</option>
+                                <option value="sales">Sales Count</option>
+                                <option value="profit">Profit</option>
+                            </select>
+                        </div>
                     </div>
-                    <canvas id="deptPerformanceChart" height="250"></canvas>
+                    <canvas id="departmentChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity Tables -->
+            <div class="grid grid-2">
+                <!-- Recent Sales -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Sales</h3>
+                        <a href="reports.html" class="btn btn-sm btn-outline">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="recent-table" id="recentSalesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentSalesBody">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="recentSalesEmpty" class="empty-state" style="display: none;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>No recent sales</h3>
+                            <p>Recent sales will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Items -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Low Stock Alerts</h3>
+                        <a href="inventory.html" class="btn btn-sm btn-outline">Manage</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="recent-table" id="lowStockTable">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Current</th>
+                                        <th>Required</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lowStockBody">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="lowStockEmpty" class="empty-state" style="display: none;">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>All stock levels are good</h3>
+                            <p>No low stock items</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1317,35 +759,548 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-        <div class="loading"></div>
+        </main>
     </div>
 
-    <!-- Scripts -->
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 1rem; color: var(--text-muted);">Loading overview data...</p>
+    </div>
+
+    <!-- JavaScript Files -->
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/overview.js"></script>
-
-    <!-- Mobile sidebar overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-
+    <script src="js/menu.js"></script>
+    
     <script>
-                    // Auth check
-                    document.addEventListener('DOMContentLoaded', async function() {
-                        if (window.auth) {
-                            const authenticated = await window.auth.requireAuth();
-                            if (!authenticated) return;
-                        }
-                    });
+        // Overview Manager
+        class OverviewManager {
+            constructor() {
+                this.charts = {};
+                this.lastUpdate = new Date();
+                this.init();
+            }
+
+            async init() {
+                // Wait for auth to be ready
+                await this.waitForAuth();
                 
-        // Mobile functionality
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                // Initialize charts
+                this.initCharts();
+                
+                // Load data
+                this.loadAllData();
+                
+                // Update user info
+                this.updateUserInfo();
+                
+                // Start auto-refresh (every 5 minutes)
+                this.startAutoRefresh();
+                
+                console.log('Overview manager initialized');
+            }
+
+            async waitForAuth() {
+                return new Promise((resolve) => {
+                    if (window.auth && window.auth.getUser()) {
+                        resolve();
+                        return;
+                    }
+
+                    let attempts = 0;
+                    const maxAttempts = 10;
+                    
+                    const checkAuth = setInterval(() => {
+                        attempts++;
+                        if (window.auth && window.auth.getUser()) {
+                            clearInterval(checkAuth);
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(checkAuth);
+                            console.warn('Auth not available, proceeding without');
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+
+            setupEventListeners() {
+                // Refresh button
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    this.loadAllData();
+                });
+
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportOverview();
+                });
+
+                // Chart filters
+                document.getElementById('salesChartFilter').addEventListener('change', (e) => {
+                    this.updateSalesChart(e.target.value);
+                });
+
+                document.getElementById('deptChartFilter').addEventListener('change', (e) => {
+                    this.updateDepartmentChart(e.target.value);
+                });
+
+                // Logout
+                document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleLogout();
+                });
+            }
+
+            initCharts() {
+                // Sales Trend Chart
+                const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+                this.charts.salesTrend = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Sales Amount',
+                            data: [],
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `₵${context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₵' + value.toLocaleString('en-US', {minimumFractionDigits: 0});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Department Chart
+                const deptCtx = document.getElementById('departmentChart').getContext('2d');
+                this.charts.department = new Chart(deptCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [],
+                            backgroundColor: [
+                                '#2563EB',
+                                '#0F172A',
+                                '#16A34A',
+                                '#F59E0B',
+                                '#DC2626'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₵' + value.toLocaleString('en-US', {minimumFractionDigits: 0});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            async loadAllData() {
+                try {
+                    this.showLoading(true);
+                    
+                    // Load dashboard stats
+                    const stats = await this.loadDashboardStats();
+                    
+                    // Load recent sales
+                    await this.loadRecentSales();
+                    
+                    // Load low stock items
+                    await this.loadLowStockItems();
+                    
+                    // Load charts data
+                    await this.loadChartData();
+                    
+                    this.lastUpdate = new Date();
+                    this.updateLastUpdateTimes();
+                    
+                    this.showLoading(false);
+                    
+                } catch (error) {
+                    console.error('Error loading overview data:', error);
+                    this.showLoading(false);
+                    this.showNotification('Failed to load overview data', 'error');
+                }
+            }
+
+            async loadDashboardStats() {
+                try {
+                    const response = await apiCall('https://steadymonitor-backend.onrender.com/api/dashboard/stats');
+                    
+                    if (response && !response.error) {
+                        this.updateDashboardStats(response);
+                        return response;
+                    } else {
+                        throw new Error(response?.error || 'Failed to load dashboard stats');
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard stats:', error);
+                    // Fallback to empty stats
+                    this.updateDashboardStats({});
+                    throw error;
+                }
+            }
+
+            updateDashboardStats(stats) {
+                // Update system status
+                document.getElementById('totalProducts').textContent = 
+                    stats.total_products?.toLocaleString() || '0';
+                document.getElementById('totalCustomers').textContent = 
+                    stats.total_customers?.toLocaleString() || '0';
+                document.getElementById('todaySales').textContent = 
+                    `₵${parseFloat(stats.today_sales || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('lowStockItems').textContent = 
+                    stats.low_stock_count?.toLocaleString() || '0';
+                document.getElementById('totalInventoryValue').textContent = 
+                    `₵${parseFloat(stats.total_stock_value || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            }
+
+            async loadRecentSales() {
+                try {
+                    const response = await apiCall('https://steadymonitor-backend.onrender.com/api/dashboard/recent-sales');
+                    
+                    if (response && !response.error) {
+                        this.updateRecentSalesTable(response);
+                    } else {
+                        this.showEmptyState('recentSales');
+                    }
+                } catch (error) {
+                    console.error('Error loading recent sales:', error);
+                    this.showEmptyState('recentSales');
+                }
+            }
+
+            updateRecentSalesTable(sales) {
+                const tableBody = document.getElementById('recentSalesBody');
+                const emptyState = document.getElementById('recentSalesEmpty');
+                
+                if (!sales || sales.length === 0) {
+                    tableBody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                tableBody.innerHTML = sales.slice(0, 5).map(sale => `
+                    <tr>
+                        <td>${this.formatTime(sale.created_at)}</td>
+                        <td>${sale.customer_name || 'Walk-in'}</td>
+                        <td>₵${parseFloat(sale.total_amount || 0).toFixed(2)}</td>
+                        <td>
+                            <span class="badge badge-success">${sale.payment_method || 'Cash'}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async loadLowStockItems() {
+                try {
+                    const response = await apiCall('https://steadymonitor-backend.onrender.com/api/dashboard/low-stock');
+                    
+                    if (response && !response.error) {
+                        this.updateLowStockTable(response);
+                    } else {
+                        this.showEmptyState('lowStock');
+                    }
+                } catch (error) {
+                    console.error('Error loading low stock items:', error);
+                    this.showEmptyState('lowStock');
+                }
+            }
+
+            updateLowStockTable(items) {
+                const tableBody = document.getElementById('lowStockBody');
+                const emptyState = document.getElementById('lowStockEmpty');
+                
+                if (!items || items.length === 0) {
+                    tableBody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                tableBody.innerHTML = items.slice(0, 5).map(item => `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td><span class="text-danger">${item.stock_quantity}</span></td>
+                        <td>${item.minimum_stock}</td>
+                        <td>
+                            <span class="badge badge-danger">Low Stock</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            async loadChartData() {
+                // This is a simplified version - you would fetch actual chart data
+                // For now, we'll use sample data
+                
+                // Sales trend data (last 30 days)
+                const salesTrendData = this.generateSampleTrendData();
+                this.updateSalesChart('amount', salesTrendData);
+                
+                // Department data
+                const departmentData = {
+                    labels: ['Uniform', 'Stationery', 'Food', 'Books', 'Other'],
+                    data: [12000, 8500, 6500, 4200, 3100]
+                };
+                this.updateDepartmentChart('revenue', departmentData);
+            }
+
+            generateSampleTrendData() {
+                const labels = [];
+                const data = [];
+                const today = new Date();
+                
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                    
+                    // Generate random sales data
+                    data.push(Math.floor(Math.random() * 5000) + 1000);
+                }
+                
+                return { labels, data };
+            }
+
+            updateSalesChart(type, data) {
+                if (!data) {
+                    data = this.generateSampleTrendData();
+                }
+                
+                const chart = this.charts.salesTrend;
+                chart.data.labels = data.labels;
+                chart.data.datasets[0].data = data.data;
+                
+                if (type === 'transactions') {
+                    chart.data.datasets[0].label = 'Transactions';
+                    chart.options.plugins.tooltip.callbacks.label = function(context) {
+                        return `${context.parsed.y} transactions`;
+                    };
+                } else if (type === 'customers') {
+                    chart.data.datasets[0].label = 'Customers';
+                    chart.options.plugins.tooltip.callbacks.label = function(context) {
+                        return `${context.parsed.y} customers`;
+                    };
+                } else {
+                    chart.data.datasets[0].label = 'Sales Amount';
+                    chart.options.plugins.tooltip.callbacks.label = function(context) {
+                        return `₵${context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                    };
+                }
+                
+                chart.update();
+            }
+
+            updateDepartmentChart(type, data) {
+                if (!data) {
+                    data = {
+                        labels: ['Uniform', 'Stationery', 'Food', 'Books', 'Other'],
+                        data: [12000, 8500, 6500, 4200, 3100]
+                    };
+                }
+                
+                const chart = this.charts.department;
+                chart.data.labels = data.labels;
+                chart.data.datasets[0].data = data.data;
+                
+                if (type === 'sales') {
+                    chart.data.datasets[0].label = 'Sales Count';
+                } else if (type === 'profit') {
+                    chart.data.datasets[0].label = 'Profit';
+                } else {
+                    chart.data.datasets[0].label = 'Revenue';
+                }
+                
+                chart.update();
+            }
+
+            updateUserInfo() {
+                if (window.auth && window.auth.getUser()) {
+                    const user = window.auth.getUser();
+                    document.getElementById('userName').textContent = 
+                        user.display_name || user.username || 'User';
+                    document.getElementById('userGreeting').textContent = 
+                        this.getGreeting() + ', ' + (user.display_name || user.username || 'User');
+                }
+            }
+
+            getGreeting() {
+                const hour = new Date().getHours();
+                if (hour < 12) return 'Good morning';
+                if (hour < 18) return 'Good afternoon';
+                return 'Good evening';
+            }
+
+            updateLastUpdateTimes() {
+                const timeStr = this.lastUpdate.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                document.querySelectorAll('.data-refresh span').forEach(span => {
+                    span.textContent = timeStr;
+                });
+            }
+
+            showLoading(show) {
+                document.getElementById('loadingOverlay').style.display = 
+                    show ? 'flex' : 'none';
+            }
+
+            showEmptyState(type) {
+                const element = document.getElementById(`${type}Empty`);
+                if (element) {
+                    element.style.display = 'block';
+                }
+                
+                const body = document.getElementById(`${type}Body`);
+                if (body) {
+                    body.innerHTML = '';
+                }
+            }
+
+            formatTime(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+
+            exportOverview() {
+                // Create a simple export of the current view
+                const data = {
+                    exportDate: new Date().toISOString(),
+                    systemStatus: document.getElementById('statusText').textContent,
+                    metrics: {
+                        totalProducts: document.getElementById('totalProducts').textContent,
+                        totalCustomers: document.getElementById('totalCustomers').textContent,
+                        todaySales: document.getElementById('todaySales').textContent,
+                        lowStockItems: document.getElementById('lowStockItems').textContent
+                    }
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { 
+                    type: 'application/json' 
+                });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `steadymonitor-overview-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showNotification('Overview exported successfully', 'success');
+            }
+
+            startAutoRefresh() {
+                // Auto-refresh every 5 minutes
+                setInterval(() => {
+                    this.loadDashboardStats();
+                    this.loadRecentSales();
+                    this.loadLowStockItems();
+                }, 5 * 60 * 1000);
+            }
+
+            handleLogout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    if (window.auth && typeof window.auth.logout === 'function') {
+                        window.auth.logout()
+                            .then(() => {
+                                window.location.href = 'login.html';
+                            })
+                            .catch(() => {
+                                window.location.href = 'login.html';
+                            });
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#DCFCE7' : type === 'error' ? '#FEE2E2' : '#DBEAFE'};
+                    color: ${type === 'success' ? '#166534' : type === 'error' ? '#991B1B' : '#1E40AF'};
+                    padding: 1rem;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    z-index: 1000;
+                    box-shadow: var(--shadow-md);
+                `;
+                
+                const icon = type === 'success' ? 'fa-check-circle' : 
+                            type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+                
+                notification.innerHTML = `
+                    <i class="fas ${icon}"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.remove()" style="margin-left: 1rem; background: none; border: none; cursor: pointer;">&times;</button>
+                `;
+                
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+            }
+        }
+
+        // Initialize overview manager when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.overviewManager = new OverviewManager();
+        });
+
+        // Mobile menu functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle
             const menuToggle = document.getElementById('menuToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1366,84 +1321,24 @@
                 }
             }
             
-            // Dropdown menus
+            // User dropdown
             const userMenu = document.getElementById('userMenu');
-            const dropdownMenu = document.getElementById('dropdownMenu');
+            const userDropdown = document.getElementById('userDropdown');
             
-            if (userMenu && dropdownMenu) {
+            if (userMenu && userDropdown) {
                 userMenu.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (window.innerWidth <= 768) {
-                        dropdownMenu.classList.toggle('active');
-                    } else {
-                        dropdownMenu.style.display = 
-                            dropdownMenu.style.display === 'block' ? 'none' : 'block';
-                    }
+                    userDropdown.style.display = 
+                        userDropdown.style.display === 'block' ? 'none' : 'block';
                 });
                 
                 document.addEventListener('click', (e) => {
-                    if (!userMenu.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                        if (window.innerWidth <= 768) {
-                            dropdownMenu.classList.remove('active');
-                        } else {
-                            dropdownMenu.style.display = 'none';
-                        }
+                    if (!userMenu.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userDropdown.style.display = 'none';
                     }
                 });
             }
-            
-            // Logout button
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    if (confirm('Are you sure you want to logout?')) {
-                        if (typeof auth !== 'undefined' && auth.logout) {
-                            await auth.logout();
-                        }
-                        window.location.href = 'login.html';
-                    }
-                });
-            }
-            
-            // Window resize handling
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    // Close mobile dropdowns on resize to desktop
-                    if (window.innerWidth > 768) {
-                        const dropdowns = document.querySelectorAll('.dropdown-menu.active');
-                        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
-                    }
-                }, 250);
-            });
         });
-        
-        // Helper functions
-        function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = show ? 'flex' : 'none';
-            }
-        }
-        
-        function showNotification(message, type = 'info') {
-            // Simple notification implementation
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()">&times;</button>
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 5000);
-        }
-        
-        // Make functions available globally
-        window.showLoading = showLoading;
-        window.showNotification = showNotification;
     </script>
-        </body>
+</body>
 </html>

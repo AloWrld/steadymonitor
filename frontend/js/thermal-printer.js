@@ -149,5 +149,5 @@ class ThermalPrinter {
 
 // Usage example:
 // const printer = new ThermalPrinter({ autoCut: true });
-// const receipt = await fetch('/api/print/receipt', { method: 'POST', body: { receipt_id: '123' } });
+// const receipt = await fetch('https://steadymonitor-backend.onrender.com/api/print/receipt', { method: 'POST', body: { receipt_id: '123' } });
 // await printer.printToDevice(receipt.formatted);

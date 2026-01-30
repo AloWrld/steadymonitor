@@ -904,7 +904,7 @@
             
             async loadAllocationStats() {
                 try {
-                    const response = await API.call('/api/allocations/summary');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/summary');
                     
                     if (response.success) {
                         this.renderStats(response);
@@ -974,9 +974,9 @@
                         params.append('end_date', this.currentFilters.endDate);
                     }
                     
-                    let endpoint = '/api/allocations/summary';
+                    let endpoint = 'https://steadymonitor-backend.onrender.com/api/allocations/summary';
                     if (this.activeProgram !== 'all') {
-                        endpoint = `/api/allocations/program/${this.activeProgram}`;
+                        endpoint = `https://steadymonitor-backend.onrender.com/api/allocations/program/${this.activeProgram}`;
                     }
                     
                     const response = await API.call(`${endpoint}?${params.toString()}`);
@@ -1136,7 +1136,7 @@
             
             async loadClasses() {
                 try {
-                    const response = await API.call('/api/customers/classes');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/customers/classes');
                     if (response.success && response.classes) {
                         const classFilter = document.getElementById('filterClass');
                         const modalClassFilter = document.getElementById('modalClassFilter');
@@ -1155,7 +1155,7 @@
             async loadActivity() {
                 try {
                     // This is a simplified version - you might want to create a specific endpoint for activity
-                    const response = await API.call('/api/allocations/program/A?limit=5');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/program/A?limit=5');
                     
                     if (response.success) {
                         this.renderActivity(response.allocations || []);
@@ -1288,7 +1288,7 @@
                     const params = new URLSearchParams({ program_type: program });
                     if (className) params.append('class', className);
                     
-                    const response = await API.call(`/api/allocations/eligible/${program}?${params.toString()}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/eligible/${program}?${params.toString()}`);
                     
                     if (response.success) {
                         this.renderLearners(response.learners || []);
@@ -1361,7 +1361,7 @@
             // PRODUCT MANAGEMENT
             async loadAllocatableProducts() {
                 try {
-                    const response = await API.call('/api/inventory/products?department=all&is_allocatable=true');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products?department=all&is_allocatable=true');
                     
                     if (response.success) {
                         this.renderProducts(response.products || [], 'productSelection');
@@ -1381,7 +1381,7 @@
             
             async loadBatchProducts() {
                 try {
-                    const response = await API.call('/api/inventory/products?department=all&is_allocatable=true');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products?department=all&is_allocatable=true');
                     
                     if (response.success) {
                         this.renderProducts(response.products || [], 'batchProductSelection');
@@ -1528,7 +1528,7 @@
                 // Fetch product details for display
                 Promise.all(this.selectedProducts.map(async (selectedProduct) => {
                     try {
-                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
                         if (response.success) {
                             return {
                                 ...selectedProduct,
@@ -1582,7 +1582,7 @@
                 }
                 
                 try {
-                    const response = await API.call(`/api/allocations/eligible/${program}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/eligible/${program}`);
                     
                     if (response.success && response.grouped_by_class) {
                         this.renderClasses(Object.keys(response.grouped_by_class));
@@ -1649,7 +1649,7 @@
                 let totalLearners = 0;
                 try {
                     for (const className of this.selectedClasses) {
-                        const response = await API.call(`/api/customers/class/${className}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/customers/class/${className}`);
                         if (response.success) {
                             totalLearners += response.count || 0;
                         }
@@ -1662,7 +1662,7 @@
                 let totalValue = 0;
                 for (const product of this.batchSelectedProducts) {
                     try {
-                        const response = await API.call(`/api/inventory/products/${product.product_id}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${product.product_id}`);
                         if (response.success) {
                             const price = parseFloat(response.product.sell_price || 0);
                             totalValue += price * product.quantity * totalLearners;
@@ -1686,7 +1686,7 @@
                 // Fetch product details for display
                 Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
                     try {
-                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
                         if (response.success) {
                             return {
                                 ...selectedProduct,
@@ -1748,7 +1748,7 @@
                 // Get product details
                 const items = await Promise.all(this.selectedProducts.map(async (selectedProduct) => {
                     try {
-                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
                         if (response.success) {
                             return {
                                 product_id: selectedProduct.product_id,
@@ -1772,7 +1772,7 @@
                 try {
                     this.showNotification('Processing allocation...', 'info');
                     
-                    const response = await API.call('/api/allocations', {
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations', {
                         method: 'POST',
                         body: JSON.stringify(allocationData)
                     });
@@ -1812,7 +1812,7 @@
                 // Get product details
                 const items = await Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
                     try {
-                        const response = await API.call(`/api/inventory/products/${selectedProduct.product_id}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
                         if (response.success) {
                             return {
                                 product_id: selectedProduct.product_id,
@@ -1840,7 +1840,7 @@
                 try {
                     this.showNotification('Processing batch allocation...', 'info');
                     
-                    const response = await API.call('/api/allocations/batch', {
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/batch', {
                         method: 'POST',
                         body: JSON.stringify(batchData)
                     });
@@ -1861,7 +1861,7 @@
             // VIEW DETAILS
             async viewLearnerAllocations(learnerId) {
                 try {
-                    const response = await API.call(`/api/allocations/learner/${learnerId}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/learner/${learnerId}`);
                     
                     if (response.success) {
                         this.renderLearnerAllocations(response);
@@ -1929,7 +1929,7 @@
             
             async viewBatchDetails(batchId) {
                 try {
-                    const response = await API.call(`/api/allocations/batch/${batchId}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/batch/${batchId}`);
                     
                     if (response.success) {
                         this.renderBatchDetails(response);
@@ -2010,7 +2010,7 @@
             
             async viewBatches() {
                 try {
-                    const response = await API.call('/api/allocations/batches');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/batches');
                     
                     if (response.success) {
                         // You could show this in a modal or navigate to a batches page

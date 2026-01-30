@@ -668,35 +668,35 @@
         
         // ... rest of your API methods remain the same
         login: async function(username, password) {
-            return this.call('/api/auth/login', {
+            return this.call('https://steadymonitor-backend.onrender.com/api/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ username, password })
             });
         },
         
         logout: async function() {
-            return this.call('/api/auth/logout', { method: 'POST' });
+            return this.call('https://steadymonitor-backend.onrender.com/api/auth/logout', { method: 'POST' });
         },
         
         checkAuth: async function() {
-            return this.call('/api/auth/check');
+            return this.call('https://steadymonitor-backend.onrender.com/api/auth/check');
         },
         
                   getPermissions: async function() {
-                    return this.call('/api/auth/permissions');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/permissions');
                 },
                 
                 // Customers
                 getCustomers: async function() {
-                    return this.call('/api/customers');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/customers');
                 },
                 
                 getCustomerById: async function(id) {
-                    return this.call(`/api/customers/${id}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/customers/${id}`);
                 },
                 
                 createCustomer: async function(customerData) {
-                    return this.call('/api/customers', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/customers', {
                         method: 'POST',
                         body: JSON.stringify(customerData)
                     });
@@ -704,45 +704,45 @@
                 
                 // Products & Inventory
                 getProducts: async function() {
-                    return this.call('/api/inventory/products');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/inventory/products');
                 },
                 
                 getDepartmentProducts: async function(department) {
-                    return this.call(`/api/pos/products/${department}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pos/products/${department}`);
                 },
                 
                 getLowStock: async function() {
-                    return this.call('/api/inventory/low-stock');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/inventory/low-stock');
                 },
                 
                 // Dashboard
                 getDashboardStats: async function() {
-                    return this.call('/api/dashboard/stats');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/stats');
                 },
                 
                 getRecentSales: async function() {
-                    return this.call('/api/dashboard/recent-sales');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/recent-sales');
                 },
                 
                 getCustomerBalances: async function() {
-                    return this.call('/api/dashboard/customers-balance');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/customers-balance');
                 },
                 
                 // POS
                 getDepartments: async function() {
-                    return this.call('/api/pos/departments');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pos/departments');
                 },
                 
                 getClasses: async function() {
-                    return this.call('/api/pos/classes');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pos/classes');
                 },
                 
                 searchLearners: async function(query) {
-                    return this.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
                 },
                 
                 checkout: async function(saleData) {
-                    return this.call('/api/pos/checkout', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pos/checkout', {
                         method: 'POST',
                         body: JSON.stringify(saleData)
                     });
@@ -750,7 +750,7 @@
                 
                 // Print
                 printReceipt: async function(saleId) {
-                    return this.call('/api/print/receipt', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/print/receipt', {
                         method: 'POST',
                         body: JSON.stringify({ sale_id: saleId })
                     });
@@ -759,7 +759,7 @@
                 // Reports
                 getSalesReport: async function(params = {}) {
                     const query = new URLSearchParams(params).toString();
-                    return this.call(`/api/reports/sales?${query}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/reports/sales?${query}`);
                 },
                 
                 // Test function
@@ -767,11 +767,11 @@
                     console.log('Testing API connectivity...');
                     
                     const endpoints = [
-                        '/api/auth/check',
-                        '/api/customers',
-                        '/api/inventory/products',
-                        '/api/dashboard/stats',
-                        '/api/pos/departments'
+                        'https://steadymonitor-backend.onrender.com/api/auth/check',
+                        'https://steadymonitor-backend.onrender.com/api/customers',
+                        'https://steadymonitor-backend.onrender.com/api/inventory/products',
+                        'https://steadymonitor-backend.onrender.com/api/dashboard/stats',
+                        'https://steadymonitor-backend.onrender.com/api/pos/departments'
                     ];
                     
                     const results = {};
@@ -926,14 +926,14 @@
                 async loadDashboardData() {
                     try {
                         // Load payment summary
-                        const summary = await API.call('/api/payments/summary?period=month');
+                        const summary = await API.call('https://steadymonitor-backend.onrender.com/api/payments/summary?period=month');
                         if (summary.success) {
                             this.updateDashboardSummary(summary);
                             this.updateDailyTrendsChart(summary.daily_summary);
                         }
 
                         // Load payment methods summary
-                        const methods = await API.call('/api/payments/summary/methods');
+                        const methods = await API.call('https://steadymonitor-backend.onrender.com/api/payments/summary/methods');
                         if (methods.success) {
                             this.updatePaymentMethodsChart(methods.methods_summary);
                         }
@@ -948,7 +948,7 @@
                     try {
                         // In a real implementation, you would have an endpoint for recent payments
                         // For now, we'll use the summary endpoint
-                        const response = await API.call('/api/payments/summary?period=day');
+                        const response = await API.call('https://steadymonitor-backend.onrender.com/api/payments/summary?period=day');
                         if (response.success) {
                             this.updateRecentPaymentsTable(response.daily_summary);
                         }
@@ -959,7 +959,7 @@
 
                 async loadOutstandingBalances() {
                     try {
-                        const response = await API.call('/api/payments/outstanding');
+                        const response = await API.call('https://steadymonitor-backend.onrender.com/api/payments/outstanding');
                         if (response.success) {
                             this.updateOutstandingTable(response.outstanding);
                             
@@ -983,7 +983,7 @@
 
                     try {
                         // Use the API search endpoint
-                        const response = await API.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
                         if (response.success && response.learners.length > 0) {
                             this.displayLearnerResults(response.learners);
                         } else {
@@ -1105,7 +1105,7 @@
                     }
                     
                     try {
-                        const response = await API.call('/api/payments/validate', {
+                        const response = await API.call('https://steadymonitor-backend.onrender.com/api/payments/validate', {
                             method: 'POST',
                             body: JSON.stringify({
                                 learner_id: this.selectedLearner.id,
@@ -1158,7 +1158,7 @@
                             is_installment: isInstallment
                         };
                         
-                        const response = await API.call('/api/payments', {
+                        const response = await API.call('https://steadymonitor-backend.onrender.com/api/payments', {
                             method: 'POST',
                             body: JSON.stringify(paymentData)
                         });
@@ -1334,7 +1334,7 @@
 
                 async exportOutstanding() {
                     try {
-                        const response = await API.call('/api/payments/outstanding');
+                        const response = await API.call('https://steadymonitor-backend.onrender.com/api/payments/outstanding');
                         if (response.success) {
                             // Convert to CSV
                             const csv = this.convertToCSV(response.outstanding);
@@ -1364,7 +1364,7 @@
                     
                     try {
                         // Search for learner
-                        const response = await API.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
                         if (response.success && response.learners.length > 0) {
                             const learner = response.learners[0];
                             this.loadInstallmentPayments(learner.customer_id);
@@ -1379,7 +1379,7 @@
 
                 async loadInstallmentPayments(learnerId) {
                     try {
-                        const response = await API.call(`/api/payments/installments/${learnerId}`);
+                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/payments/installments/${learnerId}`);
                         if (response.success) {
                             this.displayInstallmentPayments(response);
                         }
@@ -1852,7 +1852,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('🔐 Checking authentication status...');
         
         // Try to verify authentication
-        const authCheck = await API.call('/api/auth/check').catch(error => {
+        const authCheck = await API.call('https://steadymonitor-backend.onrender.com/api/auth/check').catch(error => {
             console.warn('Auth check failed:', error);
             return null;
         });
@@ -1860,7 +1860,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Also try the legacy endpoint for compatibility
         if (!authCheck) {
             console.log('Trying legacy auth endpoint...');
-            const legacyCheck = await API.call('/api/auth/verify').catch(() => null);
+            const legacyCheck = await API.call('https://steadymonitor-backend.onrender.com/api/auth/verify').catch(() => null);
             if (legacyCheck && legacyCheck.isAuthenticated) {
                 console.log('✅ Authenticated via legacy endpoint');
                 // Proceed with initialization

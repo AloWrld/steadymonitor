@@ -1114,75 +1114,75 @@
                 
                 // Authentication
                 login: async function(username, password) {
-                    return this.call('/api/auth/login', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/login', {
                         method: 'POST',
                         body: JSON.stringify({ username, password })
                     });
                 },
                 
                 logout: async function() {
-                    return this.call('/api/auth/logout', { method: 'POST' });
+                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/logout', { method: 'POST' });
                 },
                 
                 checkAuth: async function() {
-                    return this.call('/api/auth/check');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/check');
                 },
                 
                 // Pocket Money API
                 getPocketMoneySummary: async function(filters = {}) {
                     const query = new URLSearchParams(filters).toString();
-                    return this.call(`/api/pocket-money/summary?${query}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/summary?${query}`);
                 },
                 
                 getPocketMoneyStats: async function() {
-                    return this.call('/api/pocket-money/stats');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/stats');
                 },
                 
                 getLearnerPocketMoneyHistory: async function(learnerId, filters = {}) {
                     const query = new URLSearchParams(filters).toString();
-                    return this.call(`/api/pocket-money/history/${learnerId}?${query}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/history/${learnerId}?${query}`);
                 },
                 
                 getLearnerPocketMoneyStatus: async function(learnerId) {
-                    return this.call(`/api/pocket-money/status/${learnerId}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/status/${learnerId}`);
                 },
                 
                 validatePocketMoneyTransaction: async function(data) {
-                    return this.call('/api/pocket-money/validate', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/validate', {
                         method: 'POST',
                         body: JSON.stringify(data)
                     });
                 },
                 
                 processPocketMoneyPurchase: async function(data) {
-                    return this.call('/api/pocket-money/purchase', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/purchase', {
                         method: 'POST',
                         body: JSON.stringify(data)
                     });
                 },
                 
                 topUpPocketMoney: async function(data) {
-                    return this.call('/api/pocket-money/topup', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/topup', {
                         method: 'POST',
                         body: JSON.stringify(data)
                     });
                 },
                 
                 deductPocketMoney: async function(data) {
-                    return this.call('/api/pocket-money/deduct', {
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/deduct', {
                         method: 'POST',
                         body: JSON.stringify(data)
                     });
                 },
                 
                 enablePocketMoney: async function(learnerId) {
-                    return this.call(`/api/pocket-money/enable/${learnerId}`, {
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/enable/${learnerId}`, {
                         method: 'POST'
                     });
                 },
                 
                 disablePocketMoney: async function(learnerId, data) {
-                    return this.call(`/api/pocket-money/disable/${learnerId}`, {
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/disable/${learnerId}`, {
                         method: 'POST',
                         body: JSON.stringify(data)
                     });
@@ -1191,25 +1191,25 @@
                 // Products API
                 getProducts: async function(department = '') {
                     if (department) {
-                        return this.call(`/api/pos/products/${department}`);
+                        return this.call(`https://steadymonitor-backend.onrender.com/api/pos/products/${department}`);
                     }
-                    return this.call('/api/inventory/products');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/inventory/products');
                 },
                 
                 // Learners API
                 searchLearners: async function(query) {
-                    return this.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+                    return this.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
                 },
                 
                 getClasses: async function() {
-                    return this.call('/api/pos/classes');
+                    return this.call('https://steadymonitor-backend.onrender.com/api/pos/classes');
                 },
                 
                 // Test function
                 testConnection: async function() {
                     try {
-                        const auth = await this.call('/api/auth/health');
-                        const pocket = await this.call('/api/pocket-money/summary');
+                        const auth = await this.call('https://steadymonitor-backend.onrender.com/api/auth/health');
+                        const pocket = await this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/summary');
                         return { auth, pocket };
                     } catch (error) {
                         console.error('Connection test failed:', error);

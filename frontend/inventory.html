@@ -430,7 +430,7 @@
             
             async loadInventory() {
                 try {
-                    const response = await API.call('/api/inventory/products');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products');
                     
                     if (response.success) {
                         this.products = response.products;
@@ -447,7 +447,7 @@
             
             async loadDashboardStats() {
                 try {
-                    const response = await API.call('/api/inventory/dashboard');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/dashboard');
                     
                     if (response.success) {
                         this.renderStats(response.stats);
@@ -459,7 +459,7 @@
             
             async loadLowStock() {
                 try {
-                    const response = await API.call('/api/inventory/low-stock');
+                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/low-stock');
                     
                     if (response.success) {
                         // Show low stock alert
@@ -667,7 +667,7 @@
             
             async editProduct(productId) {
                 try {
-                    const response = await API.call(`/api/inventory/products/${productId}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${productId}`);
                     
                     if (response.success) {
                         const product = response.product;
@@ -721,12 +721,12 @@
                     let response;
                     
                     if (isEdit) {
-                        response = await API.call(`/api/inventory/products/${productId}`, {
+                        response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${productId}`, {
                             method: 'PUT',
                             body: JSON.stringify(productData)
                         });
                     } else {
-                        response = await API.call('/api/inventory/products', {
+                        response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products', {
                             method: 'POST',
                             body: JSON.stringify(productData)
                         });
@@ -755,7 +755,7 @@
                 }
                 
                 try {
-                    const response = await API.call(`/api/inventory/products/${productId}`, {
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${productId}`, {
                         method: 'DELETE'
                     });
                     
@@ -774,7 +774,7 @@
             
             async showRestockModal(productId) {
                 try {
-                    const response = await API.call(`/api/inventory/products/${productId}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${productId}`);
                     
                     if (response.success) {
                         const product = response.product;
@@ -820,7 +820,7 @@
                 };
                 
                 try {
-                    const response = await API.call(`/api/inventory/products/${productId}/restock`, {
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${productId}/restock`, {
                         method: 'POST',
                         body: JSON.stringify(restockData)
                     });

@@ -937,7 +937,7 @@
             async loadDashboardData() {
     try {
         // Load dashboard stats
-        const stats = await API.call('/api/dashboard/stats');
+        const stats = await API.call('https://steadymonitor-backend.onrender.com/api/dashboard/stats');
         
         if (stats && stats.success) { // Check for success flag
             document.getElementById('totalSales').textContent = `KSh ${parseFloat(stats.today_sales).toLocaleString()}`;
@@ -1201,7 +1201,7 @@
 
             async loadLowStockItems() {
     try {
-        const data = await API.call('/api/dashboard/low-stock');
+        const data = await API.call('https://steadymonitor-backend.onrender.com/api/dashboard/low-stock');
         
         if (data && data.success) {
             this.renderLowStockTable(data.items); // Access items property
@@ -1313,7 +1313,7 @@
 
             async loadRecentSales() {
     try {
-        const data = await API.call('/api/dashboard/recent-sales');
+        const data = await API.call('https://steadymonitor-backend.onrender.com/api/dashboard/recent-sales');
         
         if (data && data.success) {
             this.renderRecentSalesTable(data.sales); // Access sales property
@@ -1527,7 +1527,7 @@
 
                 try {
                     // In production, call your API endpoint
-                    // const endpoint = isEdit ? `/api/departments/${deptId}` : '/api/departments';
+                    // const endpoint = isEdit ? `https://steadymonitor-backend.onrender.com/api/departments/${deptId}` : 'https://steadymonitor-backend.onrender.com/api/departments';
                     // const method = isEdit ? 'PUT' : 'POST';
                     // const data = await API.call(endpoint, { method, body: JSON.stringify(departmentData) });
 

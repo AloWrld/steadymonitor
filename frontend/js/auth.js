@@ -13,7 +13,7 @@
             if (this.initialized) return;
             
             try {
-                const response = await API.call('/api/auth/check');
+                const response = await API.call('https://steadymonitor-backend.onrender.com/api/auth/check');
                 
                 if (response && response.success && response.isAuthenticated) {
                     this.user = response.user;

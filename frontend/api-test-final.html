@@ -57,7 +57,7 @@
             resultDiv.innerHTML = 'Testing API connection...';
             
             try {
-                const response = await API.call('/api/auth/check');
+                const response = await API.call('https://steadymonitor-backend.onrender.com/api/auth/check');
                 resultDiv.innerHTML = `
                     <div class="success">
                         <h3>✓ API Connection Successful</h3>
@@ -81,11 +81,11 @@
             resultDiv.innerHTML = '<h3>Testing all endpoints...</h3>';
             
             const endpoints = [
-                { name: 'Auth Check', url: '/api/auth/check' },
-                { name: 'Customers', url: '/api/customers' },
-                { name: 'Products', url: '/api/inventory/products' },
-                { name: 'Dashboard', url: '/api/dashboard/stats' },
-                { name: 'Departments', url: '/api/pos/departments' }
+                { name: 'Auth Check', url: 'https://steadymonitor-backend.onrender.com/api/auth/check' },
+                { name: 'Customers', url: 'https://steadymonitor-backend.onrender.com/api/customers' },
+                { name: 'Products', url: 'https://steadymonitor-backend.onrender.com/api/inventory/products' },
+                { name: 'Dashboard', url: 'https://steadymonitor-backend.onrender.com/api/dashboard/stats' },
+                { name: 'Departments', url: 'https://steadymonitor-backend.onrender.com/api/pos/departments' }
             ];
             
             for (const endpoint of endpoints) {

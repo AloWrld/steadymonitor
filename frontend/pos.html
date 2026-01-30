@@ -1069,7 +1069,7 @@
                 }
                 
                 try {
-                    const response = await API.call(`/api/pos/search?q=${encodeURIComponent(query)}`);
+                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/pos/search?q=${encodeURIComponent(query)}`);
                     if (response.success) {
                         this.renderProducts(response.products);
                     }

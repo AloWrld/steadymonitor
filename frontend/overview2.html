@@ -336,7 +336,7 @@
 
         async function loadDashboardStats() {
             try {
-                const data = await window.api.get('/api/dashboard/stats');
+                const data = await window.api.get('https://steadymonitor-backend.onrender.com/api/dashboard/stats');
                 
                 if (data.success) {
                     const stats = data.stats;
@@ -422,7 +422,7 @@
 
         async function loadLowStockProducts() {
             try {
-                const data = await window.api.get('/api/dashboard/low-stock');
+                const data = await window.api.get('https://steadymonitor-backend.onrender.com/api/dashboard/low-stock');
                 
                 if (data.success) {
                     const tableBody = document.querySelector('#lowStockTable tbody');
@@ -460,7 +460,7 @@
 
         async function loadRecentSales() {
             try {
-                const data = await window.api.get('/api/dashboard/recent-sales');
+                const data = await window.api.get('https://steadymonitor-backend.onrender.com/api/dashboard/recent-sales');
                 
                 if (data.success) {
                     const tableBody = document.querySelector('#recentSalesTable tbody');
@@ -498,7 +498,7 @@
 
         async function loadCustomersBalance() {
             try {
-                const data = await window.api.get('/api/dashboard/customers-balance');
+                const data = await window.api.get('https://steadymonitor-backend.onrender.com/api/dashboard/customers-balance');
                 
                 if (data.success) {
                     const tableBody = document.querySelector('#customersBalanceTable tbody');
