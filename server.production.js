@@ -34,12 +34,10 @@ app.get('/health', (req, res) => {
     });
 });
 
-
 // ============================================
 // MIDDLEWARE
 // ============================================
 
-// Security headers
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -57,13 +55,9 @@ const allowedOrigins = [
     'https://steadymonitor-frontend.onrender.com'
 ];
 
-
 const corsOptions = {
     origin: function (origin, callback) {
-        // Allow internal requests/mobile apps
         if (!origin) return callback(null, true);
-        
-        // Check if origin is allowed or is a Render/Vercel subdomain
         const isAllowed = allowedOrigins.includes(origin) || 
                          origin.endsWith('.onrender.com') || 
                          origin.endsWith('.vercel.app');
@@ -75,24 +69,20 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true, // MUST match api.js 'include'
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-// Double-tap: Ensure OPTIONS requests are handled before any other route
 app.options('*', cors(corsOptions));
 
-// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Trust proxy (required for Render + secure cookies) - FIX 2
 app.set('trust proxy', 1);
 
-// Session configuration
 app.use(session({
     store: new pgSession({
         pool: pool,
@@ -103,32 +93,28 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: true, // MUST be true for SameSite=None - FIX 3
+        secure: true, 
         httpOnly: true,
-        sameSite: 'none', // CRITICAL for cross-domain - FIX 3
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        sameSite: 'none', 
+        maxAge: 24 * 60 * 60 * 1000 
     },
     name: 'sid'
 }));
 
-// Static files (frontend) - ONLY IN DEVELOPMENT
-if (!isProduction) {
-    app.use(express.static(path.join(__dirname, 'frontend'), {
-        maxAge: '0',
-        index: false,
-        setHeaders: (res, filePath) => {
-            if (filePath.endsWith('.html')) {
-                res.setHeader('Cache-Control', 'no-cache');
-            }
+// Static files must be served BEFORE routes to let window.loadPage work
+app.use(express.static(path.join(__dirname, 'frontend'), {
+    maxAge: '1d',
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
         }
-    }));
-}
+    }
+}));
 
 // ============================================
-// ROUTES 
+// API ROUTES (Option B: No (pool) passed)
 // ============================================
 
-// Correct syntax: app.use('path', require('file')) -> NO (pool) at the end!
 app.use('/api/auth', require('./backend/routes/authRoutes'));
 app.use('/api/dashboard', require('./backend/routes/dashboardRoutes'));
 app.use('/api/customers', require('./backend/routes/customerRoutes'));
@@ -144,59 +130,38 @@ app.use('/api/checkout', require('./backend/routes/checkoutRoutes'));
 app.use('/api/print', require('./backend/routes/printRoutes'));
 
 // ============================================
-// FRONTEND ROUTES - ONLY IN DEVELOPMENT
+// FRONTEND ROUTING & REDIRECTS
 // ============================================
 
-if (!isProduction) {
-    // Public routes
-    const publicRoutes = ['/', '/login.html', '/register.html'];
-    publicRoutes.forEach(route => {
-        app.get(route, (req, res) => {
-            if (req.session.userId) {
-                return res.redirect('/admin.html');
-            }
-            res.sendFile(path.join(__dirname, 'frontend', route === '/' ? 'login.html' : route));
-        });
-    });
-
-    // Protected routes (require auth)
-    const protectedRoutes = [
-        '/admin.html', '/department.html', '/customers.html',
-        '/inventory.html', '/overview.html', '/payments.html',
-        '/pocket_money.html', '/pos.html', '/refunds.html',
-        '/reports.html', '/suppliers.html', '/allocations.html'
-    ];
-
-    protectedRoutes.forEach(route => {
-        app.get(route, (req, res) => {
-            if (!req.session.userId) {
-                return res.redirect('/login.html?redirect=' + encodeURIComponent(route));
-            }
-            res.sendFile(path.join(__dirname, 'frontend', route));
-        });
-    });
-
-    // Catch-all for other HTML files
-    app.get('/:htmlFile([\\w-]+\\.html)', (req, res) => {
-        const filePath = path.join(__dirname, 'frontend', req.params.htmlFile);
-        if (fs.existsSync(filePath)) {
-            res.sendFile(filePath);
-        } else {
-            res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
+// Public access logic
+const publicRoutes = ['/', '/login.html', '/register.html'];
+publicRoutes.forEach(route => {
+    app.get(route, (req, res) => {
+        if (req.session.userId) {
+            return res.redirect('/admin.html');
         }
+        res.sendFile(path.join(__dirname, 'frontend', route === '/' ? 'login.html' : route));
     });
+});
 
-    // Frontend 404 handler - BACK TO STABLE EXPRESS 4 SYNTAX
-    app.use('*', (req, res, next) => {
-        if (req.originalUrl.startsWith('/api')) return next();
-        res.status(404).sendFile(path.join(__dirname, 'frontend', '404.html'));
+// Protected access logic
+const protectedRoutes = [
+    '/admin.html', '/department.html', '/customers.html',
+    '/inventory.html', '/overview.html', '/payments.html',
+    '/pocket_money.html', '/pos.html', '/refunds.html',
+    '/reports.html', '/suppliers.html', '/allocations.html'
+];
+
+protectedRoutes.forEach(route => {
+    app.get(route, (req, res) => {
+        if (!req.session.userId) {
+            return res.redirect('/login.html?redirect=' + encodeURIComponent(route));
+        }
+        res.sendFile(path.join(__dirname, 'frontend', route));
     });
-}
+});
 
-// ============================================
-// API 404 HANDLER (ALWAYS ACTIVE)
-// ============================================
-
+// Catch-all for API 404s
 app.use('/api/*', (req, res) => {
     res.status(404).json({ 
         success: false,
@@ -205,19 +170,16 @@ app.use('/api/*', (req, res) => {
     });
 });
 
-// ============================================
-// PRODUCTION CATCH-ALL (API ONLY)
-// ============================================
+// Unified Frontend Catch-all (Supports SPA and window.loadPage)
+app.get('*', (req, res) => {
+    if (req.originalUrl.startsWith('/api')) return; // handled above
 
-if (isProduction) {
-    app.use('*', (req, res) => {
-        res.status(404).json({
-            success: false,
-            message: 'Not found. This is an API-only server in production.',
-            documentation: `${process.env.FRONTEND_URL}/api-docs`
-        });
-    });
-}
+    const filePath = path.join(__dirname, 'frontend', req.path);
+    if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+        return res.sendFile(filePath);
+    }
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
 
 // ============================================
 // ERROR HANDLING
@@ -236,27 +198,22 @@ app.use((err, req, res, next) => {
 // SERVER STARTUP
 // ============================================
 
-// Explicitly binding to 0.0.0.0 is the "Golden Rule" for Render deployments
 app.listen(PORT, '0.0.0.0', () => {
     const fUrl = isProduction ? process.env.FRONTEND_URL : 'http://localhost:3000';
     const aUrl = isProduction ? (process.env.API_URL || `https://steadymonitor-backend.onrender.com/api`) : `http://localhost:${PORT}/api`;
-    const dbStatus = process.env.DATABASE_URL ? 'Connected' : 'Not configured';
-
+    
     console.log(`
 🚀 Server listening on 0.0.0.0:${PORT}
 📡 Mode: ${NODE_ENV}
 🌐 Allowed Frontend: ${fUrl}
 🔗 API Base: ${aUrl}
-🗄️  Database: ${dbStatus}
-📦 Serving frontend: ${!isProduction ? 'Yes' : 'No (API only)'}
+🗄️  Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}
+📦 Serving frontend: Yes (All Environments)
     `);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Closing server...');
     pool.end(() => {
-        console.log('Database pool closed');
         process.exit(0);
     });
 });
