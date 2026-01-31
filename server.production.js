@@ -50,20 +50,30 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl)
+        // Allow internal requests/mobile apps
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        
+        // Check if origin is allowed or is a Render/Vercel subdomain
+        const isAllowed = allowedOrigins.includes(origin) || 
+                         origin.endsWith('.onrender.com') || 
+                         origin.endsWith('.vercel.app');
+
+        if (isAllowed) {
             callback(null, true);
         } else {
+            console.error(`❌ CORS blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true,
+    credentials: true, // MUST match api.js 'include'
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // 🔥 CRITICAL: Handle preflight requests
+// Double-tap: Ensure OPTIONS requests are handled before any other route
+app.options('*', cors(corsOptions));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
