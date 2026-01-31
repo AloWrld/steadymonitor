@@ -43,11 +43,10 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// Updated CORS to allow both domains
 const allowedOrigins = [
-    'https://steadymonitor.vercel.app',
-    'https://hattyjohns-investments.vercel.app'
+    'https://steadymonitor-frontend.onrender.com'
 ];
+
 
 const corsOptions = {
     origin: function (origin, callback) {
