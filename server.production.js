@@ -25,6 +25,16 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        environment: NODE_ENV 
+    });
+});
+
+
 // ============================================
 // MIDDLEWARE
 // ============================================
@@ -117,15 +127,6 @@ if (!isProduction) {
 // ============================================
 // ROUTES
 // ============================================
-
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        timestamp: new Date().toISOString(),
-        environment: NODE_ENV 
-    });
-});
 
 // API routes
 app.use('/api/auth', require('./backend/routes/authRoutes'));
