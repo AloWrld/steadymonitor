@@ -125,23 +125,23 @@ if (!isProduction) {
 }
 
 // ============================================
-// ROUTES
+// ROUTES 
 // ============================================
 
-// API routes
-app.use('/api/auth', require('./backend/routes/authRoutes')(pool));
-app.use('/api/dashboard', require('./backend/routes/dashboardRoutes')(pool));
-app.use('/api/customers', require('./backend/routes/customerRoutes')(pool));
-app.use('/api/payments', require('./backend/routes/paymentRoutes')(pool));
-app.use('/api/inventory', require('./backend/routes/inventoryRoutes')(pool));
-app.use('/api/suppliers', require('./backend/routes/supplierRoutes')(pool));
-app.use('/api/pos', require('./backend/routes/posRoutes')(pool));
-app.use('/api/pocket-money', require('./backend/routes/pocketMoneyRoutes')(pool));
-app.use('/api/allocations', require('./backend/routes/allocationRoutes')(pool));
-app.use('/api/refunds', require('./backend/routes/refundRoutes')(pool));
-app.use('/api/reports', require('./backend/routes/reportRoutes')(pool));
-app.use('/api/checkout', require('./backend/routes/checkoutRoutes')(pool));
-app.use('/api/print', require('./backend/routes/printRoutes')(pool));
+// Correct syntax: app.use('path', require('file')) -> NO (pool) at the end!
+app.use('/api/auth', require('./backend/routes/authRoutes'));
+app.use('/api/dashboard', require('./backend/routes/dashboardRoutes'));
+app.use('/api/customers', require('./backend/routes/customerRoutes'));
+app.use('/api/payments', require('./backend/routes/paymentRoutes'));
+app.use('/api/inventory', require('./backend/routes/inventoryRoutes'));
+app.use('/api/suppliers', require('./backend/routes/supplierRoutes'));
+app.use('/api/pos', require('./backend/routes/posRoutes'));
+app.use('/api/pocket-money', require('./backend/routes/pocketMoneyRoutes'));
+app.use('/api/allocations', require('./backend/routes/allocationRoutes'));
+app.use('/api/refunds', require('./backend/routes/refundRoutes'));
+app.use('/api/reports', require('./backend/routes/reportRoutes'));
+app.use('/api/checkout', require('./backend/routes/checkoutRoutes'));
+app.use('/api/print', require('./backend/routes/printRoutes'));
 
 // ============================================
 // FRONTEND ROUTES - ONLY IN DEVELOPMENT
