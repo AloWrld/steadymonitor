@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitBtn = loginForm.querySelector('button[type="submit"]');
         const errorDiv = document.getElementById('loginError');
         
+        // FIX: Declare originalText at the top of the function scope
+        let originalText = submitBtn ? submitBtn.textContent : 'Login';
+        
         if (!username || !password) {
             showError('Please enter username and password');
             return;
@@ -28,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show loading
         if (submitBtn) {
-            const originalText = submitBtn.textContent;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
             submitBtn.disabled = true;
         }
@@ -42,14 +44,26 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (window.API) {
                 const response = await window.API.login(username, password);
                 if (response && response.success) {
-                    // Manual redirect based on role
+                    // Use goToPage or hash navigation instead of direct file redirects
                     const role = response.user.role;
                     if (role === 'admin') {
-                        window.location.href = '/admin.html';
+                        if (typeof window.goToPage === 'function') {
+                            goToPage('admin');
+                        } else {
+                            window.location.hash = '#admin';
+                        }
                     } else if (role.startsWith('department_')) {
-                        window.location.href = '/department.html';
+                        if (typeof window.goToPage === 'function') {
+                            goToPage('department');
+                        } else {
+                            window.location.hash = '#department';
+                        }
                     } else {
-                        window.location.href = '/pos.html';
+                        if (typeof window.goToPage === 'function') {
+                            goToPage('pos');
+                        } else {
+                            window.location.hash = '#pos';
+                        }
                     }
                 } else {
                     throw new Error(response?.message || 'Login failed');
@@ -59,9 +73,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Login error:', error);
-            showError(error.message || 'Login failed. Please check credentials.');
             
-            // Reset button
+            // Use a generic message for fetch/CORS errors
+            const displayMsg = error.message.includes('fetch') || error.message.includes('Failed to fetch')
+                ? 'Connection error: Backend is unreachable. Please check if backend is running.'
+                : error.message || 'Login failed. Please check credentials.';
+            
+            showError(displayMsg);
+            
+            // Reset button (originalText is now accessible)
             if (submitBtn) {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
