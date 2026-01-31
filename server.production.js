@@ -22,7 +22,7 @@ const isProduction = NODE_ENV === 'production';
 // Database pool for sessions
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: isProduction ? { rejectUnauthorized: false } : false
+    ssl: { rejectUnauthorized: false }
 });
 
 // ============================================
@@ -43,11 +43,9 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration
+// CORS configuration - FIX 1
 const corsOptions = {
-    origin: isProduction
-        ? [process.env.FRONTEND_URL] 
-        : ['http://localhost:3000', 'http://localhost:3001'],
+    origin: 'https://steadymonitor.vercel.app',
     credentials: true,
     optionsSuccessStatus: 200
 };
@@ -57,6 +55,9 @@ app.use(cors(corsOptions));
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Trust proxy (required for Render + secure cookies) - FIX 2
+app.set('trust proxy', 1);
 
 // Session configuration
 app.use(session({
@@ -69,9 +70,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: isProduction,
+        secure: true, // MUST be true for SameSite=None - FIX 3
         httpOnly: true,
-        sameSite: isProduction ? 'lax' : 'lax',
+        sameSite: 'none', // CRITICAL for cross-domain - FIX 3
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     },
     name: 'sid'
