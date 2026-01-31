@@ -226,16 +226,17 @@ app.use((err, req, res, next) => {
 // SERVER STARTUP
 // ============================================
 
-app.listen(PORT, () => {
+// Explicitly binding to 0.0.0.0 is the "Golden Rule" for Render deployments
+app.listen(PORT, '0.0.0.0', () => {
     const fUrl = isProduction ? process.env.FRONTEND_URL : 'http://localhost:3000';
-    const aUrl = isProduction ? (process.env.API_URL || `http://localhost:${PORT}/api`) : `http://localhost:${PORT}/api`;
+    const aUrl = isProduction ? (process.env.API_URL || `https://steadymonitor-backend.onrender.com/api`) : `http://localhost:${PORT}/api`;
     const dbStatus = process.env.DATABASE_URL ? 'Connected' : 'Not configured';
 
     console.log(`
-🚀 Server running in ${NODE_ENV} mode
-📡 Port: ${PORT}
-🌐 Frontend: ${fUrl}
-🔗 API: ${aUrl}
+🚀 Server listening on 0.0.0.0:${PORT}
+📡 Mode: ${NODE_ENV}
+🌐 Allowed Frontend: ${fUrl}
+🔗 API Base: ${aUrl}
 🗄️  Database: ${dbStatus}
 📦 Serving frontend: ${!isProduction ? 'Yes' : 'No (API only)'}
     `);
