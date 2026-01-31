@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const API_BASE = 'http://localhost:3001';
+    const API_BASE = 'https://steadymonitor-backend.onrender.com';
     
     // Main API object
     const API = {
@@ -32,7 +32,12 @@
                     console.error('[API] Error:', response.status, errorText);
                     
                     if (response.status === 401) {
-                        window.location.href = '/login.html';
+                        // Use goToPage or hash navigation instead of file redirect
+                        if (typeof window.goToPage === 'function') {
+                            goToPage('login');
+                        } else {
+                            window.location.hash = '#login';
+                        }
                         return null;
                     }
                     
@@ -50,35 +55,35 @@
         
         // Authentication
         login: async function(username, password) {
-            return this.call('https://steadymonitor-backend.onrender.com/api/auth/login', {
+            return this.call('/api/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ username, password })
             });
         },
         
         logout: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/auth/logout', { method: 'POST' });
+            return this.call('/api/auth/logout', { method: 'POST' });
         },
         
         checkAuth: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/auth/check');
+            return this.call('/api/auth/check');
         },
         
         getPermissions: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/auth/permissions');
+            return this.call('/api/auth/permissions');
         },
         
         // Customers
         getCustomers: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/customers');
+            return this.call('/api/customers');
         },
         
         getCustomerById: async function(id) {
-            return this.call(`https://steadymonitor-backend.onrender.com/api/customers/${id}`);
+            return this.call(`/api/customers/${id}`);
         },
         
         createCustomer: async function(customerData) {
-            return this.call('https://steadymonitor-backend.onrender.com/api/customers', {
+            return this.call('/api/customers', {
                 method: 'POST',
                 body: JSON.stringify(customerData)
             });
@@ -86,45 +91,45 @@
         
         // Products & Inventory
         getProducts: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/inventory/products');
+            return this.call('/api/inventory/products');
         },
         
         getDepartmentProducts: async function(department) {
-            return this.call(`https://steadymonitor-backend.onrender.com/api/pos/products/${department}`);
+            return this.call(`/api/pos/products/${department}`);
         },
         
         getLowStock: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/inventory/low-stock');
+            return this.call('/api/inventory/low-stock');
         },
         
         // Dashboard
         getDashboardStats: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/stats');
+            return this.call('/api/dashboard/stats');
         },
         
         getRecentSales: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/recent-sales');
+            return this.call('/api/dashboard/recent-sales');
         },
         
         getCustomerBalances: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/dashboard/customers-balance');
+            return this.call('/api/dashboard/customers-balance');
         },
         
         // POS
         getDepartments: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/pos/departments');
+            return this.call('/api/pos/departments');
         },
         
         getClasses: async function() {
-            return this.call('https://steadymonitor-backend.onrender.com/api/pos/classes');
+            return this.call('/api/pos/classes');
         },
         
         searchLearners: async function(query) {
-            return this.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
+            return this.call(`/api/pos/learners/search?q=${encodeURIComponent(query)}`);
         },
         
         checkout: async function(saleData) {
-            return this.call('https://steadymonitor-backend.onrender.com/api/pos/checkout', {
+            return this.call('/api/pos/checkout', {
                 method: 'POST',
                 body: JSON.stringify(saleData)
             });
@@ -132,7 +137,7 @@
         
         // Print
         printReceipt: async function(saleId) {
-            return this.call('https://steadymonitor-backend.onrender.com/api/print/receipt', {
+            return this.call('/api/print/receipt', {
                 method: 'POST',
                 body: JSON.stringify({ sale_id: saleId })
             });
@@ -141,7 +146,7 @@
         // Reports
         getSalesReport: async function(params = {}) {
             const query = new URLSearchParams(params).toString();
-            return this.call(`https://steadymonitor-backend.onrender.com/api/reports/sales?${query}`);
+            return this.call(`/api/reports/sales?${query}`);
         },
         
         // Test function
@@ -149,11 +154,11 @@
             console.log('Testing API connectivity...');
             
             const endpoints = [
-                'https://steadymonitor-backend.onrender.com/api/auth/check',
-                'https://steadymonitor-backend.onrender.com/api/customers',
-                'https://steadymonitor-backend.onrender.com/api/inventory/products',
-                'https://steadymonitor-backend.onrender.com/api/dashboard/stats',
-                'https://steadymonitor-backend.onrender.com/api/pos/departments'
+                '/api/auth/check',
+                '/api/customers',
+                '/api/inventory/products',
+                '/api/dashboard/stats',
+                '/api/pos/departments'
             ];
             
             const results = {};
