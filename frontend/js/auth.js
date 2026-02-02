@@ -49,7 +49,7 @@
         // Login function (for login.html)
         async login(username, password) {
             try {
-                const response = await API.login(username, password);
+                const response = await API.auth.login({ username, password });
                 
                 if (response && response.success) {
                     this.user = response.user;
@@ -71,7 +71,7 @@
         // Logout function (for menu.js)
         async logout() {
             try {
-                await API.logout();
+                await API.auth.logout();
                 this.user = null;
                 this.initialized = false;
                 return true;
