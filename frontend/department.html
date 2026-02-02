@@ -536,6 +536,9 @@
                     // Initialize UI
                     this.initUI();
                     
+                    // Fix menu.js integration after it loads
+                    this.fixMenuIntegration();
+                    
                     // Generate quick actions based on user role
                     this.generateQuickActions();
                     
@@ -585,21 +588,6 @@
                 document.getElementById('viewAllSalesBtn').addEventListener('click', () => this.viewAllSales());
                 document.getElementById('chartPeriod').addEventListener('change', (e) => this.updateChart(e.target.value));
 
-                // Logout button - Primary handler
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    // Remove any existing listeners
-                    const newLogoutBtn = logoutBtn.cloneNode(true);
-                    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-                    
-                    // Add click handler
-                    newLogoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.handleLogout();
-                    });
-                }
-
                 // Update user greeting
                 if (this.user) {
                     const greeting = document.getElementById('userGreeting');
@@ -607,6 +595,26 @@
                         greeting.textContent = `Welcome, ${this.user.displayName || this.user.username}`;
                     }
                 }
+            }
+
+            fixMenuIntegration() {
+                // Fix for menu.js integration - re-attach logout handler after menu.js initializes
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    if (logoutBtn) {
+                        // Clone and replace to clear menu.js listeners
+                        const newBtn = logoutBtn.cloneNode(true);
+                        logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+                        
+                        newBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.handleLogout();
+                        });
+                        
+                        console.log('Menu.js logout button fixed');
+                    }
+                }, 1500); // Wait for menu.js to fully initialize
             }
 
             generateQuickActions() {
