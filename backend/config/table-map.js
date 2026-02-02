@@ -9,24 +9,35 @@ module.exports = {
   
   // Additional tables
   allocations: 'allocations',
-  pocket_money: 'pocket_money',
-  pocket_money_balance: 'pocket_money_balance',
+  allocation_history: 'allocation_history', // Added to fix 500 error
+  installment_payments: 'installment_payments', // Added to fix 500 error
   refunds: 'refunds',
   suppliers: 'suppliers',
   restocks: 'restocks',
-  sale_items: 'sale_items',
+  
+  // Batch & Programs
+  batches: 'batches',
+  batch_items: 'batch_items',
+  program_definitions: 'program_definitions',
+  promotion_history: 'promotion_history',
+  
+  // Financials
+  debts: 'debts',
+  disbursements: 'disbursements',
+  invoices: 'invoices',
+  invoice_items: 'invoice_items',
+  supplier_credits: 'supplier_credits',
+  supplier_payments: 'supplier_payments',
   
   // User management
   users: 'users',
-  sessions: 'sessions',
+  sessions: 'user_sessions', // Corrected to match your DB 'user_sessions'
   
   // Legacy/compatibility keys
-  product: 'products',      // For backward compatibility
-  customer: 'customers',    // For backward compatibility
-  learner: 'customers',     // For backward compatibility
-  sale: 'sales',           // For backward compatibility
-  stock: 'products',       // For backward compatibility
-  pocket: 'pocket_money',  // For backward compatibility
-  balance: 'pocket_money_balance',  // For backward compatibility
-  supplier: 'suppliers'    // For backward compatibility
+  product: 'products',
+  customer: 'customers',
+  learner: 'customers',
+  sale: 'sales',
+  stock: 'products',
+  supplier: 'suppliers'
 };
