@@ -59,7 +59,7 @@
   };
 
   /* ================= CHECKOUT ================= */
-  API.checkout = {
+  API.pos.checkout = {
     complete: (data) => API.call('/api/complete', { method: 'POST', body: JSON.stringify(data) }),
     receipt: (saleId) => API.call(`/api/receipt/${saleId}`),
     lookupReceipt: (data) => API.call('/api/lookup-receipt', { method: 'POST', body: JSON.stringify(data) }),
@@ -67,7 +67,7 @@
   };
 
   /* ================= CUSTOMER ================= */
-  API.customer = {
+  API.pos.customer = {
     get: (identifier) => API.call(`/api/${identifier}`),
     update: (customerId, data) => API.call(`/api/${customerId}`, { method: 'PUT', body: JSON.stringify(data) }),
     remove: (customerId) => API.call(`/api/${customerId}`, { method: 'DELETE' }),
@@ -94,7 +94,7 @@
   };
 
   /* ================= DASHBOARD ================= */
-  API.dashboard = {
+  API.inventory.dashboard = {
     stats: () => API.call('/api/stats'),
     lowStock: () => API.call('/api/low-stock'),
     recentSales: () => API.call('/api/recent-sales'),
@@ -102,7 +102,7 @@
   };
 
   /* ================= INVENTORY ================= */
-  API.inventory = {
+  API.report.inventory = {
     products: () => API.call('/api/products'),
     product: (identifier) => API.call(`/api/products/${identifier}`),
     create: (data) => API.call('/api/products', { method: 'POST', body: JSON.stringify(data) }),
@@ -129,7 +129,7 @@
   };
 
   /* ================= POCKET MONEY ================= */
-  API.pocketMoney = {
+  API.report.pocketMoney = {
     purchase: (data) => API.call('/api/purchase', { method: 'POST', body: JSON.stringify(data) }),
     topup: (data) => API.call('/api/topup', { method: 'POST', body: JSON.stringify(data) }),
     deduct: (data) => API.call('/api/deduct', { method: 'POST', body: JSON.stringify(data) }),

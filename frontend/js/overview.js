@@ -5,7 +5,7 @@ export async function loadDashboardData() {
       getDashboardStats(),
       getLowStockItems(),
       apiCall(dashboardAPI.getRecentSales),
-      apiCall(dashboardAPI.getCustomerBalances)
+      apiCall(dashboardAPI.pos.customer.getBalances)
     ]);
     
     return { stats, lowStock, recentSales, customerBalances };

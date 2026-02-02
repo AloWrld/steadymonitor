@@ -11,5 +11,5 @@ export async function generateInventoryReport(params = {}) {
 
 export async function generateCustomerReport(params = {}) {
   const query = new URLSearchParams(params).toString();
-  return apiCall(`${reportAPI.getCustomers}?${query}`);
+  return apiCall(`${reportAPI.pos.customer.gets}?${query}`);
 }

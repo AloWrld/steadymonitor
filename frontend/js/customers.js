@@ -15,14 +15,14 @@ export async function loadCustomerDetails(id) {
 }
 
 export async function createCustomer(customerData) {
-  return apiCall(customerAPI.create, {
+  return apiCall(customerAPI.inventory.create, {
     method: 'POST',
     body: JSON.stringify(customerData)
   });
 }
 
 export async function updateCustomer(id, customerData) {
-  return apiCall(customerAPI.update(id), {
+  return apiCall(customerAPI.supplier.update(id), {
     method: 'PUT',
     body: JSON.stringify(customerData)
   });

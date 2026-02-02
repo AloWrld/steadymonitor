@@ -1023,7 +1023,7 @@
             // Load departments
             async loadDepartments() {
                 try {
-                    const response = await API.getDepartments();
+                    const response = await API.pos.departments();
                     if (response.success) {
                         console.log('Departments loaded:', response.departments);
                     }
@@ -1042,7 +1042,7 @@
                 `;
                 
                 try {
-                    const response = await API.getDepartmentProducts(this.currentDepartment);
+                    const response = await API.pos.productsByDepartment(this.currentDepartment);
                     if (response.success) {
                         this.products = response.products;
                         this.renderProducts(this.products);
@@ -1457,7 +1457,7 @@
                 try {
                     this.showNotification('Processing sale...', 'info');
                     
-                    const response = await API.checkout(saleData);
+                    const response = await API.pos.checkout(saleData);
                     
                     if (response.success) {
                         this.lastSaleId = response.sale_id;

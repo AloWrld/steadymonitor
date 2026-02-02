@@ -126,7 +126,7 @@
         // Check permissions
         async hasPermission(permission) {
             try {
-                const response = await API.getPermissions();
+                const response = await API.auth.permissions();
                 return response.success && response.permissions.includes(permission);
             } catch (error) {
                 return false;

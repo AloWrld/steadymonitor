@@ -11,7 +11,7 @@ export async function loadPayments() {
 }
 
 export async function createPayment(paymentData) {
-  return apiCall(paymentAPI.create, {
+  return apiCall(paymentAPI.inventory.create, {
     method: 'POST',
     body: JSON.stringify(paymentData)
   });

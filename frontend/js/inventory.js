@@ -15,14 +15,14 @@ export async function loadProductDetails(id) {
 }
 
 export async function createProduct(productData) {
-  return apiCall(inventoryAPI.create, {
+  return apiCall(inventoryAPI.inventory.create, {
     method: 'POST',
     body: JSON.stringify(productData)
   });
 }
 
 export async function updateProduct(id, productData) {
-  return apiCall(inventoryAPI.update(id), {
+  return apiCall(inventoryAPI.supplier.update(id), {
     method: 'PUT',
     body: JSON.stringify(productData)
   });
@@ -37,7 +37,7 @@ export async function loadLowStock() {
 }
 
 export async function restockProduct(id, restockData) {
-  return apiCall(inventoryAPI.restock(id), {
+  return apiCall(inventoryAPI.supplier.restock(id), {
     method: 'POST',
     body: JSON.stringify(restockData)
   });

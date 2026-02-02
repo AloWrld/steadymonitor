@@ -11,7 +11,7 @@ export async function loadDepartmentProducts(department) {
 }
 
 export async function loadDepartments() {
-  return apiCall(posAPI.getDepartments);
+  return apiCall(posAPI.pos.departments);
 }
 
 export async function loadCustomers() {
