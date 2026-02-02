@@ -187,13 +187,13 @@
                 if (window.auth && typeof window.auth.logout === 'function') {
                     window.auth.logout()
                         .then(() => {
-                            window.location.href = 'login.html';
+                            window.location.href = 'index.html';
                         })
                         .catch(() => {
-                            window.location.href = 'login.html';
+                            window.location.href = 'index.html';
                         });
                 } else {
-                    window.location.href = 'login.html';
+                    window.location.href = 'index.html';
                 }
             }
         }
