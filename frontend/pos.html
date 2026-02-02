@@ -1275,30 +1275,66 @@
                 this.loadProducts();
                 this.updateCartUI();
             },
+             // Setup authentication
+    async setupAuth() {
+        try {
+            // Check if auth.js is loaded
+            if (!window.auth) {
+                console.warn('Auth not loaded, loading now...');
+                // Try to load auth.js dynamically
+                await this.loadScript('js/auth.js');
+                // Wait a moment for auth to initialize
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Initialize auth if needed
+            if (window.auth && !window.auth.initialized) {
+                await window.auth.init();
+            }
             
             // Check authentication
-            async checkAuth() {
-                try {
-                    // Use the global auth object from auth.js
-                    if (window.auth && typeof window.auth.requireAuth === 'function') {
-                        const user = await window.auth.requireAuth();
-                        if (!user) {
-                            window.location.href = 'login.html';
-                        }
-                    } else {
-                        // Fallback to direct API check
-                        const response = await API.auth.check();
-                        if (!response || !response.success || !response.isAuthenticated) {
-                            window.location.href = 'login.html';
-                        }
-                    }
-                } catch (error) {
-                    console.error('Auth check failed:', error);
-                    window.location.href = 'login.html';
+            if (window.auth) {
+                const user = window.auth.getUser();
+                if (!user) {
+                    console.log('No user found, redirecting to index.html');
+                    window.location.href = 'index.html';
+                    return;
                 }
-            },
+                console.log('User authenticated:', user);
+            } else {
+                // Fallback: check directly with API
+                console.log('Auth not available, checking with API directly');
+                try {
+                    const response = await API.auth.check();
+                    if (!response || !response.success || !response.isAuthenticated) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    console.log('API auth check successful');
+                } catch (error) {
+                    console.error('API auth check failed:', error);
+                    window.location.href = 'index.html';
+                }
+            }
+        } catch (error) {
+            console.error('Auth setup failed:', error);
+            window.location.href = 'index.html';
+        }
+    },
+    
+    // Helper to load script dynamically
+    loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    },
+    
             
-            // Load user info
+         // Load user info
             loadUserInfo() {
                 let user = null;
                 
@@ -2105,5 +2141,19 @@
             POS.init();
         });
     </script>
+    // Clear auth data on logout
+document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('auth_user');
+        if (window.auth && typeof window.auth.logout === 'function') {
+            window.auth.logout().then(() => {
+                window.location.href = 'index.html';
+            });
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+});
 </body>
 </html>
