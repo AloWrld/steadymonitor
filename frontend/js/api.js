@@ -36,7 +36,7 @@
                         if (typeof window.goToPage === 'function') {
                             goToPage('login');
                         } else {
-                            window.location.hash = '#login';
+                            window.location.hash = '#index';
                         }
                         return null;
                     }
