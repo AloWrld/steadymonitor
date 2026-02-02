@@ -95,7 +95,7 @@ function requirePermission(permission) {
 
             // Permission matrix
             const permissions = {
-                admin: ['pos', 'inventory', 'reports', 'overview', 'refunds', 'allocations', 'admin', 'customers'],
+                admin: ['pos', 'inventory', 'reports', 'overview', 'refunds', 'allocations', 'admin', 'customers', 'suppliers', 'payments'],
                 department_uniform: ['pos', 'department', 'payments', 'refunds', 'pocket_money', 'allocations'],
                 department_stationery: ['pos', 'department', 'payments', 'refunds', 'pocket_money', 'allocations'],
             };
