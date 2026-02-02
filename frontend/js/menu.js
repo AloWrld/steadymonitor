@@ -40,11 +40,12 @@
             this.sidebar = document.getElementById('sidebar');
             this.sidebarOverlay = document.getElementById('sidebarOverlay');
             this.user = null;
+            this.isMobile = window.innerWidth <= 768;
         }
 
         async initialize() {
             if (!this.sidebarNav) {
-                console.warn('Sidebar nav not found');
+                console.warn('Sidebar nav element not found');
                 return;
             }
 
@@ -53,7 +54,7 @@
                 await this.waitForAuth();
                 
                 // Get user info
-                this.user = window.auth?.getUser();
+                this.user = window.auth?.getUser() || { role: 'department_stationery', username: 'User' };
                 
                 // Build menu
                 this.buildMenu();
@@ -63,6 +64,9 @@
                 
                 // Highlight current page
                 this.highlightCurrentPage();
+                
+                // Setup window resize listener
+                this.setupResizeListener();
                 
                 console.log('Menu initialized for user:', this.user?.role);
                 
@@ -75,9 +79,13 @@
         async waitForAuth() {
             return new Promise((resolve) => {
                 const check = () => {
-                    if (window.auth && window.auth.getUser()) {
-                        resolve();
-                        return true;
+                    if (window.auth && typeof window.auth.getUser === 'function') {
+                        const user = window.auth.getUser();
+                        if (user) {
+                            this.user = user;
+                            resolve();
+                            return true;
+                        }
                     }
                     return false;
                 };
@@ -85,9 +93,10 @@
                 if (check()) return;
 
                 let attempts = 0;
+                const maxAttempts = 50; // 5 seconds total
                 const interval = setInterval(() => {
                     attempts++;
-                    if (check() || attempts > 50) { // Increased to 5 seconds total
+                    if (check() || attempts > maxAttempts) {
                         clearInterval(interval);
                         resolve();
                     }
@@ -128,15 +137,20 @@
             const a = document.createElement('a');
             a.href = item.page;
             a.className = 'nav-item';
+            a.setAttribute('role', 'menuitem');
             a.innerHTML = `
                 <i class="${item.icon} nav-icon"></i>
                 <span class="nav-label">${item.label}</span>
             `;
             
+            // Add click handler for mobile
             a.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768) {
+                if (this.isMobile) {
                     this.closeMobileMenu();
                 }
+                
+                // Highlight active item
+                this.highlightCurrentPage();
             });
             
             return a;
@@ -168,6 +182,7 @@
             const logoutItem = document.createElement('a');
             logoutItem.href = '#';
             logoutItem.className = 'nav-item logout-item';
+            logoutItem.setAttribute('role', 'menuitem');
             logoutItem.innerHTML = `
                 <i class="fas fa-sign-out-alt nav-icon"></i>
                 <span class="nav-label">Logout</span>
@@ -183,6 +198,7 @@
 
         handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
+                showLoading(true);
                 if (window.auth && typeof window.auth.logout === 'function') {
                     window.auth.logout()
                         .then(() => {
@@ -205,17 +221,24 @@
                 const href = item.getAttribute('href');
                 if (href === currentPage) {
                     item.classList.add('active');
+                    item.setAttribute('aria-current', 'page');
                 } else {
                     item.classList.remove('active');
+                    item.removeAttribute('aria-current');
                 }
             });
         }
 
         setupMobileMenu() {
             if (!this.menuToggle || !this.sidebar || !this.sidebarOverlay) {
+                console.warn('Mobile menu elements not found');
                 return;
             }
 
+            // Update aria attributes
+            this.menuToggle.setAttribute('aria-expanded', 'false');
+            this.menuToggle.setAttribute('aria-label', 'Toggle menu');
+            
             this.menuToggle.addEventListener('click', () => {
                 this.toggleMobileMenu();
             });
@@ -224,118 +247,132 @@
                 this.closeMobileMenu();
             });
 
-            // Close menu when window resizes to desktop
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    this.closeMobileMenu();
-                }
-            });
-        }
-
-        toggleMobileMenu() {
-            this.sidebar.classList.toggle('active');
-            this.sidebarOverlay.classList.toggle('active');
-            document.body.classList.toggle('no-scroll');
-        }
-
-        closeMobileMenu() {
-            this.sidebar.classList.remove('active');
-            this.sidebarOverlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        }
-    }
-
-    // Enhanced Mobile Menu Manager with swipe and keyboard support
-    class MobileMenuManager extends MenuManager {
-        setupMobileMenu() {
-            super.setupMobileMenu();
-            
-            // Add swipe to close functionality
-            this.setupSwipeToClose();
-            
-            // Add keyboard support
-            this.setupKeyboardNavigation();
-        }
-        
-        setupSwipeToClose() {
-            let startX = 0;
-            let startY = 0;
-            
-            this.sidebar.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-            }, { passive: true });
-            
-            this.sidebar.addEventListener('touchmove', (e) => {
-                if (!this.sidebar.classList.contains('active')) return;
-                
-                const currentX = e.touches[0].clientX;
-                const currentY = e.touches[0].clientY;
-                const diffX = startX - currentX;
-                const diffY = startY - currentY;
-                
-                // Only handle horizontal swipes
-                if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
-                    this.closeMobileMenu();
-                }
-            }, { passive: true });
-        }
-        
-        setupKeyboardNavigation() {
+            // Close on escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.sidebar.classList.contains('active')) {
                     this.closeMobileMenu();
                 }
             });
+
+            // Update mobile state
+            this.updateMobileState();
         }
-        
-        toggleMobileMenu() {
-            super.toggleMobileMenu();
+
+        setupResizeListener() {
+            window.addEventListener('resize', () => {
+                this.isMobile = window.innerWidth <= 768;
+                this.updateMobileState();
+                
+                // Close mobile menu when resizing to desktop
+                if (!this.isMobile && this.sidebar.classList.contains('active')) {
+                    this.closeMobileMenu();
+                }
+            });
+        }
+
+        updateMobileState() {
+            if (!this.sidebar) return;
             
-            // Toggle aria-expanded for accessibility
-            const expanded = this.sidebar.classList.contains('active');
-            this.menuToggle.setAttribute('aria-expanded', expanded);
-            
-            // Trap focus in sidebar when open
-            if (expanded) {
-                this.trapFocus();
+            if (this.isMobile) {
+                this.sidebar.classList.remove('active');
+                if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
+                document.body.classList.remove('no-scroll');
             }
         }
-        
+
+        toggleMobileMenu() {
+            const isActive = this.sidebar.classList.contains('active');
+            
+            if (isActive) {
+                this.closeMobileMenu();
+            } else {
+                this.openMobileMenu();
+            }
+        }
+
+        openMobileMenu() {
+            this.sidebar.classList.add('active');
+            if (this.sidebarOverlay) {
+                this.sidebarOverlay.classList.add('active');
+                this.sidebarOverlay.setAttribute('aria-hidden', 'false');
+            }
+            this.menuToggle.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('no-scroll');
+            
+            // Trap focus in sidebar
+            this.trapFocus();
+        }
+
+        closeMobileMenu() {
+            this.sidebar.classList.remove('active');
+            if (this.sidebarOverlay) {
+                this.sidebarOverlay.classList.remove('active');
+                this.sidebarOverlay.setAttribute('aria-hidden', 'true');
+            }
+            this.menuToggle.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('no-scroll');
+            
+            // Release focus trap
+            this.menuToggle.focus();
+        }
+
         trapFocus() {
             const focusableElements = this.sidebar.querySelectorAll(
                 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
             );
             
-            if (focusableElements.length > 0) {
-                const firstFocusable = focusableElements[0];
-                const lastFocusable = focusableElements[focusableElements.length - 1];
+            if (focusableElements.length === 0) return;
+            
+            const firstFocusable = focusableElements[0];
+            const lastFocusable = focusableElements[focusableElements.length - 1];
+            
+            firstFocusable.focus();
+            
+            const handleKeyDown = (e) => {
+                if (e.key !== 'Tab') return;
                 
-                firstFocusable.focus();
-                
-                this.sidebar.addEventListener('keydown', (e) => {
-                    if (e.key === 'Tab') {
-                        if (e.shiftKey) {
-                            if (document.activeElement === firstFocusable) {
-                                e.preventDefault();
-                                lastFocusable.focus();
-                            }
-                        } else {
-                            if (document.activeElement === lastFocusable) {
-                                e.preventDefault();
-                                firstFocusable.focus();
-                            }
-                        }
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        e.preventDefault();
+                        lastFocusable.focus();
                     }
-                });
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+            };
+            
+            this.sidebar.addEventListener('keydown', handleKeyDown);
+            
+            // Store reference to remove listener later
+            this.currentTrapHandler = handleKeyDown;
+        }
+
+        cleanup() {
+            if (this.currentTrapHandler) {
+                this.sidebar.removeEventListener('keydown', this.currentTrapHandler);
+                this.currentTrapHandler = null;
             }
+        }
+    }
+
+    // Global helper function
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.toggle('active', show);
         }
     }
 
     // Single initialization point
     document.addEventListener('DOMContentLoaded', () => {
-        const menuManager = new MobileMenuManager();
+        const menuManager = new MenuManager();
         menuManager.initialize();
+        
+        // Make accessible globally
+        window.menuManager = menuManager;
     });
 
     // Make MenuManager available globally
