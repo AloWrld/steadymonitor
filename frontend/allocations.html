@@ -4,9 +4,493 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Allocations Management - Hattyjohns Investments</title>
-    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* CSS Variables */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --light: #f9fafb;
+            --dark: #111827;
+            --border: #e5e7eb;
+            --background: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .main-content-wrapper {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.active ~ .main-content-wrapper {
+            margin-left: 250px;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background-color: var(--background);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .nav-brand i {
+            color: var(--primary);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-greeting {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--border);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8125rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--background);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 8px;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Forms */
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: var(--background);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .table tr:hover {
+            background-color: var(--background);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 12px;
+            line-height: 1;
+        }
+
+        .badge-primary {
+            background-color: #E0F2FE;
+            color: #0369A1;
+        }
+
+        .badge-success {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: var(--shadow-md);
+            min-width: 160px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--background);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            max-width: 90%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1200;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .notification i {
+            font-size: 1.25rem;
+        }
+
+        .notification.success i {
+            color: var(--success);
+        }
+
+        .notification.error i {
+            color: var(--danger);
+        }
+
+        .notification.warning i {
+            color: var(--warning);
+        }
+
+        /* Table Actions */
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Disabled state */
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Allocations-specific styles */
         .allocations-container {
             display: flex;
@@ -347,52 +831,6 @@
             margin-bottom: 5px;
         }
         
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .allocations-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .program-tabs {
-                overflow-x: auto;
-            }
-            
-            .program-tab {
-                white-space: nowrap;
-                padding: 10px 15px;
-            }
-            
-            .filter-row {
-                flex-direction: column;
-            }
-            
-            .filter-group {
-                min-width: 100%;
-            }
-            
-            .learner-grid,
-            .products-grid,
-            .class-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .allocation-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .allocation-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .program-tab {
-                padding: 8px 12px;
-                font-size: 0.9rem;
-            }
-        }
-        
         /* Loading states */
         .loading-state {
             display: flex;
@@ -462,6 +900,86 @@
             background: #FEE2E2;
             color: #991B1B;
         }
+
+        /* Product actions */
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .allocations-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .program-tabs {
+                overflow-x: auto;
+            }
+            
+            .program-tab {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .learner-grid,
+            .products-grid,
+            .class-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .allocation-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar.active ~ .main-content-wrapper {
+                margin-left: 0;
+            }
+
+            .modal {
+                width: 95%;
+                max-height: 85vh;
+            }
+
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .allocation-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .program-tab {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .top-nav {
+                padding: 0 10px;
+            }
+
+            .main-content {
+                padding: 10px;
+            }
+        }
+
+        /* No scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -506,24 +1024,24 @@
                 <div class="allocations-header">
                     <h1>Allocations Management</h1>
                     <div class="program-tabs" id="programTabs">
-                        <div class="program-tab active" onclick="allocationsManager.setActiveProgram('A')">
+                        <div class="program-tab active" data-program="A">
                             Program A
                         </div>
-                        <div class="program-tab" onclick="allocationsManager.setActiveProgram('B')">
+                        <div class="program-tab" data-program="B">
                             Program B
                         </div>
-                        <div class="program-tab" onclick="allocationsManager.setActiveProgram('all')">
+                        <div class="program-tab" data-program="all">
                             All Programs
                         </div>
                     </div>
                     <div class="quick-actions">
-                        <button class="btn btn-primary" onclick="allocationsManager.showNewAllocationModal()">
+                        <button class="btn btn-primary" id="newAllocationBtn">
                             <i class="fas fa-plus"></i> New Allocation
                         </button>
-                        <button class="btn btn-outline" onclick="allocationsManager.showBatchAllocationModal()">
+                        <button class="btn btn-outline" id="batchAllocationBtn">
                             <i class="fas fa-users"></i> Batch Allocate
                         </button>
-                        <button class="btn btn-outline" onclick="allocationsManager.refreshData()">
+                        <button class="btn btn-outline" id="refreshBtn">
                             <i class="fas fa-sync"></i> Refresh
                         </button>
                     </div>
@@ -543,7 +1061,7 @@
                     <div class="filter-row">
                         <div class="filter-group">
                             <label>Class</label>
-                            <select id="filterClass" class="form-control" onchange="allocationsManager.applyFilters()">
+                            <select id="filterClass" class="form-control">
                                 <option value="all">All Classes</option>
                                 <!-- Classes will be populated dynamically -->
                             </select>
@@ -551,17 +1069,14 @@
                         <div class="filter-group">
                             <label>Date Range</label>
                             <div style="display: flex; gap: 10px;">
-                                <input type="date" id="filterStartDate" class="form-control" 
-                                       onchange="allocationsManager.applyFilters()">
-                                <input type="date" id="filterEndDate" class="form-control" 
-                                       onchange="allocationsManager.applyFilters()">
+                                <input type="date" id="filterStartDate" class="form-control">
+                                <input type="date" id="filterEndDate" class="form-control">
                             </div>
                         </div>
                         <div class="filter-group">
                             <label>Search Learner</label>
                             <input type="text" id="searchLearner" class="form-control" 
-                                   placeholder="Search by name or ID..." 
-                                   onkeyup="allocationsManager.searchLearners(this.value)">
+                                   placeholder="Search by name or ID...">
                         </div>
                     </div>
                 </div>
@@ -571,10 +1086,10 @@
                     <div class="card-header">
                         <h3 class="card-title" id="allocationsTitle">Recent Allocations</h3>
                         <div class="product-actions">
-                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.exportData()">
+                            <button class="btn btn-sm btn-outline" id="exportBtn">
                                 <i class="fas fa-download"></i> Export
                             </button>
-                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.viewBatches()">
+                            <button class="btn btn-sm btn-outline" id="viewBatchesBtn">
                                 <i class="fas fa-list"></i> View Batches
                             </button>
                         </div>
@@ -636,7 +1151,7 @@
         <div class="modal allocation-modal">
             <div class="modal-header">
                 <h3 class="modal-title" id="allocationModalTitle">New Allocation</h3>
-                <button class="modal-close" onclick="allocationsManager.closeAllocationModal()">&times;</button>
+                <button class="modal-close" id="closeAllocationModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="allocationForm">
@@ -646,8 +1161,7 @@
                     <!-- Program Selection -->
                     <div class="form-group">
                         <label>Program *</label>
-                        <select id="programSelect" class="form-control" required 
-                                onchange="allocationsManager.loadEligibleLearners()">
+                        <select id="programSelect" class="form-control" required>
                             <option value="">Select Program</option>
                             <option value="A">Program A</option>
                             <option value="B">Program B</option>
@@ -657,8 +1171,7 @@
                     <!-- Class Filter -->
                     <div class="form-group">
                         <label>Filter by Class</label>
-                        <select id="modalClassFilter" class="form-control" 
-                                onchange="allocationsManager.loadEligibleLearners()">
+                        <select id="modalClassFilter" class="form-control">
                             <option value="">All Classes</option>
                         </select>
                     </div>
@@ -702,8 +1215,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="allocationsManager.closeAllocationModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="allocationsManager.processAllocation()">
+                <button class="btn btn-outline" id="cancelAllocationModal">Cancel</button>
+                <button class="btn btn-primary" id="processAllocationBtn">
                     <i class="fas fa-check"></i> Process Allocation
                 </button>
             </div>
@@ -715,14 +1228,13 @@
         <div class="modal allocation-modal">
             <div class="modal-header">
                 <h3 class="modal-title">Batch Allocation</h3>
-                <button class="modal-close" onclick="allocationsManager.closeBatchModal()">&times;</button>
+                <button class="modal-close" id="closeBatchModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="batchForm">
                     <div class="form-group">
                         <label>Program *</label>
-                        <select id="batchProgramSelect" class="form-control" required 
-                                onchange="allocationsManager.loadBatchClasses()">
+                        <select id="batchProgramSelect" class="form-control" required>
                             <option value="">Select Program</option>
                             <option value="A">Program A</option>
                             <option value="B">Program B</option>
@@ -774,8 +1286,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="allocationsManager.closeBatchModal()">Cancel</button>
-                <button class="btn btn-success" onclick="allocationsManager.processBatchAllocation()">
+                <button class="btn btn-outline" id="cancelBatchModal">Cancel</button>
+                <button class="btn btn-success" id="processBatchAllocationBtn">
                     <i class="fas fa-users"></i> Process Batch Allocation
                 </button>
             </div>
@@ -787,7 +1299,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Batch Details</h3>
-                <button class="modal-close" onclick="allocationsManager.closeBatchDetailsModal()">&times;</button>
+                <button class="modal-close" id="closeBatchDetailsModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="batchDetailsContent">
@@ -795,7 +1307,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="allocationsManager.closeBatchDetailsModal()">Close</button>
+                <button class="btn btn-outline" id="closeBatchDetailsBtn">Close</button>
             </div>
         </div>
     </div>
@@ -805,7 +1317,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Learner Allocations</h3>
-                <button class="modal-close" onclick="allocationsManager.closeLearnerModal()">&times;</button>
+                <button class="modal-close" id="closeLearnerModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="learnerAllocationsContent">
@@ -813,7 +1325,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="allocationsManager.closeLearnerModal()">Close</button>
+                <button class="btn btn-outline" id="closeLearnerBtn">Close</button>
             </div>
         </div>
     </div>
@@ -826,11 +1338,10 @@
 
     <!-- Scripts -->
     <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
     <script src="js/menu.js"></script>
     
     <script>
-        // Allocations Manager - Complete Implementation
+        // Allocations Manager - Fixed Implementation
         class AllocationsManager {
             constructor() {
                 this.activeProgram = 'all';
@@ -849,44 +1360,135 @@
                 this.itemsPerPage = 20;
                 this.totalAllocations = 0;
                 this.totalPages = 1;
+                
+                // Initialize event listeners
+                this.initEventListeners();
             }
             
             async init() {
-                // Check authentication and permissions
-                await auth.requireAuth();
-                
-                // Check if user has allocation permissions
-                const user = auth.getUser();
-                const hasPermission = await auth.hasPermission('allocations');
-                
-                if (!hasPermission && user.role !== 'admin') {
-                    alert('Access denied. Allocations management requires special permissions.');
-                    window.location.href = '/admin.html';
-                    return;
+                try {
+                    // Load user info
+                    const userData = await this.getUserInfo();
+                    if (userData) {
+                        document.getElementById('currentUser').textContent = 
+                            `Welcome, ${userData.display_name || userData.username || 'User'}`;
+                    }
+                    
+                    // Setup logout button
+                    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleLogout();
+                    });
+                    
+                    // Initialize date filters
+                    this.initDateFilters();
+                    
+                    // Load initial data
+                    await this.loadAllocationStats();
+                    await this.loadAllocations();
+                    await this.loadClasses();
+                    await this.loadActivity();
+                    
+                    console.log('✅ Allocations Manager initialized');
+                } catch (error) {
+                    console.error('Error initializing allocations:', error);
+                    this.showNotification('Failed to initialize page. Please refresh.', 'error');
                 }
-                
-                // Load user info
-                document.getElementById('currentUser').textContent = 
-                    `Welcome, ${user.display_name || user.username}`;
-                
-                // Setup logout button
-                document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    auth.logout().then(() => {
-                        window.location.href = 'login.html';
+            }
+            
+            async getUserInfo() {
+                try {
+                    // Try to get user info from auth or API
+                    if (window.auth && typeof window.auth.getUser === 'function') {
+                        return window.auth.getUser();
+                    }
+                    
+                    // Fallback: Check auth status via API
+                    const response = await API.auth.check();
+                    if (response && response.user) {
+                        return response.user;
+                    }
+                    
+                    return { username: 'User' };
+                } catch (error) {
+                    console.error('Error getting user info:', error);
+                    return { username: 'User' };
+                }
+            }
+            
+            handleLogout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    // Use API auth logout
+                    API.auth.logout().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch(() => {
+                        window.location.href = 'index.html';
+                    });
+                }
+            }
+            
+            initEventListeners() {
+                // Program tabs
+                document.querySelectorAll('.program-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const program = tab.getAttribute('data-program');
+                        this.setActiveProgram(program);
                     });
                 });
                 
-                // Initialize date filters
-                this.initDateFilters();
+                // Filter changes
+                document.getElementById('filterClass').addEventListener('change', () => this.applyFilters());
+                document.getElementById('filterStartDate').addEventListener('change', () => this.applyFilters());
+                document.getElementById('filterEndDate').addEventListener('change', () => this.applyFilters());
+                document.getElementById('searchLearner').addEventListener('input', (e) => this.searchLearners(e.target.value));
                 
-                // Load initial data
-                await this.loadAllocationStats();
-                await this.loadAllocations();
-                await this.loadClasses();
-                await this.loadActivity();
+                // Buttons
+                document.getElementById('newAllocationBtn').addEventListener('click', () => this.showNewAllocationModal());
+                document.getElementById('batchAllocationBtn').addEventListener('click', () => this.showBatchAllocationModal());
+                document.getElementById('refreshBtn').addEventListener('click', () => this.refreshData());
+                document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
+                document.getElementById('viewBatchesBtn').addEventListener('click', () => this.viewBatches());
                 
-                console.log('✅ Allocations Manager initialized');
+                // Modal close buttons
+                document.getElementById('closeAllocationModal').addEventListener('click', () => this.closeAllocationModal());
+                document.getElementById('cancelAllocationModal').addEventListener('click', () => this.closeAllocationModal());
+                document.getElementById('closeBatchModal').addEventListener('click', () => this.closeBatchModal());
+                document.getElementById('cancelBatchModal').addEventListener('click', () => this.closeBatchModal());
+                document.getElementById('closeBatchDetailsModal').addEventListener('click', () => this.closeBatchDetailsModal());
+                document.getElementById('closeBatchDetailsBtn').addEventListener('click', () => this.closeBatchDetailsModal());
+                document.getElementById('closeLearnerModal').addEventListener('click', () => this.closeLearnerModal());
+                document.getElementById('closeLearnerBtn').addEventListener('click', () => this.closeLearnerModal());
+                
+                // Form submissions
+                document.getElementById('processAllocationBtn').addEventListener('click', () => this.processAllocation());
+                document.getElementById('processBatchAllocationBtn').addEventListener('click', () => this.processBatchAllocation());
+                
+                // Modal select changes
+                document.getElementById('programSelect').addEventListener('change', () => this.loadEligibleLearners());
+                document.getElementById('modalClassFilter').addEventListener('change', () => this.loadEligibleLearners());
+                document.getElementById('batchProgramSelect').addEventListener('change', () => this.loadBatchClasses());
+                
+                // Close modals on overlay click
+                document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            if (overlay.id === 'allocationModal') this.closeAllocationModal();
+                            if (overlay.id === 'batchModal') this.closeBatchModal();
+                            if (overlay.id === 'batchDetailsModal') this.closeBatchDetailsModal();
+                            if (overlay.id === 'learnerAllocationsModal') this.closeLearnerModal();
+                        }
+                    });
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (document.getElementById('allocationModal').classList.contains('active')) this.closeAllocationModal();
+                        if (document.getElementById('batchModal').classList.contains('active')) this.closeBatchModal();
+                        if (document.getElementById('batchDetailsModal').classList.contains('active')) this.closeBatchDetailsModal();
+                        if (document.getElementById('learnerAllocationsModal').classList.contains('active')) this.closeLearnerModal();
+                    }
+                });
             }
             
             initDateFilters() {
@@ -904,12 +1506,12 @@
             
             async loadAllocationStats() {
                 try {
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/summary');
+                    const response = await API.allocation.stats();
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         this.renderStats(response);
                     } else {
-                        throw new Error(response.message);
+                        this.renderStats({});
                     }
                 } catch (error) {
                     console.error('Error loading allocation stats:', error);
@@ -974,18 +1576,20 @@
                         params.append('end_date', this.currentFilters.endDate);
                     }
                     
-                    let endpoint = 'https://steadymonitor-backend.onrender.com/api/allocations/summary';
-                    if (this.activeProgram !== 'all') {
-                        endpoint = `https://steadymonitor-backend.onrender.com/api/allocations/program/${this.activeProgram}`;
+                    // Use the correct API endpoint from the global API object
+                    let response;
+                    if (this.activeProgram === 'all') {
+                        response = await API.allocation.summary();
+                    } else {
+                        response = await API.allocation.getProgram(this.activeProgram);
                     }
                     
-                    const response = await API.call(`${endpoint}?${params.toString()}`);
-                    
-                    if (response.success) {
-                        this.totalAllocations = response.count || response.allocations?.length || 0;
+                    if (response && response.success) {
+                        const allocations = response.allocations || [];
+                        this.totalAllocations = response.count || allocations.length;
                         this.totalPages = Math.ceil(this.totalAllocations / this.itemsPerPage);
                         
-                        this.renderAllocations(response.allocations || []);
+                        this.renderAllocations(allocations);
                         this.renderPagination();
                         
                         // Update title
@@ -996,10 +1600,11 @@
                             title.textContent = `Program ${this.activeProgram} Allocations`;
                         }
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load allocations');
                     }
                 } catch (error) {
                     console.error('Error loading allocations:', error);
+                    this.renderAllocations([]);
                     this.showNotification('Failed to load allocations', 'error');
                 }
             }
@@ -1024,7 +1629,7 @@
                 
                 allocationsBody.innerHTML = allocations.map(allocation => {
                     const isBatch = allocation.parent_allocation_id || allocation.is_batch;
-                    const date = new Date(allocation.given_date || allocation.date).toLocaleDateString();
+                    const date = new Date(allocation.given_date || allocation.date || Date.now()).toLocaleDateString();
                     const value = parseFloat(allocation.total || (allocation.quantity * allocation.unit_price) || 0);
                     
                     return `
@@ -1038,7 +1643,7 @@
                             <td>${allocation.customer_class || 'N/A'}</td>
                             <td>
                                 <span class="badge ${allocation.program_type === 'A' ? 'badge-primary' : 'badge-success'}">
-                                    Program ${allocation.program_type}
+                                    Program ${allocation.program_type || 'N/A'}
                                 </span>
                             </td>
                             <td>${allocation.quantity || 1} item(s)</td>
@@ -1052,13 +1657,13 @@
                             <td>${allocation.given_by || allocation.served_by || 'System'}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-sm btn-outline" 
-                                            onclick="allocationsManager.viewLearnerAllocations('${allocation.customer_id}')">
+                                    <button class="btn btn-sm btn-outline view-learner-btn" 
+                                            data-learner-id="${allocation.customer_id}">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     ${isBatch ? `
-                                        <button class="btn btn-sm btn-outline" 
-                                                onclick="allocationsManager.viewBatchDetails('${allocation.parent_allocation_id}')">
+                                        <button class="btn btn-sm btn-outline view-batch-btn" 
+                                                data-batch-id="${allocation.parent_allocation_id}">
                                             <i class="fas fa-list"></i>
                                         </button>
                                     ` : ''}
@@ -1067,6 +1672,21 @@
                         </tr>
                     `;
                 }).join('');
+                
+                // Add event listeners to dynamically created buttons
+                document.querySelectorAll('.view-learner-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const learnerId = btn.getAttribute('data-learner-id');
+                        this.viewLearnerAllocations(learnerId);
+                    });
+                });
+                
+                document.querySelectorAll('.view-batch-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const batchId = btn.getAttribute('data-batch-id');
+                        this.viewBatchDetails(batchId);
+                    });
+                });
             }
             
             renderPagination() {
@@ -1091,7 +1711,7 @@
                 for (let i = startPage; i <= endPage; i++) {
                     pageButtons.push(`
                         <button class="btn btn-sm ${i === this.currentPage ? 'btn-primary' : 'btn-outline'}" 
-                                onclick="allocationsManager.goToPage(${i})">
+                                data-page="${i}">
                             ${i}
                         </button>
                     `);
@@ -1100,13 +1720,13 @@
                 pagination.innerHTML = `
                     <div style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
                         <button class="btn btn-sm btn-outline ${this.currentPage === 1 ? 'disabled' : ''}" 
-                                onclick="allocationsManager.goToPage(${this.currentPage - 1})"
+                                data-page="${this.currentPage - 1}"
                                 ${this.currentPage === 1 ? 'disabled' : ''}>
                             <i class="fas fa-chevron-left"></i> Prev
                         </button>
                         
                         ${startPage > 1 ? `
-                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.goToPage(1)">1</button>
+                            <button class="btn btn-sm btn-outline" data-page="1">1</button>
                             ${startPage > 2 ? '<span style="padding: 5px 10px; color: #6c757d;">...</span>' : ''}
                         ` : ''}
                         
@@ -1114,18 +1734,26 @@
                         
                         ${endPage < this.totalPages ? `
                             ${endPage < this.totalPages - 1 ? '<span style="padding: 5px 10px; color: #6c757d;">...</span>' : ''}
-                            <button class="btn btn-sm btn-outline" onclick="allocationsManager.goToPage(${this.totalPages})">
+                            <button class="btn btn-sm btn-outline" data-page="${this.totalPages}">
                                 ${this.totalPages}
                             </button>
                         ` : ''}
                         
                         <button class="btn btn-sm btn-outline ${this.currentPage === this.totalPages ? 'disabled' : ''}" 
-                                onclick="allocationsManager.goToPage(${this.currentPage + 1})"
+                                data-page="${this.currentPage + 1}"
                                 ${this.currentPage === this.totalPages ? 'disabled' : ''}>
                             Next <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
                 `;
+                
+                // Add event listeners to page buttons
+                pagination.querySelectorAll('[data-page]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const page = parseInt(btn.getAttribute('data-page'));
+                        this.goToPage(page);
+                    });
+                });
             }
             
             goToPage(page) {
@@ -1136,8 +1764,9 @@
             
             async loadClasses() {
                 try {
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/customers/classes');
-                    if (response.success && response.classes) {
+                    // Use API.customer for classes if available, or fallback
+                    const response = await API.pos.classes();
+                    if (response && response.success && response.classes) {
                         const classFilter = document.getElementById('filterClass');
                         const modalClassFilter = document.getElementById('modalClassFilter');
                         
@@ -1154,11 +1783,11 @@
             
             async loadActivity() {
                 try {
-                    // This is a simplified version - you might want to create a specific endpoint for activity
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/program/A?limit=5');
-                    
-                    if (response.success) {
-                        this.renderActivity(response.allocations || []);
+                    // Use recent allocations as activity
+                    const response = await API.allocation.getProgram('A');
+                    if (response && response.success) {
+                        const allocations = response.allocations || [];
+                        this.renderActivity(allocations.slice(0, 5));
                     }
                 } catch (error) {
                     console.error('Error loading activity:', error);
@@ -1179,7 +1808,7 @@
                 }
                 
                 timeline.innerHTML = allocations.map(activity => {
-                    const date = new Date(activity.given_date).toLocaleString();
+                    const date = new Date(activity.given_date || Date.now()).toLocaleString();
                     
                     return `
                         <div class="timeline-item">
@@ -1189,11 +1818,11 @@
                             <div class="timeline-content">
                                 <div class="timeline-date">${date}</div>
                                 <p>
-                                    <strong>${activity.customer_name}</strong> received 
-                                    ${activity.quantity} ${activity.product_name} 
-                                    (Program ${activity.program_type})
+                                    <strong>${activity.customer_name || 'Unknown'}</strong> received 
+                                    ${activity.quantity || 1} ${activity.product_name || 'item'} 
+                                    (Program ${activity.program_type || 'N/A'})
                                 </p>
-                                <small class="text-muted">Allocated by ${activity.given_by}</small>
+                                <small class="text-muted">Allocated by ${activity.given_by || 'System'}</small>
                             </div>
                         </div>
                     `;
@@ -1205,10 +1834,12 @@
                 
                 // Update tabs
                 document.querySelectorAll('.program-tab').forEach(tab => {
-                    tab.classList.remove('active');
+                    if (tab.getAttribute('data-program') === program) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
                 });
-                
-                event.target.classList.add('active');
                 
                 // Reload data
                 this.loadAllocations();
@@ -1238,6 +1869,7 @@
                 document.getElementById('allocationType').value = 'individual';
                 document.getElementById('allocationModalTitle').textContent = 'New Allocation';
                 document.getElementById('allocationModal').classList.add('active');
+                document.body.classList.add('modal-open');
                 
                 this.selectedLearners = [];
                 this.selectedProducts = [];
@@ -1247,8 +1879,8 @@
             }
             
             showBatchAllocationModal() {
-                document.getElementById('allocationType').value = 'batch';
                 document.getElementById('batchModal').classList.add('active');
+                document.body.classList.add('modal-open');
                 
                 this.selectedClasses = [];
                 this.batchSelectedProducts = [];
@@ -1259,14 +1891,26 @@
             
             closeAllocationModal() {
                 document.getElementById('allocationModal').classList.remove('active');
+                document.body.classList.remove('modal-open');
                 this.selectedLearners = [];
                 this.selectedProducts = [];
             }
             
             closeBatchModal() {
                 document.getElementById('batchModal').classList.remove('active');
+                document.body.classList.remove('modal-open');
                 this.selectedClasses = [];
                 this.batchSelectedProducts = [];
+            }
+            
+            closeBatchDetailsModal() {
+                document.getElementById('batchDetailsModal').classList.remove('active');
+                document.body.classList.remove('modal-open');
+            }
+            
+            closeLearnerModal() {
+                document.getElementById('learnerAllocationsModal').classList.remove('active');
+                document.body.classList.remove('modal-open');
             }
             
             // LEARNER MANAGEMENT
@@ -1285,15 +1929,20 @@
                 }
                 
                 try {
-                    const params = new URLSearchParams({ program_type: program });
-                    if (className) params.append('class', className);
+                    // Use API.allocation.eligible endpoint
+                    const response = await API.allocation.eligible(program);
                     
-                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/eligible/${program}?${params.toString()}`);
-                    
-                    if (response.success) {
-                        this.renderLearners(response.learners || []);
+                    if (response && response.success) {
+                        let learners = response.learners || [];
+                        
+                        // Filter by class if selected
+                        if (className) {
+                            learners = learners.filter(learner => learner.class === className);
+                        }
+                        
+                        this.renderLearners(learners);
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load learners');
                     }
                 } catch (error) {
                     console.error('Error loading learners:', error);
@@ -1324,9 +1973,9 @@
                     
                     return `
                         <div class="learner-card ${isSelected ? 'selected' : ''}" 
-                             onclick="allocationsManager.toggleLearnerSelection('${learner.customer_id}')">
+                             data-learner-id="${learner.customer_id}">
                             <div class="learner-info">
-                                <div class="learner-name">${learner.name}</div>
+                                <div class="learner-name">${learner.name || learner.customer_name || 'Unknown'}</div>
                                 <div class="learner-details">
                                     <span>${learner.customer_id}</span> • 
                                     <span>${learner.class || 'No class'}</span>
@@ -1338,22 +1987,31 @@
                         </div>
                     `;
                 }).join('');
+                
+                // Add event listeners
+                learnerSelection.querySelectorAll('.learner-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const learnerId = card.getAttribute('data-learner-id');
+                        this.toggleLearnerSelection(learnerId);
+                    });
+                });
             }
             
             toggleLearnerSelection(learnerId) {
                 // For individual allocation, only allow one learner
-                this.selectedLearners = [];
+                this.selectedLearners = [{ customer_id: learnerId }];
                 
-                // Find the learner
+                // Re-render with selection
                 const learnerSelection = document.getElementById('learnerSelection');
-                const learnerCard = learnerSelection.querySelector(`[onclick*="${learnerId}"]`);
-                
-                if (learnerCard) {
-                    this.selectedLearners.push({ customer_id: learnerId });
-                    this.renderLearners(Array.from(learnerSelection.querySelectorAll('.learner-card')).map(card => {
-                        return { customer_id: card.getAttribute('onclick').match(/'([^']+)'/)[1] };
-                    }));
-                }
+                const cards = learnerSelection.querySelectorAll('.learner-card');
+                cards.forEach(card => {
+                    const cardLearnerId = card.getAttribute('data-learner-id');
+                    if (cardLearnerId === learnerId) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
                 
                 this.updateSelectedItems();
             }
@@ -1361,12 +2019,15 @@
             // PRODUCT MANAGEMENT
             async loadAllocatableProducts() {
                 try {
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products?department=all&is_allocatable=true');
+                    const response = await API.inventory.products();
                     
-                    if (response.success) {
-                        this.renderProducts(response.products || [], 'productSelection');
+                    if (response && response.success) {
+                        const products = response.products || [];
+                        // Filter for allocatable products
+                        const allocatableProducts = products.filter(p => p.is_allocatable !== false);
+                        this.renderProducts(allocatableProducts, 'productSelection');
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load products');
                     }
                 } catch (error) {
                     console.error('Error loading products:', error);
@@ -1381,12 +2042,15 @@
             
             async loadBatchProducts() {
                 try {
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/inventory/products?department=all&is_allocatable=true');
+                    const response = await API.inventory.products();
                     
-                    if (response.success) {
-                        this.renderProducts(response.products || [], 'batchProductSelection');
+                    if (response && response.success) {
+                        const products = response.products || [];
+                        // Filter for allocatable products
+                        const allocatableProducts = products.filter(p => p.is_allocatable !== false);
+                        this.renderProducts(allocatableProducts, 'batchProductSelection');
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load products');
                     }
                 } catch (error) {
                     console.error('Error loading products:', error);
@@ -1416,10 +2080,14 @@
                     const selectedProducts = containerId === 'batchProductSelection' ? 
                         this.batchSelectedProducts : this.selectedProducts;
                     const isSelected = selectedProducts.some(p => p.product_id === product.product_id);
+                    const selectedProduct = isSelected ? 
+                        selectedProducts.find(p => p.product_id === product.product_id) : null;
                     
                     return `
                         <div class="product-card ${isSelected ? 'selected' : ''}" 
-                             onclick="allocationsManager.toggleProductSelection('${product.product_id}', '${containerId}')">
+                             data-product-id="${product.product_id}"
+                             data-product-price="${product.sell_price || 0}"
+                             data-product-stock="${product.stock_qty || 0}">
                             <div class="product-info">
                                 <div class="product-name">${product.name}</div>
                                 <div class="product-details">
@@ -1432,18 +2100,53 @@
                                 </div>
                                 ${isSelected ? `
                                     <div class="quantity-control">
-                                        <button class="qty-btn" onclick="event.stopPropagation(); allocationsManager.adjustQuantity('${product.product_id}', -1, '${containerId}')">-</button>
-                                        <input type="number" class="qty-input" value="${selectedProducts.find(p => p.product_id === product.product_id)?.quantity || 1}" 
+                                        <button class="qty-btn decrease-qty" data-product-id="${product.product_id}">-</button>
+                                        <input type="number" class="qty-input" 
+                                               value="${selectedProduct?.quantity || 1}" 
                                                min="1" max="${product.stock_qty}"
-                                               onchange="allocationsManager.updateQuantity('${product.product_id}', this.value, '${containerId}')"
-                                               onclick="event.stopPropagation()">
-                                        <button class="qty-btn" onclick="event.stopPropagation(); allocationsManager.adjustQuantity('${product.product_id}', 1, '${containerId}')">+</button>
+                                               data-product-id="${product.product_id}">
+                                        <button class="qty-btn increase-qty" data-product-id="${product.product_id}">+</button>
                                     </div>
                                 ` : ''}
                             </div>
                         </div>
                     `;
                 }).join('');
+                
+                // Add event listeners
+                container.querySelectorAll('.product-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.qty-btn') || e.target.classList.contains('qty-input')) {
+                            return; // Let quantity controls handle their own clicks
+                        }
+                        const productId = card.getAttribute('data-product-id');
+                        this.toggleProductSelection(productId, containerId);
+                    });
+                });
+                
+                // Add quantity control listeners
+                container.querySelectorAll('.decrease-qty').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const productId = btn.getAttribute('data-product-id');
+                        this.adjustQuantity(productId, -1, containerId);
+                    });
+                });
+                
+                container.querySelectorAll('.increase-qty').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const productId = btn.getAttribute('data-product-id');
+                        this.adjustQuantity(productId, 1, containerId);
+                    });
+                });
+                
+                container.querySelectorAll('.qty-input').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const productId = input.getAttribute('data-product-id');
+                        this.updateQuantity(productId, input.value, containerId);
+                    });
+                });
             }
             
             toggleProductSelection(productId, containerId) {
@@ -1455,22 +2158,24 @@
                 if (index > -1) {
                     selectedArray.splice(index, 1);
                 } else {
+                    const card = document.querySelector(`[data-product-id="${productId}"]`);
+                    const price = parseFloat(card.getAttribute('data-product-price') || 0);
+                    const stock = parseInt(card.getAttribute('data-product-stock') || 0);
+                    
                     selectedArray.push({
                         product_id: productId,
                         quantity: 1,
-                        unit_price: 0 // Will be fetched from product details
+                        unit_price: price,
+                        max_stock: stock
                     });
                 }
                 
-                this.renderProducts(
-                    isBatch ? this.batchSelectedProducts.map(p => ({ product_id: p.product_id })) : 
-                             this.selectedProducts.map(p => ({ product_id: p.product_id })),
-                    containerId
-                );
-                
+                // Re-render products
                 if (isBatch) {
+                    this.loadBatchProducts();
                     this.updateBatchSummary();
                 } else {
+                    this.loadAllocatableProducts();
                     this.updateSelectedItems();
                 }
             }
@@ -1483,12 +2188,6 @@
                 if (product) {
                     const newQuantity = Math.max(1, (product.quantity || 1) + change);
                     product.quantity = newQuantity;
-                    
-                    this.renderProducts(
-                        isBatch ? this.batchSelectedProducts.map(p => ({ product_id: p.product_id })) : 
-                                 this.selectedProducts.map(p => ({ product_id: p.product_id })),
-                        containerId
-                    );
                     
                     if (isBatch) {
                         this.updateBatchSummary();
@@ -1525,45 +2224,39 @@
                 
                 container.style.display = 'block';
                 
-                // Fetch product details for display
-                Promise.all(this.selectedProducts.map(async (selectedProduct) => {
-                    try {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
-                        if (response.success) {
-                            return {
-                                ...selectedProduct,
-                                name: response.product.name,
-                                price: response.product.sell_price || 0
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error fetching product details:', error);
-                    }
-                    return selectedProduct;
-                })).then(productsWithDetails => {
-                    list.innerHTML = productsWithDetails.map(product => `
+                // Update list with current products
+                list.innerHTML = this.selectedProducts.map(product => {
+                    const total = (product.quantity * (product.unit_price || 0)).toFixed(2);
+                    return `
                         <div class="selected-item">
                             <div>
-                                <strong>${product.name || 'Unknown Product'}</strong>
+                                <strong>Product ID: ${product.product_id}</strong>
                                 <br>
-                                <small>Qty: ${product.quantity} × KES ${parseFloat(product.price || 0).toFixed(2)}</small>
+                                <small>Qty: ${product.quantity} × KES ${(product.unit_price || 0).toFixed(2)}</small>
                             </div>
                             <div>
-                                <strong>KES ${(product.quantity * parseFloat(product.price || 0)).toFixed(2)}</strong>
+                                <strong>KES ${total}</strong>
                                 <br>
-                                <button class="btn btn-sm btn-outline" 
-                                        onclick="allocationsManager.removeSelectedItem('${product.product_id}')">
+                                <button class="btn btn-sm btn-outline remove-item-btn" data-product-id="${product.product_id}">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                }).join('');
+                
+                // Add remove button listeners
+                list.querySelectorAll('.remove-item-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const productId = btn.getAttribute('data-product-id');
+                        this.removeSelectedItem(productId);
+                    });
                 });
             }
             
             removeSelectedItem(productId) {
                 this.selectedProducts = this.selectedProducts.filter(p => p.product_id !== productId);
-                this.renderProducts(this.selectedProducts.map(p => ({ product_id: p.product_id })), 'productSelection');
+                this.loadAllocatableProducts();
                 this.updateSelectedItems();
             }
             
@@ -1582,12 +2275,15 @@
                 }
                 
                 try {
-                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/eligible/${program}`);
+                    const response = await API.allocation.eligible(program);
                     
-                    if (response.success && response.grouped_by_class) {
-                        this.renderClasses(Object.keys(response.grouped_by_class));
+                    if (response && response.success) {
+                        // Extract unique classes from learners
+                        const learners = response.learners || [];
+                        const classes = [...new Set(learners.map(l => l.class).filter(Boolean))];
+                        this.renderClasses(classes);
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load classes');
                     }
                 } catch (error) {
                     console.error('Error loading classes:', error);
@@ -1618,11 +2314,19 @@
                     
                     return `
                         <div class="class-card ${isSelected ? 'selected' : ''}" 
-                             onclick="allocationsManager.toggleClassSelection('${className}')">
+                             data-class-name="${className}">
                             ${className}
                         </div>
                     `;
                 }).join('');
+                
+                // Add event listeners
+                classSelection.querySelectorAll('.class-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const className = card.getAttribute('data-class-name');
+                        this.toggleClassSelection(className);
+                    });
+                });
                 
                 this.updateBatchSummary();
             }
@@ -1636,7 +2340,8 @@
                     this.selectedClasses.push(className);
                 }
                 
-                this.loadBatchClasses(); // Re-render
+                // Re-render classes to show selection
+                this.loadBatchClasses();
             }
             
             async updateBatchSummary() {
@@ -1649,9 +2354,9 @@
                 let totalLearners = 0;
                 try {
                     for (const className of this.selectedClasses) {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/customers/class/${className}`);
-                        if (response.success) {
-                            totalLearners += response.count || 0;
+                        const response = await API.customer.classCustomers(className);
+                        if (response && response.success) {
+                            totalLearners += response.count || (response.learners?.length || 0);
                         }
                     }
                 } catch (error) {
@@ -1661,15 +2366,7 @@
                 // Calculate total value
                 let totalValue = 0;
                 for (const product of this.batchSelectedProducts) {
-                    try {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${product.product_id}`);
-                        if (response.success) {
-                            const price = parseFloat(response.product.sell_price || 0);
-                            totalValue += price * product.quantity * totalLearners;
-                        }
-                    } catch (error) {
-                        console.error('Error calculating value:', error);
-                    }
+                    totalValue += (product.quantity * (product.unit_price || 0)) * totalLearners;
                 }
                 
                 // Update UI
@@ -1683,45 +2380,39 @@
                 
                 container.style.display = 'block';
                 
-                // Fetch product details for display
-                Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
-                    try {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
-                        if (response.success) {
-                            return {
-                                ...selectedProduct,
-                                name: response.product.name,
-                                price: response.product.sell_price || 0
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error fetching product details:', error);
-                    }
-                    return selectedProduct;
-                })).then(productsWithDetails => {
-                    list.innerHTML = productsWithDetails.map(product => `
+                // Update list
+                list.innerHTML = this.batchSelectedProducts.map(product => {
+                    const totalPerLearner = (product.quantity * (product.unit_price || 0)).toFixed(2);
+                    return `
                         <div class="selected-item">
                             <div>
-                                <strong>${product.name || 'Unknown Product'}</strong>
+                                <strong>Product ID: ${product.product_id}</strong>
                                 <br>
-                                <small>Qty per learner: ${product.quantity} × KES ${parseFloat(product.price || 0).toFixed(2)}</small>
+                                <small>Qty per learner: ${product.quantity} × KES ${(product.unit_price || 0).toFixed(2)}</small>
                             </div>
                             <div>
-                                <strong>KES ${(product.quantity * parseFloat(product.price || 0)).toFixed(2)}</strong>
+                                <strong>KES ${totalPerLearner}</strong>
                                 <br>
-                                <button class="btn btn-sm btn-outline" 
-                                        onclick="allocationsManager.removeBatchSelectedItem('${product.product_id}')">
+                                <button class="btn btn-sm btn-outline remove-batch-item-btn" data-product-id="${product.product_id}">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                }).join('');
+                
+                // Add remove button listeners
+                list.querySelectorAll('.remove-batch-item-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const productId = btn.getAttribute('data-product-id');
+                        this.removeBatchSelectedItem(productId);
+                    });
                 });
             }
             
             removeBatchSelectedItem(productId) {
                 this.batchSelectedProducts = this.batchSelectedProducts.filter(p => p.product_id !== productId);
-                this.renderProducts(this.batchSelectedProducts.map(p => ({ product_id: p.product_id })), 'batchProductSelection');
+                this.loadBatchProducts();
                 this.updateBatchSummary();
             }
             
@@ -1745,26 +2436,13 @@
                     return;
                 }
                 
-                // Get product details
-                const items = await Promise.all(this.selectedProducts.map(async (selectedProduct) => {
-                    try {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
-                        if (response.success) {
-                            return {
-                                product_id: selectedProduct.product_id,
-                                quantity: selectedProduct.quantity,
-                                unit_price: response.product.sell_price || 0
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error fetching product price:', error);
-                    }
-                    return selectedProduct;
-                }));
-                
                 const allocationData = {
                     learner_id: this.selectedLearners[0].customer_id,
-                    items: items,
+                    items: this.selectedProducts.map(p => ({
+                        product_id: p.product_id,
+                        quantity: p.quantity,
+                        unit_price: p.unit_price
+                    })),
                     program_type: program,
                     allocation_notes: notes
                 };
@@ -1772,17 +2450,15 @@
                 try {
                     this.showNotification('Processing allocation...', 'info');
                     
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations', {
-                        method: 'POST',
-                        body: JSON.stringify(allocationData)
-                    });
+                    // Use the correct API endpoint
+                    const response = await API.customer.allocate(this.selectedLearners[0].customer_id, allocationData);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         this.showNotification('Allocation processed successfully', 'success');
                         this.closeAllocationModal();
                         await this.refreshData();
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to process allocation');
                     }
                 } catch (error) {
                     console.error('Error processing allocation:', error);
@@ -1809,27 +2485,14 @@
                     return;
                 }
                 
-                // Get product details
-                const items = await Promise.all(this.batchSelectedProducts.map(async (selectedProduct) => {
-                    try {
-                        const response = await API.call(`https://steadymonitor-backend.onrender.com/api/inventory/products/${selectedProduct.product_id}`);
-                        if (response.success) {
-                            return {
-                                product_id: selectedProduct.product_id,
-                                quantity: selectedProduct.quantity,
-                                unit_price: response.product.sell_price || 0
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error fetching product price:', error);
-                    }
-                    return selectedProduct;
-                }));
-                
                 const batchData = {
-                    class_name: this.selectedClasses[0], // For now, handle one class at a time
+                    class_name: this.selectedClasses[0], // Handle one class at a time for simplicity
                     program_type: program,
-                    items: items,
+                    items: this.batchSelectedProducts.map(p => ({
+                        product_id: p.product_id,
+                        quantity: p.quantity,
+                        unit_price: p.unit_price
+                    })),
                     allocation_notes: notes
                 };
                 
@@ -1840,17 +2503,15 @@
                 try {
                     this.showNotification('Processing batch allocation...', 'info');
                     
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/batch', {
-                        method: 'POST',
-                        body: JSON.stringify(batchData)
-                    });
+                    // Use batch allocation API
+                    const response = await API.allocation.createBatch(batchData);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         this.showNotification('Batch allocation processed successfully', 'success');
                         this.closeBatchModal();
                         await this.refreshData();
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to process batch allocation');
                     }
                 } catch (error) {
                     console.error('Error processing batch allocation:', error);
@@ -1861,13 +2522,14 @@
             // VIEW DETAILS
             async viewLearnerAllocations(learnerId) {
                 try {
-                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/learner/${learnerId}`);
+                    const response = await API.customer.allocations(learnerId);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         this.renderLearnerAllocations(response);
                         document.getElementById('learnerAllocationsModal').classList.add('active');
+                        document.body.classList.add('modal-open');
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load learner allocations');
                     }
                 } catch (error) {
                     console.error('Error viewing learner allocations:', error);
@@ -1877,22 +2539,24 @@
             
             renderLearnerAllocations(data) {
                 const content = document.getElementById('learnerAllocationsContent');
+                const allocations = data.allocations || [];
+                const totals = data.totals || {};
                 
                 content.innerHTML = `
                     <div class="learner-header">
-                        <h4>${data.allocations[0]?.customer_name || 'Learner'} Allocations</h4>
-                        <div class="totals">
-                            <div class="total-item">
-                                <div class="total-label">Total Allocations</div>
-                                <div class="total-value">${data.total_allocations}</div>
+                        <h4>Learner Allocations</h4>
+                        <div class="totals" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;">
+                            <div class="total-item" style="text-align: center;">
+                                <div class="total-label" style="font-size: 0.875rem; color: var(--text-secondary);">Total Allocations</div>
+                                <div class="total-value" style="font-size: 1.5rem; font-weight: bold;">${allocations.length}</div>
                             </div>
-                            <div class="total-item">
-                                <div class="total-label">Total Items</div>
-                                <div class="total-value">${data.totals.total_items}</div>
+                            <div class="total-item" style="text-align: center;">
+                                <div class="total-label" style="font-size: 0.875rem; color: var(--text-secondary);">Total Items</div>
+                                <div class="total-value" style="font-size: 1.5rem; font-weight: bold;">${totals.total_items || 0}</div>
                             </div>
-                            <div class="total-item">
-                                <div class="total-label">Total Value</div>
-                                <div class="total-value">KES ${parseFloat(data.totals.total_value || 0).toFixed(2)}</div>
+                            <div class="total-item" style="text-align: center;">
+                                <div class="total-label" style="font-size: 0.875rem; color: var(--text-secondary);">Total Value</div>
+                                <div class="total-value" style="font-size: 1.5rem; font-weight: bold;">KES ${parseFloat(totals.total_value || 0).toFixed(2)}</div>
                             </div>
                         </div>
                     </div>
@@ -1910,17 +2574,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.allocations.map(allocation => `
-                                    <tr>
-                                        <td>${new Date(allocation.given_date).toLocaleDateString()}</td>
-                                        <td>${allocation.product_name}</td>
-                                        <td><span class="badge ${allocation.program_type === 'A' ? 'badge-primary' : 'badge-success'}">Program ${allocation.program_type}</span></td>
-                                        <td>${allocation.quantity}</td>
-                                        <td>KES ${parseFloat(allocation.unit_price || 0).toFixed(2)}</td>
-                                        <td><strong>KES ${(allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2)}</strong></td>
-                                        <td>${allocation.given_by}</td>
-                                    </tr>
-                                `).join('')}
+                                ${allocations.map(allocation => {
+                                    const total = (allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2);
+                                    return `
+                                        <tr>
+                                            <td>${new Date(allocation.given_date || Date.now()).toLocaleDateString()}</td>
+                                            <td>${allocation.product_name || 'Unknown'}</td>
+                                            <td><span class="badge ${allocation.program_type === 'A' ? 'badge-primary' : 'badge-success'}">Program ${allocation.program_type || 'N/A'}</span></td>
+                                            <td>${allocation.quantity || 1}</td>
+                                            <td>KES ${parseFloat(allocation.unit_price || 0).toFixed(2)}</td>
+                                            <td><strong>KES ${total}</strong></td>
+                                            <td>${allocation.given_by || 'System'}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -1929,13 +2596,14 @@
             
             async viewBatchDetails(batchId) {
                 try {
-                    const response = await API.call(`https://steadymonitor-backend.onrender.com/api/allocations/batch/${batchId}`);
+                    const response = await API.allocation.batch(batchId);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         this.renderBatchDetails(response);
                         document.getElementById('batchDetailsModal').classList.add('active');
+                        document.body.classList.add('modal-open');
                     } else {
-                        throw new Error(response.message);
+                        throw new Error(response?.message || 'Failed to load batch details');
                     }
                 } catch (error) {
                     console.error('Error viewing batch details:', error);
@@ -1945,63 +2613,68 @@
             
             renderBatchDetails(data) {
                 const content = document.getElementById('batchDetailsContent');
+                const batch = data.batch || {};
+                const allocations = data.allocations || [];
                 
                 content.innerHTML = `
                     <div class="card">
                         <div class="card-body">
-                            <h4>${data.batch.batch_name}</h4>
-                            <div class="detail-row">
-                                <div class="detail-label">Class:</div>
-                                <div class="detail-value">${data.batch.class}</div>
+                            <h4>${batch.batch_name || 'Batch Details'}</h4>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Class:</div>
+                                <div class="detail-value">${batch.class || 'N/A'}</div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Program:</div>
-                                <div class="detail-value">Program ${data.batch.program_type}</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Program:</div>
+                                <div class="detail-value">Program ${batch.program_type || 'N/A'}</div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Total Items:</div>
-                                <div class="detail-value">${data.batch.total_items}</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Total Items:</div>
+                                <div class="detail-value">${batch.total_items || 0}</div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Total Value:</div>
-                                <div class="detail-value">KES ${parseFloat(data.batch.total_value || 0).toFixed(2)}</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Total Value:</div>
+                                <div class="detail-value">KES ${parseFloat(batch.total_value || 0).toFixed(2)}</div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Status:</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Status:</div>
                                 <div class="detail-value">
                                     <span class="batch-status status-processed">
-                                        <i class="fas fa-check-circle"></i> ${data.batch.status}
+                                        <i class="fas fa-check-circle"></i> ${batch.status || 'Processed'}
                                     </span>
                                 </div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Created By:</div>
-                                <div class="detail-value">${data.batch.created_by}</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Created By:</div>
+                                <div class="detail-value">${batch.created_by || 'System'}</div>
                             </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Created At:</div>
-                                <div class="detail-value">${new Date(data.batch.created_at).toLocaleString()}</div>
+                            <div class="detail-row" style="margin-bottom: 8px;">
+                                <div class="detail-label" style="font-weight: 500; display: inline-block; width: 100px;">Created At:</div>
+                                <div class="detail-value">${new Date(batch.created_at || Date.now()).toLocaleString()}</div>
                             </div>
                         </div>
                     </div>
                     <div class="card" style="margin-top: 20px;">
                         <div class="card-header">
-                            <h5>Allocations in this Batch (${data.count})</h5>
+                            <h5>Allocations in this Batch (${allocations.length})</h5>
                         </div>
                         <div class="card-body">
                             <div style="max-height: 300px; overflow-y: auto;">
-                                ${data.allocations.map(allocation => `
-                                    <div class="selected-item">
-                                        <div>
-                                            <strong>${allocation.customer_name}</strong>
-                                            <br>
-                                            <small>${allocation.product_name} × ${allocation.quantity}</small>
+                                ${allocations.map(allocation => {
+                                    const total = (allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2);
+                                    return `
+                                        <div class="selected-item">
+                                            <div>
+                                                <strong>${allocation.customer_name || 'Unknown'}</strong>
+                                                <br>
+                                                <small>${allocation.product_name || 'Unknown'} × ${allocation.quantity || 1}</small>
+                                            </div>
+                                            <div>
+                                                <small>KES ${total}</small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <small>KES ${(allocation.quantity * parseFloat(allocation.unit_price || 0)).toFixed(2)}</small>
-                                        </div>
-                                    </div>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                     </div>
@@ -2010,24 +2683,22 @@
             
             async viewBatches() {
                 try {
-                    const response = await API.call('https://steadymonitor-backend.onrender.com/api/allocations/batches');
+                    const response = await API.allocation.batches();
                     
-                    if (response.success) {
-                        // You could show this in a modal or navigate to a batches page
-                        this.showNotification(`Loaded ${response.count} batches`, 'info');
+                    if (response && response.success) {
+                        const batches = response.batches || [];
+                        this.showNotification(`Loaded ${batches.length} batches`, 'info');
+                        
+                        // Could open a modal or navigate to batches page here
+                        if (batches.length > 0) {
+                            // For now, just show the first batch
+                            this.viewBatchDetails(batches[0].batch_id);
+                        }
                     }
                 } catch (error) {
                     console.error('Error viewing batches:', error);
                     this.showNotification('Failed to load batches', 'error');
                 }
-            }
-            
-            closeLearnerModal() {
-                document.getElementById('learnerAllocationsModal').classList.remove('active');
-            }
-            
-            closeBatchDetailsModal() {
-                document.getElementById('batchDetailsModal').classList.remove('active');
             }
             
             // UTILITY METHODS
@@ -2058,7 +2729,9 @@
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `allocations-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
                 this.showNotification('Data exported successfully', 'success');
@@ -2069,22 +2742,24 @@
                 const messageEl = document.getElementById('notificationMessage');
                 const icon = notification.querySelector('i');
                 
+                // Remove any existing type classes
+                notification.className = 'notification';
+                
                 switch (type) {
                     case 'success':
                         icon.className = 'fas fa-check-circle';
-                        notification.className = 'notification success';
+                        notification.classList.add('success');
                         break;
                     case 'error':
                         icon.className = 'fas fa-exclamation-circle';
-                        notification.className = 'notification error';
+                        notification.classList.add('error');
                         break;
                     case 'warning':
                         icon.className = 'fas fa-exclamation-triangle';
-                        notification.className = 'notification warning';
+                        notification.classList.add('warning');
                         break;
                     default:
                         icon.className = 'fas fa-info-circle';
-                        notification.className = 'notification';
                 }
                 
                 messageEl.textContent = message;
