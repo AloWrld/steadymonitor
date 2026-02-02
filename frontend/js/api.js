@@ -25,7 +25,7 @@
             return null;
           }
           const txt = await res.text();
-          throw new Error(txt);
+          throw new Error(`HTTP ${res.status}: ${txt}`);
         }
 
         return await res.json();
@@ -58,51 +58,16 @@
     stats: () => API.call('/api/stats')
   };
 
-  /* ================= CHECKOUT ================= */
-  API.pos.checkout = {
-    complete: (data) => API.call('/api/complete', { method: 'POST', body: JSON.stringify(data) }),
-    receipt: (saleId) => API.call(`/api/receipt/${saleId}`),
-    lookupReceipt: (data) => API.call('/api/lookup-receipt', { method: 'POST', body: JSON.stringify(data) }),
-    mpesaStk: (data) => API.call('/api/mpesa-stk', { method: 'POST', body: JSON.stringify(data) })
-  };
-
-  /* ================= CUSTOMER ================= */
-  API.pos.customer = {
-    get: (identifier) => API.call(`/api/${identifier}`),
-    update: (customerId, data) => API.call(`/api/${customerId}`, { method: 'PUT', body: JSON.stringify(data) }),
-    remove: (customerId) => API.call(`/api/${customerId}`, { method: 'DELETE' }),
-    pay: (customerId, data) => API.call(`/api/${customerId}/pay`, { method: 'POST', body: JSON.stringify(data) }),
-    adjustBalance: (customerId, data) => API.call(`/api/${customerId}/adjust-balance`, { method: 'POST', body: JSON.stringify(data) }),
-    allocations: (customerId) => API.call(`/api/${customerId}/allocations`),
-    allocate: (customerId, data) => API.call(`/api/${customerId}/allocate`, { method: 'POST', body: JSON.stringify(data) }),
-    fulfillAllocation: (customerId, data) => API.call(`/api/${customerId}/fulfill-allocation`, { method: 'POST', body: JSON.stringify(data) }),
-    allocationHistory: (customerId) => API.call(`/api/${customerId}/allocation-history`),
-    pocketMoneyStatus: (customerId) => API.call(`/api/${customerId}/pocket-money-status`),
-    exerciseEligibility: (customerId) => API.call(`/api/${customerId}/exercise-book-eligibility`),
-    recordInstallment: (customerId, data) => API.call(`/api/${customerId}/record-installment`, { method: 'POST', body: JSON.stringify(data) }),
-    installments: (customerId) => API.call(`/api/${customerId}/installment-payments`),
-    ledger: (customerId) => API.call(`/api/${customerId}/ledger`),
-    transactions: (customerId) => API.call(`/api/${customerId}/transactions`),
-    createBatch: (data) => API.call('/api/batch/create', { method: 'POST', body: JSON.stringify(data) }),
-    classCustomers: (className) => API.call(`/api/class/${className}`),
-    updateBatchPayment: (data) => API.call('/api/batch/update-payment', { method: 'POST', body: JSON.stringify(data) }),
-    promote: (customerId, data) => API.call(`/api/${customerId}/promote`, { method: 'POST', body: JSON.stringify(data) }),
-    promoteBatch: (data) => API.call('/api/batch/promote', { method: 'POST', body: JSON.stringify(data) }),
-    changeClass: (customerId, data) => API.call(`/api/${customerId}/change-class`, { method: 'POST', body: JSON.stringify(data) }),
-    promotionHistory: (customerId) => API.call(`/api/${customerId}/promotion-history`),
-    disbursementHistory: (customerId) => API.call(`/api/${customerId}/disbursement-history`)
-  };
-
   /* ================= DASHBOARD ================= */
-  API.inventory.dashboard = {
-    stats: () => API.call('/api/stats'),
-    lowStock: () => API.call('/api/low-stock'),
-    recentSales: () => API.call('/api/recent-sales'),
-    customersBalance: () => API.call('/api/customers-balance')
+  API.dashboard = {
+    stats: () => API.call('/api/dashboard/stats'),
+    lowStock: () => API.call('/api/dashboard/low-stock'),
+    recentSales: () => API.call('/api/dashboard/recent-sales'),
+    customersBalance: () => API.call('/api/dashboard/customers-balance')
   };
 
   /* ================= INVENTORY ================= */
-  API.report.inventory = {
+  API.inventory = {
     products: () => API.call('/api/products'),
     product: (identifier) => API.call(`/api/products/${identifier}`),
     create: (data) => API.call('/api/products', { method: 'POST', body: JSON.stringify(data) }),
@@ -129,7 +94,7 @@
   };
 
   /* ================= POCKET MONEY ================= */
-  API.report.pocketMoney = {
+  API.pocketMoney = {
     purchase: (data) => API.call('/api/purchase', { method: 'POST', body: JSON.stringify(data) }),
     topup: (data) => API.call('/api/topup', { method: 'POST', body: JSON.stringify(data) }),
     deduct: (data) => API.call('/api/deduct', { method: 'POST', body: JSON.stringify(data) }),
@@ -155,7 +120,40 @@
     customer: (customerId) => API.call(`/api/learners/${customerId}`),
     classes: () => API.call('/api/classes'),
     departments: () => API.call('/api/departments'),
-    debugCalls: () => API.call('/api/debug/calls')
+    debugCalls: () => API.call('/api/debug/calls'),
+    checkout: {
+      complete: (data) => API.call('/api/complete', { method: 'POST', body: JSON.stringify(data) }),
+      receipt: (saleId) => API.call(`/api/receipt/${saleId}`),
+      lookupReceipt: (data) => API.call('/api/lookup-receipt', { method: 'POST', body: JSON.stringify(data) }),
+      mpesaStk: (data) => API.call('/api/mpesa-stk', { method: 'POST', body: JSON.stringify(data) })
+    }
+  };
+
+  /* ================= CUSTOMER ================= */
+  API.customer = {
+    get: (identifier) => API.call(`/api/customers/${identifier}`),
+    update: (customerId, data) => API.call(`/api/customers/${customerId}`, { method: 'PUT', body: JSON.stringify(data) }),
+    remove: (customerId) => API.call(`/api/customers/${customerId}`, { method: 'DELETE' }),
+    pay: (customerId, data) => API.call(`/api/customers/${customerId}/pay`, { method: 'POST', body: JSON.stringify(data) }),
+    adjustBalance: (customerId, data) => API.call(`/api/customers/${customerId}/adjust-balance`, { method: 'POST', body: JSON.stringify(data) }),
+    allocations: (customerId) => API.call(`/api/customers/${customerId}/allocations`),
+    allocate: (customerId, data) => API.call(`/api/customers/${customerId}/allocate`, { method: 'POST', body: JSON.stringify(data) }),
+    fulfillAllocation: (customerId, data) => API.call(`/api/customers/${customerId}/fulfill-allocation`, { method: 'POST', body: JSON.stringify(data) }),
+    allocationHistory: (customerId) => API.call(`/api/customers/${customerId}/allocation-history`),
+    pocketMoneyStatus: (customerId) => API.call(`/api/customers/${customerId}/pocket-money-status`),
+    exerciseEligibility: (customerId) => API.call(`/api/customers/${customerId}/exercise-book-eligibility`),
+    recordInstallment: (customerId, data) => API.call(`/api/customers/${customerId}/record-installment`, { method: 'POST', body: JSON.stringify(data) }),
+    installments: (customerId) => API.call(`/api/customers/${customerId}/installment-payments`),
+    ledger: (customerId) => API.call(`/api/customers/${customerId}/ledger`),
+    transactions: (customerId) => API.call(`/api/customers/${customerId}/transactions`),
+    createBatch: (data) => API.call('/api/batch/create', { method: 'POST', body: JSON.stringify(data) }),
+    classCustomers: (className) => API.call(`/api/class/${className}`),
+    updateBatchPayment: (data) => API.call('/api/batch/update-payment', { method: 'POST', body: JSON.stringify(data) }),
+    promote: (customerId, data) => API.call(`/api/customers/${customerId}/promote`, { method: 'POST', body: JSON.stringify(data) }),
+    promoteBatch: (data) => API.call('/api/batch/promote', { method: 'POST', body: JSON.stringify(data) }),
+    changeClass: (customerId, data) => API.call(`/api/customers/${customerId}/change-class`, { method: 'POST', body: JSON.stringify(data) }),
+    promotionHistory: (customerId) => API.call(`/api/customers/${customerId}/promotion-history`),
+    disbursementHistory: (customerId) => API.call(`/api/customers/${customerId}/disbursement-history`)
   };
 
   /* ================= PRINT ================= */
@@ -178,34 +176,41 @@
 
   /* ================= REPORT ================= */
   API.report = {
-    sales: () => API.call('/api/sales'),
-    profit: () => API.call('/api/profit'),
-    inventory: () => API.call('/api/inventory'),
-    customers: () => API.call('/api/customers'),
-    allocations: () => API.call('/api/allocations'),
-    pocketMoney: () => API.call('/api/pocket-money'),
-    installments: () => API.call('/api/installments'),
-    suppliers: () => API.call('/api/suppliers'),
-    exportExcel: () => API.call('/api/export/excel'),
-    exportPdf: () => API.call('/api/export/pdf'),
-    dataStatus: () => API.call('/api/data-status'),
-    overview: () => API.call('/api/overview')
+    sales: () => API.call('/api/reports/sales'),
+    profit: () => API.call('/api/reports/profit'),
+    inventory: () => API.call('/api/reports/inventory'),
+    customers: () => API.call('/api/reports/customers'),
+    allocations: () => API.call('/api/reports/allocations'),
+    pocketMoney: () => API.call('/api/reports/pocket-money'),
+    installments: () => API.call('/api/reports/installments'),
+    suppliers: () => API.call('/api/reports/suppliers'),
+    exportExcel: () => API.call('/api/reports/export/excel'),
+    exportPdf: () => API.call('/api/reports/export/pdf'),
+    dataStatus: () => API.call('/api/reports/data-status'),
+    overview: () => API.call('/api/reports/overview')
   };
 
   /* ================= SUPPLIER ================= */
   API.supplier = {
-    get: (id) => API.call(`/api/${id}`),
-    update: (id, data) => API.call(`/api/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-    remove: (id) => API.call(`/api/${id}`, { method: 'DELETE' }),
-    search: () => API.call('/api/search'),
-    restock: (data) => API.call('/api/restock', { method: 'POST', body: JSON.stringify(data) }),
-    restocks: () => API.call('/api/restocks/all'),
-    payments: (data) => API.call('/api/payments', { method: 'POST', body: JSON.stringify(data) }),
-    credits: (id) => API.call(`/api/${id}/credits`),
-    transactions: (id) => API.call(`/api/${id}/transactions`),
-    dueCredits: () => API.call('/api/reports/due-credits'),
-    lowStock: () => API.call('/api/reports/low-stock'),
-    performance: () => API.call('/api/reports/performance')
+    get: (id) => API.call(`/api/suppliers/${id}`),
+    update: (id, data) => API.call(`/api/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    remove: (id) => API.call(`/api/suppliers/${id}`, { method: 'DELETE' }),
+    search: () => API.call('/api/suppliers/search'),
+    restock: (data) => API.call('/api/suppliers/restock', { method: 'POST', body: JSON.stringify(data) }),
+    restocks: () => API.call('/api/suppliers/restocks/all'),
+    payments: (data) => API.call('/api/suppliers/payments', { method: 'POST', body: JSON.stringify(data) }),
+    credits: (id) => API.call(`/api/suppliers/${id}/credits`),
+    transactions: (id) => API.call(`/api/suppliers/${id}/transactions`),
+    dueCredits: () => API.call('/api/suppliers/reports/due-credits'),
+    lowStock: () => API.call('/api/suppliers/reports/low-stock'),
+    performance: () => API.call('/api/suppliers/reports/performance')
+  };
+
+  // Additional endpoints for dashboard
+  API.sales = {
+    today: () => API.call('/api/sales/today'),
+    week: () => API.call('/api/sales/week'),
+    month: () => API.call('/api/sales/month')
   };
 
   window.API = API;
