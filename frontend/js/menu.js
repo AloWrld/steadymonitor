@@ -71,121 +71,29 @@
                 this.buildDefaultMenu();
             }
         }
-        // Add this to your menu.js after the class definition
-class MobileMenuManager extends MenuManager {
-    setupMobileMenu() {
-        super.setupMobileMenu();
-        
-        // Add swipe to close functionality
-        this.setupSwipeToClose();
-        
-        // Add keyboard support
-        this.setupKeyboardNavigation();
-    }
-    
-    setupSwipeToClose() {
-        let startX = 0;
-        let startY = 0;
-        
-        this.sidebar.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }, { passive: true });
-        
-        this.sidebar.addEventListener('touchmove', (e) => {
-            if (!this.sidebar.classList.contains('active')) return;
-            
-            const currentX = e.touches[0].clientX;
-            const currentY = e.touches[0].clientY;
-            const diffX = startX - currentX;
-            const diffY = startY - currentY;
-            
-            // Only handle horizontal swipes
-            if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
-                this.closeMobileMenu();
-            }
-        }, { passive: true });
-    }
-    
-    setupKeyboardNavigation() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.sidebar.classList.contains('active')) {
-                this.closeMobileMenu();
-            }
-        });
-    }
-    
-    toggleMobileMenu() {
-        super.toggleMobileMenu();
-        
-        // Toggle aria-expanded for accessibility
-        const expanded = this.sidebar.classList.contains('active');
-        this.menuToggle.setAttribute('aria-expanded', expanded);
-        
-        // Trap focus in sidebar when open
-        if (expanded) {
-            this.trapFocus();
-        }
-    }
-    
-    trapFocus() {
-        const focusableElements = this.sidebar.querySelectorAll(
-            'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        
-        if (focusableElements.length > 0) {
-            const firstFocusable = focusableElements[0];
-            const lastFocusable = focusableElements[focusableElements.length - 1];
-            
-            firstFocusable.focus();
-            
-            this.sidebar.addEventListener('keydown', (e) => {
-                if (e.key === 'Tab') {
-                    if (e.shiftKey) {
-                        if (document.activeElement === firstFocusable) {
-                            e.preventDefault();
-                            lastFocusable.focus();
-                        }
-                    } else {
-                        if (document.activeElement === lastFocusable) {
-                            e.preventDefault();
-                            firstFocusable.focus();
-                        }
+
+        async waitForAuth() {
+            return new Promise((resolve) => {
+                const check = () => {
+                    if (window.auth && window.auth.getUser()) {
+                        resolve();
+                        return true;
                     }
-                }
+                    return false;
+                };
+
+                if (check()) return;
+
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    if (check() || attempts > 50) { // Increased to 5 seconds total
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 100);
             });
         }
-    }
-}
-
-// Update the initialization to use MobileMenuManager
-document.addEventListener('DOMContentLoaded', () => {
-    const menuManager = new MobileMenuManager();
-    menuManager.initialize();
-});
-
-       async waitForAuth() {
-    return new Promise((resolve) => {
-        const check = () => {
-            if (window.auth && window.auth.getUser()) {
-                resolve();
-                return true;
-            }
-            return false;
-        };
-
-        if (check()) return;
-
-        let attempts = 0;
-        const interval = setInterval(() => {
-            attempts++;
-            if (check() || attempts > 50) { // Increased to 5 seconds total
-                clearInterval(interval);
-                resolve();
-            }
-        }, 100);
-    });
-}
 
         buildMenu() {
             const role = this.user?.role || 'department_stationery';
@@ -337,9 +245,96 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize when DOM is ready
+    // Enhanced Mobile Menu Manager with swipe and keyboard support
+    class MobileMenuManager extends MenuManager {
+        setupMobileMenu() {
+            super.setupMobileMenu();
+            
+            // Add swipe to close functionality
+            this.setupSwipeToClose();
+            
+            // Add keyboard support
+            this.setupKeyboardNavigation();
+        }
+        
+        setupSwipeToClose() {
+            let startX = 0;
+            let startY = 0;
+            
+            this.sidebar.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            this.sidebar.addEventListener('touchmove', (e) => {
+                if (!this.sidebar.classList.contains('active')) return;
+                
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const diffX = startX - currentX;
+                const diffY = startY - currentY;
+                
+                // Only handle horizontal swipes
+                if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
+                    this.closeMobileMenu();
+                }
+            }, { passive: true });
+        }
+        
+        setupKeyboardNavigation() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.sidebar.classList.contains('active')) {
+                    this.closeMobileMenu();
+                }
+            });
+        }
+        
+        toggleMobileMenu() {
+            super.toggleMobileMenu();
+            
+            // Toggle aria-expanded for accessibility
+            const expanded = this.sidebar.classList.contains('active');
+            this.menuToggle.setAttribute('aria-expanded', expanded);
+            
+            // Trap focus in sidebar when open
+            if (expanded) {
+                this.trapFocus();
+            }
+        }
+        
+        trapFocus() {
+            const focusableElements = this.sidebar.querySelectorAll(
+                'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            
+            if (focusableElements.length > 0) {
+                const firstFocusable = focusableElements[0];
+                const lastFocusable = focusableElements[focusableElements.length - 1];
+                
+                firstFocusable.focus();
+                
+                this.sidebar.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey) {
+                            if (document.activeElement === firstFocusable) {
+                                e.preventDefault();
+                                lastFocusable.focus();
+                            }
+                        } else {
+                            if (document.activeElement === lastFocusable) {
+                                e.preventDefault();
+                                firstFocusable.focus();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    // Single initialization point
     document.addEventListener('DOMContentLoaded', () => {
-        const menuManager = new MenuManager();
+        const menuManager = new MobileMenuManager();
         menuManager.initialize();
     });
 
