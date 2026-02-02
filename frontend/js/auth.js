@@ -82,19 +82,24 @@
         },
         
         // Check if authenticated (for protected pages)
-        async requireAuth() {
-            if (!this.initialized) {
-                await this.init();
-            }
-            
-            if (!this.user) {
-                // Use goToPage instead of direct redirect
-                goToPage('login');
-                return false;
-            }
-            
-            return true;
-        },
+async requireAuth() {
+    if (!this.initialized) {
+        await this.init();
+    }
+    
+    if (!this.user) {
+        // For direct file access (like pos.html), redirect to index.html
+        if (!window.location.hash) {
+            window.location.href = 'index.html';
+        } else {
+            // For hash-based routing
+            goToPage('login');
+        }
+        return false;
+    }
+    
+    return true;
+},
         
         // Redirect based on role (matching your menu.js structure)
         redirectByRole(user) {
@@ -155,21 +160,29 @@
     // Expose to window
     window.auth = Auth;
     
-    // Auto-initialize on pages that need auth
-    document.addEventListener('DOMContentLoaded', async function() {
-        // Don't auto-init on login page
-        if (window.location.pathname.includes('login.html') || window.location.pathname === '/') {
-            return;
-        }
-        
-        // Initialize auth for protected pages
-        await Auth.init();
-        
-        // Check if we need to redirect to login
-        if (!Auth.user && !window.location.pathname.includes('login.html')) {
+  // Auto-initialize on pages that need auth
+document.addEventListener('DOMContentLoaded', async function() {
+    // Don't auto-init on login/index page
+    if (window.location.pathname.includes('index.html') || 
+        window.location.pathname === '/' || 
+        window.location.pathname.endsWith('/')) {
+        return;
+    }
+    
+    // Initialize auth for protected pages
+    await Auth.init();
+    
+    // Check if we need to redirect to index.html
+    if (!Auth.user) {
+        // Check if this is a direct file access (no hash)
+        if (!window.location.hash) {
+            window.location.href = 'index.html';
+        } else {
+            // For hash-based routing
             goToPage('login');
         }
-    });
+    }
+});
     
     console.log('Auth loaded successfully');
 })();
