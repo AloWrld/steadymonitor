@@ -957,6 +957,30 @@
             border-top: 2px solid #000;
             font-weight: bold;
         }
+
+        /* Print Preview Modal */
+        .print-preview-modal {
+            max-width: 800px;
+        }
+
+        .print-preview-content {
+            background: white;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            border: 1px solid #ddd;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .print-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
@@ -980,14 +1004,14 @@
                 <span>Hattyjohns POS</span>
             </div>
             <div class="nav-user">
-                <span id="currentUser" class="user-greeting">Loading...</span>
+                <span id="currentUser" class="user-greeting">Welcome, User</span>
                 <div class="dropdown">
                     <button class="btn btn-icon">
                         <i class="fas fa-user-circle"></i>
                     </button>
                     <div class="dropdown-menu">
-                        <a href="#" class="dropdown-item" id="logoutBtn">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                        <a href="index.html" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Go to Login
                         </a>
                     </div>
                 </div>
@@ -1005,7 +1029,7 @@
                             <button class="action-btn" onclick="window.open('/pos.html', '_blank')">
                                 <i class="fas fa-external-link-alt"></i> New Window
                             </button>
-                            <button class="action-btn" onclick="printReceipt()">
+                            <button class="action-btn" onclick="printLastReceipt()">
                                 <i class="fas fa-print"></i> Print Last
                             </button>
                             <button class="action-btn clear-cart" onclick="clearCart()">
@@ -1229,19 +1253,26 @@
 
     <!-- Receipt Modal -->
     <div id="receiptModal" class="modal-overlay">
-        <div class="modal">
+        <div class="modal print-preview-modal">
             <div class="modal-header">
                 <h3 class="modal-title">Sale Receipt</h3>
                 <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
             </div>
-            <div class="modal-body" id="receiptContent">
-                <!-- Receipt will be generated here -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
-                <button class="btn btn-primary" onclick="printReceiptContent()">
-                    <i class="fas fa-print"></i> Print
-                </button>
+            <div class="modal-body">
+                <div class="print-preview-content" id="printPreviewContent">
+                    <!-- Receipt will be generated here -->
+                </div>
+                <div class="print-actions">
+                    <button class="btn btn-outline" onclick="closeReceiptModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button class="btn btn-primary" onclick="saveReceipt()">
+                        <i class="fas fa-save"></i> Save Receipt
+                    </button>
+                    <button class="btn btn-success" onclick="printReceipt()">
+                        <i class="fas fa-print"></i> Print Receipt
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1252,11 +1283,12 @@
         <span id="notificationMessage">Notification message</span>
     </div>
 
-    <!-- External JS (only menu.js) -->
+    <!-- External JS -->
     <script src="js/menu.js"></script>
+    <script src="js/api.js"></script>
     
     <script>
-        // POS Application
+        // POS Application - SIMPLIFIED VERSION (No Authentication)
         const POS = {
             // State
             currentDepartment: 'uniform',
@@ -1265,90 +1297,16 @@
             selectedCustomer: null,
             lastSaleId: null,
             paymentMethod: 'cash',
+            lastReceiptData: null,
             
             // Initialize
             async init() {
-                await this.checkAuth();
-                this.loadUserInfo();
+                console.log('POS Initializing...');
                 this.setupEventListeners();
-                this.loadDepartments();
-                this.loadProducts();
+                await this.loadDepartments();
+                await this.loadProducts();
                 this.updateCartUI();
-            },
-             // Setup authentication
-    async setupAuth() {
-        try {
-            // Check if auth.js is loaded
-            if (!window.auth) {
-                console.warn('Auth not loaded, loading now...');
-                // Try to load auth.js dynamically
-                await this.loadScript('js/auth.js');
-                // Wait a moment for auth to initialize
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-            
-            // Initialize auth if needed
-            if (window.auth && !window.auth.initialized) {
-                await window.auth.init();
-            }
-            
-            // Check authentication
-            if (window.auth) {
-                const user = window.auth.getUser();
-                if (!user) {
-                    console.log('No user found, redirecting to index.html');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                console.log('User authenticated:', user);
-            } else {
-                // Fallback: check directly with API
-                console.log('Auth not available, checking with API directly');
-                try {
-                    const response = await API.auth.check();
-                    if (!response || !response.success || !response.isAuthenticated) {
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                    console.log('API auth check successful');
-                } catch (error) {
-                    console.error('API auth check failed:', error);
-                    window.location.href = 'index.html';
-                }
-            }
-        } catch (error) {
-            console.error('Auth setup failed:', error);
-            window.location.href = 'index.html';
-        }
-    },
-    
-    // Helper to load script dynamically
-    loadScript(src) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    },
-    
-            
-         // Load user info
-            loadUserInfo() {
-                let user = null;
-                
-                // Try to get user from auth.js
-                if (window.auth && typeof window.auth.getUser === 'function') {
-                    user = window.auth.getUser();
-                }
-                
-                if (user) {
-                    document.getElementById('currentUser').textContent = 
-                        `Welcome, ${user.displayName || user.username || 'User'}`;
-                } else {
-                    document.getElementById('currentUser').textContent = 'Welcome, User';
-                }
+                console.log('POS Ready');
             },
             
             // Setup event listeners
@@ -1418,18 +1376,10 @@
                     });
                 });
                 
-                // Logout
-                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                // Logout button goes to login page
+                document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (window.auth && typeof window.auth.logout === 'function') {
-                        window.auth.logout().then(() => {
-                            window.location.href = 'login.html';
-                        });
-                    } else {
-                        API.auth.logout().then(() => {
-                            window.location.href = 'login.html';
-                        });
-                    }
+                    window.location.href = 'index.html';
                 });
                 
                 // Close modals on escape
@@ -1490,16 +1440,29 @@
                 }
                 
                 try {
-                    const response = await API.pos.searchLearners(query);
+                    // Using search endpoint
+                    const response = await API.pos.search();
                     if (response.success && response.products) {
-                        this.renderProducts(response.products);
+                        const filtered = response.products.filter(product => 
+                            product.name.toLowerCase().includes(query.toLowerCase()) ||
+                            (product.sku && product.sku.toLowerCase().includes(query.toLowerCase())) ||
+                            (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
+                        );
+                        this.renderProducts(filtered);
+                    } else {
+                        // Fallback to client-side search
+                        const filtered = this.products.filter(product => 
+                            product.name.toLowerCase().includes(query.toLowerCase()) ||
+                            (product.sku && product.sku.toLowerCase().includes(query.toLowerCase()))
+                        );
+                        this.renderProducts(filtered);
                     }
                 } catch (error) {
                     console.error('Search error:', error);
                     // Fallback to client-side search
                     const filtered = this.products.filter(product => 
                         product.name.toLowerCase().includes(query.toLowerCase()) ||
-                        product.sku.toLowerCase().includes(query.toLowerCase())
+                        (product.sku && product.sku.toLowerCase().includes(query.toLowerCase()))
                     );
                     this.renderProducts(filtered);
                 }
@@ -1718,9 +1681,10 @@
             
             // Remove from cart
             removeFromCart(index) {
+                const itemName = this.cart[index].name;
                 this.cart.splice(index, 1);
                 this.updateCartUI();
-                this.showNotification('Item removed from cart', 'warning');
+                this.showNotification(`${itemName} removed from cart`, 'warning');
             },
             
             // Clear cart
@@ -1738,13 +1702,12 @@
             updateCheckoutButton() {
                 const checkoutBtn = document.getElementById('checkoutBtn');
                 const hasItems = this.cart.length > 0;
-                const hasCustomer = this.selectedCustomer !== null;
                 
                 // Enable if has items
                 checkoutBtn.disabled = !hasItems;
                 
                 // Update button text based on customer
-                if (hasCustomer) {
+                if (this.selectedCustomer) {
                     const shortName = this.selectedCustomer.name.length > 15 
                         ? this.selectedCustomer.name.substring(0, 15) + '...' 
                         : this.selectedCustomer.name;
@@ -1901,24 +1864,40 @@
                     this.showNotification('Processing sale...', 'info');
                     
                     // Use the correct API endpoint
-                    const response = await API.pos.checkout.complete(saleData);
+                    const response = await API.pos.checkout(saleData);
                     
                     if (response.success) {
                         this.lastSaleId = response.sale_id;
+                        this.lastReceiptData = {
+                            receipt_number: response.sale_id,
+                            date: new Date().toISOString(),
+                            served_by: 'POS System',
+                            department: this.currentDepartment,
+                            customer_name: this.selectedCustomer?.name || 'Walk-in',
+                            customer_class: this.selectedCustomer?.class || 'N/A',
+                            items: this.cart,
+                            totals: {
+                                total: cartTotal,
+                                paid: transactionType === 'normal' ? cartTotal : 0,
+                                balance: transactionType === 'add_to_balance' ? cartTotal : 0,
+                                discount: 0
+                            },
+                            payment_method: paymentMode
+                        };
+                        
                         this.showNotification(response.message || 'Sale completed successfully', 'success');
+                        
+                        // Show receipt preview
+                        this.showReceiptPreview();
                         
                         // Clear cart
                         this.cart = [];
                         this.updateCartUI();
                         this.clearCustomer();
                         
-                        // Close modal
+                        // Close payment modal
                         this.closePaymentModal();
                         
-                        // Show receipt
-                        setTimeout(() => {
-                            this.showReceipt(response);
-                        }, 1000);
                     } else {
                         throw new Error(response.message || 'Checkout failed');
                     }
@@ -1933,85 +1912,115 @@
                 return this.cart.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
             },
             
-            // Show receipt
-            showReceipt(saleData) {
-                const receiptContent = document.getElementById('receiptContent');
+            // Show receipt preview
+            showReceiptPreview() {
                 const modal = document.getElementById('receiptModal');
+                const content = document.getElementById('printPreviewContent');
                 
-                let user = null;
-                if (window.auth && typeof window.auth.getUser === 'function') {
-                    user = window.auth.getUser();
+                if (!this.lastReceiptData) {
+                    this.showNotification('No receipt data available', 'error');
+                    return;
                 }
                 
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric' 
-                });
-                const timeStr = now.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                
-                receiptContent.innerHTML = `
-                    <div class="receipt-content">
-                        <div class="receipt-header">
-                            <h3>HATTYJOHNS INVESTMENTS</h3>
-                            <p>POS Receipt</p>
-                            <p>${dateStr} ${timeStr}</p>
-                            <p>Receipt: ${saleData.sale_id || 'N/A'}</p>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="receipt-line">
-                                <span>Cashier:</span>
-                                <span>${user?.displayName || user?.username || 'System'}</span>
-                            </div>
-                            ${this.selectedCustomer ? `
-                                <div class="receipt-line">
-                                    <span>Customer:</span>
-                                    <span>${this.selectedCustomer.name}</span>
-                                </div>
-                                <div class="receipt-line">
-                                    <span>Class:</span>
-                                    <span>${this.selectedCustomer.class || 'N/A'}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0; margin: 10px 0;">
-                            ${this.cart.map(item => `
-                                <div class="receipt-line" style="margin-bottom: 5px;">
-                                    <span>${item.name} (${item.quantity} × ${item.unit_price.toFixed(2)})</span>
-                                    <span>${(item.unit_price * item.quantity).toFixed(2)}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div style="margin-top: 10px;">
-                            <div class="receipt-line">
-                                <span>Subtotal:</span>
-                                <span>${this.calculateTotal().toFixed(2)}</span>
-                            </div>
-                            <div class="receipt-line">
-                                <span>Tax:</span>
-                                <span>0.00</span>
-                            </div>
-                            <div class="receipt-line receipt-total">
-                                <span>TOTAL:</span>
-                                <span>KSh ${this.calculateTotal().toFixed(2)}</span>
-                            </div>
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 20px; font-size: 12px;">
-                            <p>Thank you for your purchase!</p>
-                            <p>${saleData.transaction_type === 'add_to_balance' ? 'Added to customer balance' : 'Payment completed'}</p>
-                        </div>
-                    </div>
-                `;
+                // Generate thermal printer format
+                const receiptText = this.formatThermalReceipt(this.lastReceiptData);
+                content.innerHTML = `<pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; font-size: 12px;">${receiptText}</pre>`;
                 
                 modal.classList.add('active');
+            },
+            
+            // Format thermal receipt (matching printService.js format)
+            formatThermalReceipt(receiptData) {
+                const lineWidth = 42;
+                const lineChar = '-';
+                
+                const center = (text) => {
+                    const padding = Math.max(0, Math.floor((lineWidth - text.length) / 2));
+                    return ' '.repeat(padding) + text;
+                };
+                
+                const formatLine = (item, qty, price, total) => {
+                    const itemWidth = 17;
+                    const qtyWidth = 4;
+                    const priceWidth = 10;
+                    const totalWidth = 11;
+                    
+                    const itemPart = item.padEnd(itemWidth).substring(0, itemWidth);
+                    const qtyPart = qty.padStart(qtyWidth).substring(0, qtyWidth);
+                    const pricePart = price.padStart(priceWidth).substring(0, priceWidth);
+                    const totalPart = total.padStart(totalWidth).substring(0, totalWidth);
+                    
+                    return itemPart + qtyPart + pricePart + totalPart;
+                };
+                
+                let receipt = '';
+                
+                // HEADER
+                receipt += center('HATTYJOHNS INVESTMENTS') + '\n';
+                receipt += center('P.O BOX 700-00232, RUIRU') + '\n';
+                receipt += center('CELL: 0748 920 802') + '\n';
+                receipt += center('0720 435 293') + '\n';
+                receipt += center('hattyjohn@gmail.com') + '\n';
+                
+                // RECEIPT INFO
+                receipt += `Receipt: ${receiptData.receipt_number}\n`;
+                receipt += `Date: ${new Date(receiptData.date).toLocaleString()}\n`;
+                receipt += `Cashier: ${receiptData.served_by}\n`;
+                receipt += `Dept: ${receiptData.department}\n`;
+                receipt += ''.padEnd(lineWidth, lineChar) + '\n';
+                
+                // CUSTOMER INFO
+                if (receiptData.customer_name && receiptData.customer_name !== 'Walk-in') {
+                    receipt += `Customer: ${receiptData.customer_name}\n`;
+                    if (receiptData.customer_class) {
+                        receipt += `Class: ${receiptData.customer_class}\n`;
+                    }
+                    receipt += ''.padEnd(lineWidth, '-') + '\n';
+                }
+                
+                // ITEMS TABLE HEADER
+                receipt += formatLine('Item', 'Qty', 'Price', 'Total') + '\n';
+                receipt += ''.padEnd(lineWidth, '-') + '\n';
+                
+                // ITEMS
+                receiptData.items.forEach(item => {
+                    const name = item.name.length > 20 
+                        ? item.name.substring(0, 17) + '...' 
+                        : item.name;
+                    
+                    receipt += formatLine(
+                        name,
+                        item.quantity.toString(),
+                        `KES ${item.unit_price.toFixed(2)}`,
+                        `KES ${(item.quantity * item.unit_price).toFixed(2)}`
+                    ) + '\n';
+                    
+                    receipt += `  SKU: ${item.sku}\n`;
+                });
+                
+                receipt += ''.padEnd(lineWidth, lineChar) + '\n';
+                
+                // TOTALS
+                receipt += 'TOTAL'.padEnd(30) + `KES ${receiptData.totals.total.toFixed(2)}`.padStart(12) + '\n';
+                receipt += 'PAID'.padEnd(30) + `KES ${receiptData.totals.paid.toFixed(2)}`.padStart(12) + '\n';
+                
+                if (receiptData.totals.balance > 0) {
+                    receipt += 'BALANCE'.padEnd(30) + `KES ${receiptData.totals.balance.toFixed(2)}`.padStart(12) + '\n';
+                }
+                
+                receipt += ''.padEnd(lineWidth, lineChar) + '\n';
+                
+                // PAYMENT INFO
+                receipt += `Payment: ${receiptData.payment_method.toUpperCase()}\n`;
+                receipt += `Ref: REF-${receiptData.receipt_number.substr(-8)}\n`;
+                
+                // FOOTER
+                receipt += ''.padEnd(lineWidth, lineChar) + '\n';
+                receipt += center('Thank you for your business!') + '\n';
+                receipt += center('Beyond expectations') + '\n';
+                receipt += center('www.steadymonitor.edu') + '\n';
+                
+                return receipt;
             },
             
             // Close receipt modal
@@ -2019,37 +2028,78 @@
                 document.getElementById('receiptModal').classList.remove('active');
             },
             
-            // Print receipt content
-            printReceiptContent() {
-                const printContent = document.getElementById('receiptContent').innerHTML;
-                const printWindow = window.open('', '_blank', 'width=400,height=600');
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Receipt</title>
-                        <style>
-                            body { font-family: 'Courier New', monospace; padding: 20px; }
-                            @media print { 
-                                body { margin: 0; padding: 0; }
-                                .no-print { display: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        ${printContent}
-                        <div class="no-print" style="margin-top: 20px; text-align: center;">
-                            <button onclick="window.print()" style="padding: 10px 20px; margin: 10px;">Print</button>
-                            <button onclick="window.close()" style="padding: 10px 20px; margin: 10px;">Close</button>
-                        </div>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
+            // Save receipt
+            async saveReceipt() {
+                if (!this.lastSaleId) {
+                    this.showNotification('No receipt to save', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await API.print.receipt({ sale_id: this.lastSaleId });
+                    if (response.success) {
+                        this.showNotification('Receipt saved successfully', 'success');
+                        this.closeReceiptModal();
+                    } else {
+                        throw new Error(response.message || 'Failed to save receipt');
+                    }
+                } catch (error) {
+                    console.error('Save receipt error:', error);
+                    this.showNotification(error.message || 'Failed to save receipt', 'error');
+                }
+            },
+            
+            // Print receipt
+            async printReceipt() {
+                if (!this.lastSaleId) {
+                    this.showNotification('No receipt to print', 'error');
+                    return;
+                }
+                
+                try {
+                    // Open print window with receipt content
+                    const printWindow = window.open('', '_blank', 'width=400,height=600');
+                    const receiptText = document.getElementById('printPreviewContent').textContent;
+                    
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Print Receipt</title>
+                            <style>
+                                @media print {
+                                    body { margin: 0; padding: 0; font-size: 10px; }
+                                    .no-print { display: none; }
+                                }
+                                body {
+                                    font-family: 'Courier New', monospace;
+                                    font-size: 10px;
+                                    line-height: 1.2;
+                                    padding: 10px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <pre>${receiptText}</pre>
+                            <div class="no-print" style="text-align: center; margin-top: 20px;">
+                                <button onclick="window.print()" style="padding: 10px 20px; margin: 10px;">Print</button>
+                                <button onclick="window.close()" style="padding: 10px 20px; margin: 10px;">Close</button>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    this.showNotification('Opening print dialog...', 'info');
+                    
+                } catch (error) {
+                    console.error('Print error:', error);
+                    this.showNotification('Failed to print receipt', 'error');
+                }
             },
             
             // Print last receipt
-            async printReceipt() {
+            async printLastReceipt() {
                 if (!this.lastSaleId) {
                     this.showNotification('No recent sale to print', 'warning');
                     return;
@@ -2058,7 +2108,9 @@
                 try {
                     const response = await API.print.receipt({ sale_id: this.lastSaleId });
                     if (response.success) {
-                        this.showNotification('Receipt sent to printer', 'success');
+                        this.showNotification('Print request sent', 'success');
+                    } else {
+                        this.showNotification('Failed to send print request', 'error');
                     }
                 } catch (error) {
                     console.error('Print error:', error);
@@ -2120,12 +2172,16 @@
             POS.closeReceiptModal();
         }
         
+        function printLastReceipt() {
+            POS.printLastReceipt();
+        }
+        
         function printReceipt() {
             POS.printReceipt();
         }
         
-        function printReceiptContent() {
-            POS.printReceiptContent();
+        function saveReceipt() {
+            POS.saveReceipt();
         }
         
         function processPayment() {
@@ -2141,19 +2197,5 @@
             POS.init();
         });
     </script>
-    // Clear auth data on logout
-document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('auth_user');
-        if (window.auth && typeof window.auth.logout === 'function') {
-            window.auth.logout().then(() => {
-                window.location.href = 'index.html';
-            });
-        } else {
-            window.location.href = 'index.html';
-        }
-    }
-});
 </body>
 </html>
