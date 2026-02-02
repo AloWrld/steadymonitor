@@ -879,83 +879,38 @@
     <script src="js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Department Management Application
+        // Simplified Department Management Application
         class DepartmentManager {
             constructor() {
-                this.user = null;
+                // Simplified: No user authentication required
+                this.userDepartment = 'all'; // Default to showing all departments
                 this.salesChart = null;
-                this.userDepartment = null;
-                this.isInitializing = false;
                 
                 this.init();
             }
 
             async init() {
-                if (this.isInitializing) return;
-                this.isInitializing = true;
-                
                 try {
-                    // Wait for auth and menu to initialize
-                    await this.waitForAuth();
-                    
-                    // Get user info
-                    this.user = window.auth?.getUser();
-                    this.userDepartment = this.user?.department;
-                    
                     // Initialize UI
                     this.initUI();
                     
-                    // Fix menu.js integration after it loads
-                    this.fixMenuIntegration();
-                    
-                    // Generate quick actions based on user role
+                    // Generate quick actions (show all actions for any user)
                     this.generateQuickActions();
                     
-                    // Load initial data
+                    // Load initial data directly from API
                     await this.loadDashboardData();
                     await this.loadLowStockItems();
                     await this.loadRecentSales();
                     
-                    // Initialize chart (only if Chart.js is loaded)
+                    // Initialize chart
                     this.initChart();
                     
-                    console.log('Department Dashboard initialized for:', this.userDepartment);
+                    console.log('Department Dashboard initialized');
                     
                 } catch (error) {
                     console.error('Initialization error:', error);
                     this.showToast('Failed to initialize dashboard', 'error');
-                } finally {
-                    this.isInitializing = false;
                 }
-            }
-
-            async waitForAuth() {
-                return new Promise((resolve) => {
-                    const check = () => {
-                        if (window.auth && window.auth.getUser) {
-                            const user = window.auth.getUser();
-                            if (user) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
-
-                    if (check()) {
-                        resolve();
-                        return;
-                    }
-
-                    let attempts = 0;
-                    const maxAttempts = 100; // 10 seconds total
-                    const interval = setInterval(() => {
-                        attempts++;
-                        if (check() || attempts > maxAttempts) {
-                            clearInterval(interval);
-                            resolve();
-                        }
-                    }, 100);
-                });
             }
 
             initUI() {
@@ -964,13 +919,14 @@
                 const viewAllLowStockBtn = document.getElementById('viewAllLowStockBtn');
                 const viewAllSalesBtn = document.getElementById('viewAllSalesBtn');
                 const chartPeriod = document.getElementById('chartPeriod');
+                const logoutBtn = document.getElementById('logoutBtn');
                 
                 if (refreshBtn) {
                     refreshBtn.addEventListener('click', () => this.refreshData());
                 }
                 
                 if (viewAllLowStockBtn) {
-                    viewAllSalesBtn.addEventListener('click', () => this.viewAllLowStock());
+                    viewAllLowStockBtn.addEventListener('click', () => this.viewAllLowStock());
                 }
                 
                 if (viewAllSalesBtn) {
@@ -980,66 +936,31 @@
                 if (chartPeriod) {
                     chartPeriod.addEventListener('change', (e) => this.updateChart(e.target.value));
                 }
-
-                // Update user greeting
-                if (this.user) {
-                    const greeting = document.getElementById('userGreeting');
-                    if (greeting) {
-                        greeting.textContent = `Welcome, ${this.user.displayName || this.user.username || 'User'}`;
-                    }
-                }
                 
-                // Logout button - override menu.js handler for better control
-                const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.handleLogout();
-                    });
+                    logoutBtn.addEventListener('click', (e) => this.handleLogout(e));
                 }
-            }
 
-            fixMenuIntegration() {
-                // Ensure menu.js initializes properly
-                setTimeout(() => {
-                    if (window.menuManager && typeof window.menuManager.initialize === 'function') {
-                        window.menuManager.initialize();
-                    }
-                }, 500);
+                // Set generic greeting
+                const greeting = document.getElementById('userGreeting');
+                if (greeting) {
+                    greeting.textContent = 'Welcome to Department Dashboard';
+                }
             }
 
             generateQuickActions() {
                 const actionsGrid = document.getElementById('quickActionsGrid');
                 if (!actionsGrid) return;
 
-                const role = this.user?.role || 'department_stationery';
+                // Show all actions for any user
+                const actions = [
+                    { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
+                    { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
+                    { icon: 'fas fa-boxes', title: 'Inventory', desc: 'Manage stock', page: 'inventory.html', class: 'tertiary' },
+                    { icon: 'fas fa-chart-bar', title: 'Reports', desc: 'View analytics', page: 'reports.html', class: 'quaternary' }
+                ];
                 
-                // Define actions based on role
-                const actions = {
-                    admin: [
-                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
-                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
-                        { icon: 'fas fa-boxes', title: 'Inventory', desc: 'Manage stock', page: 'inventory.html', class: 'tertiary' },
-                        { icon: 'fas fa-chart-bar', title: 'Reports', desc: 'View analytics', page: 'reports.html', class: 'quaternary' }
-                    ],
-                    department_uniform: [
-                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
-                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
-                        { icon: 'fas fa-wallet', title: 'Pocket Money', desc: 'Manage pocket money', page: 'pocket_money.html', class: 'tertiary' },
-                        { icon: 'fas fa-gift', title: 'Allocations', desc: 'View allocations', page: 'allocations.html', class: 'quaternary' }
-                    ],
-                    department_stationery: [
-                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
-                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
-                        { icon: 'fas fa-wallet', title: 'Pocket Money', desc: 'Manage pocket money', page: 'pocket_money.html', class: 'tertiary' },
-                        { icon: 'fas fa-gift', title: 'Allocations', desc: 'View allocations', page: 'allocations.html', class: 'quaternary' }
-                    ]
-                };
-
-                const userActions = actions[role] || actions.department_stationery;
-                
-                actionsGrid.innerHTML = userActions.map(action => `
+                actionsGrid.innerHTML = actions.map(action => `
                     <a href="${action.page}" class="action-card ${action.class}" aria-label="${action.desc}">
                         <i class="${action.icon}"></i>
                         <div class="action-card-content">
@@ -1052,8 +973,12 @@
 
             async loadDashboardData() {
                 try {
-                    // Use correct API endpoint from api.js
-                    const stats = await API.dashboard.stats();
+                    // Direct API call without authentication
+                    if (!window.API || !window.API.dashboard) {
+                        throw new Error('API not loaded');
+                    }
+                    
+                    const stats = await window.API.dashboard.stats();
                     
                     if (stats) {
                         const totalSales = document.getElementById('totalSales');
@@ -1073,19 +998,29 @@
                     this.showToast('Failed to load dashboard stats', 'error');
                     
                     // Set fallback values
-                    const elements = ['totalSales', 'lowStockCount', 'totalCustomers', 'totalProducts'];
-                    elements.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el && el.textContent.includes('0')) {
-                            el.textContent = 'N/A';
-                        }
-                    });
+                    this.setFallbackStats();
                 }
+            }
+
+            setFallbackStats() {
+                // Set reasonable fallback values for demo
+                const elements = {
+                    'totalSales': 'KSh 0',
+                    'lowStockCount': '0',
+                    'totalCustomers': '0', 
+                    'totalProducts': '0'
+                };
+                
+                Object.entries(elements).forEach(([id, value]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                });
             }
 
             async loadLowStockItems() {
                 try {
-                    const lowStockData = await API.inventory.lowStock();
+                    // Direct API call
+                    const lowStockData = await window.API.inventory.lowStock();
                     
                     if (lowStockData && Array.isArray(lowStockData)) {
                         this.renderLowStockTable(lowStockData);
@@ -1117,12 +1052,8 @@
                     return;
                 }
 
-                let filteredItems = items;
-                if (this.userDepartment && this.user?.role !== 'admin') {
-                    filteredItems = items.filter(item => 
-                        item.department === this.userDepartment
-                    );
-                }
+                // Show all items (no filtering by department)
+                const filteredItems = items;
 
                 if (filteredItems.length === 0) {
                     tbody.innerHTML = `
@@ -1130,7 +1061,7 @@
                             <td colspan="7" class="text-center">
                                 <div class="empty-state" style="padding: 20px;">
                                     <i class="fas fa-check-circle"></i>
-                                    <p>No low stock items in your department</p>
+                                    <p>No low stock items</p>
                                 </div>
                             </td>
                         </tr>
@@ -1183,7 +1114,8 @@
 
             async loadRecentSales() {
                 try {
-                    const salesData = await API.dashboard.recentSales();
+                    // Direct API call
+                    const salesData = await window.API.dashboard.recentSales();
                     
                     if (salesData && Array.isArray(salesData)) {
                         this.renderRecentSalesTable(salesData);
@@ -1215,12 +1147,8 @@
                     return;
                 }
 
-                let filteredSales = sales;
-                if (this.userDepartment && this.user?.role !== 'admin') {
-                    filteredSales = sales.filter(sale => 
-                        sale.department === this.userDepartment
-                    );
-                }
+                // Show all sales (no filtering by department)
+                const filteredSales = sales;
 
                 if (filteredSales.length === 0) {
                     tbody.innerHTML = `
@@ -1228,7 +1156,7 @@
                             <td colspan="6" class="text-center">
                                 <div class="empty-state" style="padding: 20px;">
                                     <i class="fas fa-shopping-cart"></i>
-                                    <p>No recent sales in your department</p>
+                                    <p>No recent sales</p>
                                 </div>
                             </td>
                         </tr>
@@ -1326,7 +1254,7 @@
                 if (!this.salesChart) return;
                 
                 try {
-                    const stats = await API.dashboard.stats();
+                    const stats = await window.API.dashboard.stats();
                     const todaySales = stats ? parseFloat(stats.today_sales || 0) : 0;
                     
                     this.salesChart.data.datasets[0].data = [todaySales];
@@ -1343,6 +1271,7 @@
                 try {
                     this.showToast('Refreshing data...', 'info');
                     
+                    // Load all data in parallel
                     await Promise.all([
                         this.loadDashboardData(),
                         this.loadLowStockItems(),
@@ -1373,32 +1302,19 @@
                 // In production, you would call API.inventory.restock() here
             }
 
-            handleLogout() {
+            handleLogout(e) {
+                e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    // Clear any local storage
+                    // Clear local storage
                     try {
                         localStorage.clear();
                         sessionStorage.clear();
                     } catch (e) {
                         console.error('Storage clear error:', e);
                     }
-
-                    // Try to use auth logout if available
-                    if (window.auth && typeof window.auth.logout === 'function') {
-                        window.auth.logout()
-                            .then(() => {
-                                console.log('Auth logout successful');
-                                window.location.replace('index.html');
-                            })
-                            .catch((error) => {
-                                console.error('Auth logout error:', error);
-                                window.location.replace('index.html');
-                            });
-                    } else {
-                        // Direct redirect if auth not available
-                        console.log('Direct logout redirect');
-                        window.location.replace('index.html');
-                    }
+                    
+                    // Redirect to login page
+                    window.location.href = 'index.html';
                 }
             }
 
@@ -1434,21 +1350,7 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if API is available
-            if (typeof API === 'undefined') {
-                console.error('API not loaded. Make sure api.js is loaded before this page.');
-                // Create a minimal fallback
-                window.API = window.API || {};
-                window.API.dashboard = window.API.dashboard || {
-                    stats: () => Promise.resolve({ today_sales: 0, low_stock_count: 0, total_customers: 0, total_products: 0 }),
-                    lowStock: () => Promise.resolve([]),
-                    recentSales: () => Promise.resolve([])
-                };
-                window.API.inventory = window.API.inventory || {
-                    lowStock: () => Promise.resolve([])
-                };
-            }
-            
+            // Initialize department dashboard
             window.departmentManager = new DepartmentManager();
         });
     </script>
