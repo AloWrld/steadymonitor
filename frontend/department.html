@@ -29,6 +29,7 @@
             border: 1px solid var(--border);
             text-align: center;
             transition: all var(--transition);
+            cursor: pointer;
         }
 
         .quick-stat:hover {
@@ -52,6 +53,70 @@
         .quick-stat-label {
             font-size: var(--font-size-sm);
             color: var(--text-secondary);
+        }
+
+        /* Quick Actions Section */
+        .quick-actions {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all var(--transition);
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-card.secondary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .action-card.tertiary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        .action-card.quaternary {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .action-card i {
+            font-size: 32px;
+        }
+
+        .action-card-content {
+            flex: 1;
+        }
+
+        .action-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .action-card-desc {
+            font-size: 12px;
+            opacity: 0.9;
         }
 
         /* Performance Chart */
@@ -229,31 +294,6 @@
             color: var(--warning);
         }
 
-        /* Remove unused styles */
-        .departments-grid,
-        .department-card,
-        .department-header,
-        .department-title,
-        .department-icon,
-        .department-name,
-        .department-status,
-        .department-metrics,
-        .metric,
-        .metric-value,
-        .metric-label,
-        .department-actions,
-        .search-filter-bar,
-        .search-box,
-        .filter-group,
-        .department-modal,
-        .form-grid,
-        .form-section,
-        .form-section-title,
-        .view-controls,
-        .btn.active {
-            /* These styles are not used in the department dashboard */
-        }
-
         /* Responsive Adjustments */
         @media (max-width: 768px) {
             .quick-stats {
@@ -277,6 +317,10 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
@@ -288,7 +332,7 @@
 </head>
 <body>
     <div class="main-content-wrapper">
-        <!-- Top Navigation - REQUIRED for menu.js -->
+        <!-- Top Navigation -->
         <nav class="top-nav">
             <button class="menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
@@ -305,7 +349,7 @@
             </div>
         </nav>
 
-        <!-- Sidebar (from base.css) -->
+        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <nav class="sidebar-nav" id="sidebarNav"></nav>
         </div>
@@ -352,6 +396,18 @@
                             <i class="fas fa-chart-line"></i>
                             <div class="quick-stat-value" id="totalProducts">0</div>
                             <div class="quick-stat-label">Total Products</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="fas fa-bolt"></i> Quick Actions
+                            </h3>
+                        </div>
+                        <div class="actions-grid" id="quickActionsGrid">
+                            <!-- Actions will be dynamically generated based on user role -->
                         </div>
                     </div>
 
@@ -458,7 +514,7 @@
     <script src="js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Department Management Application - Production Ready
+        // Department Management Application
         class DepartmentManager {
             constructor() {
                 this.user = null;
@@ -479,6 +535,9 @@
                     
                     // Initialize UI
                     this.initUI();
+                    
+                    // Generate quick actions based on user role
+                    this.generateQuickActions();
                     
                     // Load initial data
                     await this.loadDashboardData();
@@ -526,11 +585,17 @@
                 document.getElementById('viewAllSalesBtn').addEventListener('click', () => this.viewAllSales());
                 document.getElementById('chartPeriod').addEventListener('change', (e) => this.updateChart(e.target.value));
 
-                // Initialize logout button (menu.js might override this)
+                // Logout button - Primary handler
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
+                    // Remove any existing listeners
+                    const newLogoutBtn = logoutBtn.cloneNode(true);
+                    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+                    
+                    // Add click handler
+                    newLogoutBtn.addEventListener('click', (e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         this.handleLogout();
                     });
                 }
@@ -544,9 +609,49 @@
                 }
             }
 
+            generateQuickActions() {
+                const actionsGrid = document.getElementById('quickActionsGrid');
+                if (!actionsGrid) return;
+
+                const role = this.user?.role || 'department_stationery';
+                
+                // Define actions based on role
+                const actions = {
+                    admin: [
+                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
+                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
+                        { icon: 'fas fa-boxes', title: 'Inventory', desc: 'Manage stock', page: 'inventory.html', class: 'tertiary' },
+                        { icon: 'fas fa-chart-bar', title: 'Reports', desc: 'View analytics', page: 'reports.html', class: 'quaternary' }
+                    ],
+                    department_uniform: [
+                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
+                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
+                        { icon: 'fas fa-wallet', title: 'Pocket Money', desc: 'Manage pocket money', page: 'pocket_money.html', class: 'tertiary' },
+                        { icon: 'fas fa-gift', title: 'Allocations', desc: 'View allocations', page: 'allocations.html', class: 'quaternary' }
+                    ],
+                    department_stationery: [
+                        { icon: 'fas fa-cash-register', title: 'Point of Sale', desc: 'Process new sale', page: 'pos.html', class: '' },
+                        { icon: 'fas fa-credit-card', title: 'Payments', desc: 'Manage payments', page: 'payments.html', class: 'secondary' },
+                        { icon: 'fas fa-wallet', title: 'Pocket Money', desc: 'Manage pocket money', page: 'pocket_money.html', class: 'tertiary' },
+                        { icon: 'fas fa-gift', title: 'Allocations', desc: 'View allocations', page: 'allocations.html', class: 'quaternary' }
+                    ]
+                };
+
+                const userActions = actions[role] || actions.department_stationery;
+                
+                actionsGrid.innerHTML = userActions.map(action => `
+                    <a href="${action.page}" class="action-card ${action.class}">
+                        <i class="${action.icon}"></i>
+                        <div class="action-card-content">
+                            <div class="action-card-title">${action.title}</div>
+                            <div class="action-card-desc">${action.desc}</div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+
             async loadDashboardData() {
                 try {
-                    // Load dashboard stats from API
                     const stats = await API.getDashboardStats();
                     
                     if (stats) {
@@ -565,7 +670,6 @@
 
             async loadLowStockItems() {
                 try {
-                    // Load low stock items from API
                     const lowStockData = await API.getLowStock();
                     
                     if (lowStockData && lowStockData.length > 0) {
@@ -597,7 +701,6 @@
                     return;
                 }
 
-                // Filter items by user's department if not admin
                 let filteredItems = items;
                 if (this.userDepartment && this.user.role !== 'admin') {
                     filteredItems = items.filter(item => 
@@ -654,7 +757,6 @@
 
             async loadRecentSales() {
                 try {
-                    // Load recent sales from API
                     const salesData = await API.getRecentSales();
                     
                     if (salesData && salesData.length > 0) {
@@ -686,7 +788,6 @@
                     return;
                 }
 
-                // Filter sales by user's department if not admin
                 let filteredSales = sales;
                 if (this.userDepartment && this.user.role !== 'admin') {
                     filteredSales = sales.filter(sale => 
@@ -738,7 +839,6 @@
             initChart() {
                 const ctx = document.getElementById('salesChart').getContext('2d');
                 
-                // Initialize empty chart - will be updated with real data
                 this.salesChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -779,18 +879,14 @@
                     }
                 });
 
-                // Load initial chart data
                 this.updateChart('today');
             }
 
             async updateChart(period) {
                 try {
-                    // For now, we'll use the today's sales from dashboard stats
-                    // In a full implementation, you'd call a specific endpoint for chart data
                     const stats = await API.getDashboardStats();
                     const todaySales = stats ? parseFloat(stats.today_sales) : 0;
                     
-                    // Update chart with today's sales
                     this.salesChart.data.datasets[0].data = [todaySales];
                     this.salesChart.update();
                     
@@ -817,38 +913,49 @@
             }
 
             viewAllLowStock() {
-                // Redirect to inventory page with low stock filter
                 window.location.href = 'inventory.html?filter=low-stock';
             }
 
             viewAllSales() {
-                // Redirect to reports page
                 window.location.href = 'reports.html?type=sales';
             }
 
             reorderProduct(productId) {
                 this.showToast(`Reorder request sent for product #${productId}`, 'success');
-                // In production, this would open a reorder modal or redirect
             }
 
             handleLogout() {
+                console.log('Logout clicked');
+                
                 if (confirm('Are you sure you want to logout?')) {
+                    // Clear any local storage
+                    try {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                    } catch (e) {
+                        console.error('Storage clear error:', e);
+                    }
+
+                    // Try to use auth logout if available
                     if (window.auth && typeof window.auth.logout === 'function') {
                         window.auth.logout()
                             .then(() => {
-                                window.location.href = 'index.html';
+                                console.log('Auth logout successful');
+                                window.location.replace('index.html');
                             })
-                            .catch(() => {
-                                window.location.href = 'index.html';
+                            .catch((error) => {
+                                console.error('Auth logout error:', error);
+                                window.location.replace('index.html');
                             });
                     } else {
-                        window.location.href = 'index.html';
+                        // Direct redirect if auth not available
+                        console.log('Direct logout redirect');
+                        window.location.replace('index.html');
                     }
                 }
             }
 
             showToast(message, type = 'info') {
-                // Create toast element
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 toast.innerHTML = `
@@ -860,10 +967,8 @@
                 
                 document.body.appendChild(toast);
                 
-                // Animate in
                 setTimeout(() => toast.classList.add('show'), 10);
                 
-                // Remove after 3 seconds
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
