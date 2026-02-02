@@ -4,11 +4,463 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pocket Money Management - Hattyjohns Investments</title>
-    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="menu.js"></script>
     <style>
+        /* CSS Variables */
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --background: #F9FAFB;
+            --border: #E5E7EB;
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 64px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .nav-brand i {
+            font-size: 1.5rem;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-greeting {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--background);
+            border-color: var(--primary-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            width: 36px;
+            height: 36px;
+            justify-content: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Main Layout */
+        .main-content {
+            margin-top: 64px;
+            margin-left: 0;
+            padding: 1.5rem;
+            min-height: calc(100vh - 64px);
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        /* Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-pane {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--background);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .summary-card h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .summary-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .table th {
+            background: var(--background);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .table tr:hover {
+            background: var(--background);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: nowrap;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-box .form-control {
+            flex: 1;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 992px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        /* Text Colors */
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-danger { color: var(--danger); }
+        .text-primary { color: var(--primary); }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+
         /* Pocket Money Specific Styles */
         .wallet-icon {
             color: #F59E0B;
@@ -404,8 +856,87 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Detail Rows */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .totals {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .total-label {
+            color: var(--text-secondary);
+        }
+        
+        .total-value {
+            font-weight: 600;
+        }
+        
+        .learner-header {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .date-filter span {
+            color: var(--text-muted);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
+            .top-nav {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+                margin-left: 0;
+            }
+            
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 0.75rem;
@@ -442,6 +973,33 @@
                 min-width: auto;
                 max-width: none;
             }
+            
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-controls select,
+            .filter-controls input,
+            .filter-controls button {
+                width: 100%;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .btn-group {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .btn-group .btn {
+                flex: 1;
+                justify-content: center;
+            }
         }
         
         @media (max-width: 480px) {
@@ -451,6 +1009,116 @@
             
             .summary-stats {
                 grid-template-columns: 1fr;
+            }
+            
+            .tabs-nav {
+                gap: 0.25rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        @media (max-width: 767px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--border);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 998;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .no-scroll {
+            overflow: hidden;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+        
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 0;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay {
+                display: none !important;
             }
         }
     </style>
@@ -605,7 +1273,7 @@
                                     <div class="search-box">
                                         <input type="text" class="form-control" id="learnerSearch" 
                                                placeholder="Enter name, ID, or class">
-                                        <button class="btn btn-outline" id="searchLearnerBtn">
+                                        <button class="btn btn-outline" type="button" id="searchLearnerBtn">
                                             <i class="fas fa-search"></i>
                                         </button>
                                     </div>
@@ -808,7 +1476,7 @@
                                     <div class="search-box">
                                         <input type="text" class="form-control" id="topupLearnerSearch" 
                                                placeholder="Enter name or ID">
-                                        <button class="btn btn-outline" id="searchTopupLearnerBtn">
+                                        <button class="btn btn-outline" type="button" id="searchTopupLearnerBtn">
                                             <i class="fas fa-search"></i>
                                         </button>
                                     </div>
@@ -888,7 +1556,7 @@
                                 <option value="topup">Top-up</option>
                                 <option value="deduction">Deduction</option>
                             </select>
-                            <button class="btn btn-primary" id="searchHistoryBtn">
+                            <button class="btn btn-primary" type="button" id="searchHistoryBtn">
                                 <i class="fas fa-search"></i> Search
                             </button>
                         </div>
@@ -1059,175 +1727,8 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
-        // API Configuration
-        (function() {
-            'use strict';
-            
-            const API_BASE = '';
-            
-            // Main API object
-            const API = {
-                
-                // Core fetch wrapper
-                call: async function(endpoint, options = {}) {
-                    const url = endpoint.startsWith('/') ? `${API_BASE}${endpoint}` : endpoint;
-                    
-                    const defaultOptions = {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        credentials: 'include', // Important for session cookies
-                        mode: 'cors'
-                    };
-
-                    const config = { ...defaultOptions, ...options };
-                    
-                    try {
-                        console.log('[API] Calling:', url);
-                        const response = await fetch(url, config);
-                        
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            console.error('[API] Error:', response.status, errorText);
-                            
-                            if (response.status === 401) {
-                                // Only redirect if not already on login page
-                                if (!window.location.pathname.includes('login.html')) {
-                                    window.location.href = '/login.html';
-                                }
-                                return null;
-                            }
-                            
-                            throw new Error(`API Error ${response.status}: ${errorText.substring(0, 100)}`);
-                        }
-                        
-                        const data = await response.json();
-                        console.log('[API] Success:', data);
-                        return data;
-                    } catch (error) {
-                        console.error('[API] Fetch failed:', error);
-                        throw error;
-                    }
-                },
-                
-                // Authentication
-                login: async function(username, password) {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/login', {
-                        method: 'POST',
-                        body: JSON.stringify({ username, password })
-                    });
-                },
-                
-                logout: async function() {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/logout', { method: 'POST' });
-                },
-                
-                checkAuth: async function() {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/auth/check');
-                },
-                
-                // Pocket Money API
-                getPocketMoneySummary: async function(filters = {}) {
-                    const query = new URLSearchParams(filters).toString();
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/summary?${query}`);
-                },
-                
-                getPocketMoneyStats: async function() {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/stats');
-                },
-                
-                getLearnerPocketMoneyHistory: async function(learnerId, filters = {}) {
-                    const query = new URLSearchParams(filters).toString();
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/history/${learnerId}?${query}`);
-                },
-                
-                getLearnerPocketMoneyStatus: async function(learnerId) {
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/status/${learnerId}`);
-                },
-                
-                validatePocketMoneyTransaction: async function(data) {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/validate', {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                },
-                
-                processPocketMoneyPurchase: async function(data) {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/purchase', {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                },
-                
-                topUpPocketMoney: async function(data) {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/topup', {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                },
-                
-                deductPocketMoney: async function(data) {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/deduct', {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                },
-                
-                enablePocketMoney: async function(learnerId) {
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/enable/${learnerId}`, {
-                        method: 'POST'
-                    });
-                },
-                
-                disablePocketMoney: async function(learnerId, data) {
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pocket-money/disable/${learnerId}`, {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
-                },
-                
-                // Products API
-                getProducts: async function(department = '') {
-                    if (department) {
-                        return this.call(`https://steadymonitor-backend.onrender.com/api/pos/products/${department}`);
-                    }
-                    return this.call('https://steadymonitor-backend.onrender.com/api/inventory/products');
-                },
-                
-                // Learners API
-                searchLearners: async function(query) {
-                    return this.call(`https://steadymonitor-backend.onrender.com/api/pos/learners/search?q=${encodeURIComponent(query)}`);
-                },
-                
-                getClasses: async function() {
-                    return this.call('https://steadymonitor-backend.onrender.com/api/pos/classes');
-                },
-                
-                // Test function
-                testConnection: async function() {
-                    try {
-                        const auth = await this.call('https://steadymonitor-backend.onrender.com/api/auth/health');
-                        const pocket = await this.call('https://steadymonitor-backend.onrender.com/api/pocket-money/summary');
-                        return { auth, pocket };
-                    } catch (error) {
-                        console.error('Connection test failed:', error);
-                        return { error: error.message };
-                    }
-                }
-            };
-            
-            // Expose to window
-            window.API = API;
-            window.apiCall = API.call.bind(API);
-            
-            console.log('API loaded successfully');
-        })();
-    </script>
-    
-    <script>
-        // Pocket Money Manager
+        // Pocket Money Manager - Fixed with correct API calls
         (function() {
             'use strict';
 
@@ -1240,7 +1741,7 @@
                     this.currentTopupLearner = null;
                     this.currentDeductLearner = null;
                     this.currentEnableDisableLearner = null;
-                    this.actionType = null; // 'enable' or 'disable'
+                    this.actionType = null;
                     this.initialize();
                 }
 
@@ -1382,19 +1883,43 @@
                             e.target.classList.add('active');
                         });
                     });
+                    
+                    // Initialize menu toggle for mobile
+                    this.setupMenuToggle();
+                }
+                
+                setupMenuToggle() {
+                    const menuToggle = document.createElement('button');
+                    menuToggle.className = 'menu-toggle';
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                    menuToggle.addEventListener('click', () => {
+                        document.getElementById('sidebar').classList.toggle('active');
+                        document.getElementById('sidebarOverlay').classList.toggle('active');
+                        document.body.classList.toggle('no-scroll');
+                    });
+                    
+                    // Add to nav brand
+                    document.querySelector('.nav-brand').prepend(menuToggle);
+                    
+                    // Close menu when clicking overlay
+                    document.getElementById('sidebarOverlay').addEventListener('click', () => {
+                        document.getElementById('sidebar').classList.remove('active');
+                        document.getElementById('sidebarOverlay').classList.remove('active');
+                        document.body.classList.remove('no-scroll');
+                    });
                 }
 
                 async loadDashboardData() {
                     try {
-                        // Load pocket money summary
-                        const summary = await API.getPocketMoneySummary();
-                        if (summary.success) {
+                        // Load pocket money summary using correct API
+                        const summary = await API.pocketMoney.summary();
+                        if (summary && summary.success) {
                             this.updateDashboardSummary(summary);
                         }
 
                         // Load statistics
-                        const stats = await API.getPocketMoneyStats();
-                        if (stats.success) {
+                        const stats = await API.pocketMoney.stats();
+                        if (stats && stats.success) {
                             this.updateCharts(stats);
                         }
 
@@ -1409,15 +1934,13 @@
                         const classFilter = document.getElementById('filterClass').value;
                         const statusFilter = document.getElementById('filterStatus').value;
                         
-                        const filters = {};
-                        if (classFilter) filters.class = classFilter;
-                        
-                        const summary = await API.getPocketMoneySummary(filters);
-                        if (summary.success) {
-                            this.updateBoardersTable(summary.summary, statusFilter);
+                        // Use pocket money summary API
+                        const summary = await API.pocketMoney.summary();
+                        if (summary && summary.success) {
+                            this.updateBoardersTable(summary.summary || [], statusFilter);
                             
                             // Update class filter options
-                            this.updateClassFilterOptions(summary.summary);
+                            this.updateClassFilterOptions(summary.summary || []);
                         }
                     } catch (error) {
                         console.error('Error loading boarders summary:', error);
@@ -1426,29 +1949,41 @@
 
                 async loadRecentTransactions() {
                     try {
-                        // Get recent transactions from the first boarder (for demo)
-                        const summary = await API.getPocketMoneySummary();
-                        if (summary.success && summary.summary.length > 0) {
-                            const firstLearner = summary.summary[0];
-                            const history = await API.getLearnerPocketMoneyHistory(firstLearner.customer_id, {
-                                start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-                            });
-                            
-                            if (history.success) {
-                                this.updateRecentTransactionsTable(history.history);
+                        // Get recent transactions from summary
+                        const summary = await API.pocketMoney.summary();
+                        if (summary && summary.success && summary.recent_transactions) {
+                            this.updateRecentTransactionsTable(summary.recent_transactions);
+                        } else {
+                            // Fallback: Try to get from first learner
+                            if (summary && summary.summary && summary.summary.length > 0) {
+                                const firstLearner = summary.summary[0];
+                                const history = await API.pocketMoney.history(firstLearner.customer_id);
+                                
+                                if (history && history.success) {
+                                    this.updateRecentTransactionsTable(history.history || []);
+                                }
                             }
                         }
                     } catch (error) {
                         console.error('Error loading recent transactions:', error);
+                        this.showToast('Failed to load recent transactions', 'error');
                     }
                 }
 
                 async loadProducts() {
                     try {
                         const department = document.getElementById('productDepartment').value;
-                        const response = await API.getProducts(department);
+                        let response;
                         
-                        if (response.success && response.products) {
+                        if (department) {
+                            // Use POS API for department-specific products
+                            response = await API.pos.productsByDepartment(department);
+                        } else {
+                            // Use inventory API for all products
+                            response = await API.inventory.products();
+                        }
+                        
+                        if (response && response.success && response.products) {
                             this.displayProducts(response.products);
                         } else {
                             this.displayProducts([]);
@@ -1467,9 +2002,21 @@
                     }
 
                     try {
-                        const response = await API.searchLearners(query);
-                        if (response.success && response.learners.length > 0) {
-                            this.displayLearnerResults(response.learners);
+                        // Use POS search API for learners
+                        const response = await API.pos.searchCustomers();
+                        let learners = [];
+                        
+                        if (response && response.success && response.learners) {
+                            // Filter learners by search query
+                            learners = response.learners.filter(learner => 
+                                learner.name.toLowerCase().includes(query.toLowerCase()) ||
+                                learner.customer_id.toLowerCase().includes(query.toLowerCase()) ||
+                                (learner.class && learner.class.toLowerCase().includes(query.toLowerCase()))
+                            );
+                        }
+                        
+                        if (learners.length > 0) {
+                            this.displayLearnerResults(learners);
                         } else {
                             document.getElementById('learnerResultsBody').innerHTML = `
                                 <tr>
@@ -1803,16 +2350,16 @@
                             unit_price: item.unit_price
                         }));
 
-                        const validation = await API.validatePocketMoneyTransaction({
+                        const validation = await API.pocketMoney.validate({
                             learner_id: this.selectedLearner.id,
                             items: items,
                             department: department
                         });
 
-                        if (validation.success && validation.valid) {
+                        if (validation && validation.success && validation.valid) {
                             this.showToast('Purchase validation successful!', 'success');
                         } else {
-                            this.showToast(validation.message || 'Validation failed', 'error');
+                            this.showToast(validation?.message || 'Validation failed', 'error');
                         }
                     } catch (error) {
                         console.error('Error validating purchase:', error);
@@ -1863,9 +2410,9 @@
                             notes: notes + (sendNotification ? ' (SMS sent)' : '')
                         };
 
-                        const result = await API.processPocketMoneyPurchase(purchaseData);
+                        const result = await API.pocketMoney.purchase(purchaseData);
 
-                        if (result.success) {
+                        if (result && result.success) {
                             this.showToast('Purchase processed successfully!', 'success');
                             
                             // Reset form and cart
@@ -1875,13 +2422,13 @@
                             // Refresh data
                             this.refreshCurrentTab();
                             
-                            // Update learner balance
+                            // Update learner balance if returned
                             if (result.learner) {
-                                this.selectedLearner.balance = result.learner.new_pocket_money;
-                                this.selectLearner(this.selectedLearner); // Refresh display
+                                this.selectedLearner.balance = result.learner.new_pocket_money || 0;
+                                this.selectLearner(this.selectedLearner);
                             }
                         } else {
-                            this.showToast(result.message || 'Purchase failed', 'error');
+                            this.showToast(result?.message || 'Purchase failed', 'error');
                         }
                     } catch (error) {
                         console.error('Error processing purchase:', error);
@@ -1900,10 +2447,20 @@
                     }
 
                     try {
-                        const response = await API.searchLearners(query);
-                        if (response.success && response.learners.length > 0) {
+                        // Use POS search API
+                        const response = await API.pos.searchCustomers();
+                        let learners = [];
+                        
+                        if (response && response.success && response.learners) {
+                            learners = response.learners.filter(learner => 
+                                learner.name.toLowerCase().includes(query.toLowerCase()) ||
+                                learner.customer_id.toLowerCase().includes(query.toLowerCase())
+                            );
+                        }
+                        
+                        if (learners.length > 0) {
                             // Filter for boarders only
-                            const boarders = response.learners.filter(l => l.boarding_status === 'Boarding');
+                            const boarders = learners.filter(l => l.boarding_status === 'Boarding');
                             
                             if (boarders.length > 0) {
                                 const learner = boarders[0];
@@ -1943,15 +2500,19 @@
 
                 async getLastTopupDate(learnerId) {
                     try {
-                        const history = await API.getLearnerPocketMoneyHistory(learnerId, {
-                            transaction_type: 'topup'
-                        });
+                        const history = await API.pocketMoney.history(learnerId);
                         
-                        if (history.success && history.history.length > 0) {
-                            const lastTopup = history.history[0];
-                            const date = new Date(lastTopup.given_date);
-                            document.getElementById('lastTopupDate').textContent = 
-                                date.toLocaleDateString();
+                        if (history && history.success && history.history) {
+                            // Find last top-up
+                            const topups = history.history.filter(t => t.type === 'topup');
+                            if (topups.length > 0) {
+                                const lastTopup = topups[0];
+                                const date = new Date(lastTopup.given_date || lastTopup.date);
+                                document.getElementById('lastTopupDate').textContent = 
+                                    date.toLocaleDateString();
+                            } else {
+                                document.getElementById('lastTopupDate').textContent = 'Never';
+                            }
                         } else {
                             document.getElementById('lastTopupDate').textContent = 'Never';
                         }
@@ -1988,13 +2549,13 @@
                     processBtn.disabled = true;
 
                     try {
-                        const result = await API.topUpPocketMoney({
+                        const result = await API.pocketMoney.topup({
                             learner_id: this.currentTopupLearner.id,
                             amount: parseFloat(amount),
                             notes: notes + (sendNotification ? ' (SMS sent)' : '')
                         });
 
-                        if (result.success) {
+                        if (result && result.success) {
                             this.showToast('Top-up processed successfully!', 'success');
                             
                             // Reset form
@@ -2006,7 +2567,7 @@
                             // Refresh data
                             this.refreshCurrentTab();
                         } else {
-                            this.showToast(result.message || 'Top-up failed', 'error');
+                            this.showToast(result?.message || 'Top-up failed', 'error');
                         }
                     } catch (error) {
                         console.error('Error processing top-up:', error);
@@ -2023,12 +2584,8 @@
                     const endDate = document.getElementById('historyEndDate').value;
                     const type = document.getElementById('historyType').value;
 
-                    // This would normally search all transactions
-                    // For now, we'll use the summary and show a message
+                    // For now, show message - would integrate with API in production
                     this.showToast('History search would show results here', 'info');
-                    
-                    // In a real implementation, you would call an API endpoint
-                    // that searches across all pocket money transactions
                 }
 
                 async generateReport() {
@@ -2045,30 +2602,22 @@
                 }
 
                 updateDashboardSummary(summary) {
-                    // Calculate totals
-                    const totals = summary.totals || {
-                        total_learners: 0,
-                        total_balance: 0,
-                        total_spent: 0,
-                        total_topups: 0,
-                        total_deductions: 0
-                    };
+                    // Calculate totals from summary data
+                    const totalBalance = summary.total_balance || 0;
+                    const totalBoarders = summary.total_learners || 0;
+                    const todaySpending = summary.today_spending || 0;
+                    const todayTransactions = summary.today_transactions || 0;
+                    const monthSpending = summary.month_spending || 0;
+                    const monthTransactions = summary.month_transactions || 0;
+                    const zeroBalance = summary.zero_balance || 0;
 
                     document.getElementById('totalBalance').textContent = 
-                        `KES ${totals.total_balance.toLocaleString()}`;
-                    document.getElementById('totalBoarders').textContent = totals.total_learners;
-
-                    // For demo, set some values
-                    document.getElementById('todaySpending').textContent = 'KES 0';
-                    document.getElementById('todayTransactions').textContent = '0';
-                    document.getElementById('monthSpending').textContent = 'KES 0';
-                    document.getElementById('monthTransactions').textContent = '0';
-                    
-                    // Count zero balance boarders
-                    const zeroBalance = summary.summary?.filter(learner => 
-                        (parseFloat(learner.pocket_money_balance) || 0) <= 0
-                    ).length || 0;
-                    
+                        `KES ${totalBalance.toLocaleString()}`;
+                    document.getElementById('totalBoarders').textContent = totalBoarders;
+                    document.getElementById('todaySpending').textContent = `KES ${todaySpending.toLocaleString()}`;
+                    document.getElementById('todayTransactions').textContent = todayTransactions;
+                    document.getElementById('monthSpending').textContent = `KES ${monthSpending.toLocaleString()}`;
+                    document.getElementById('monthTransactions').textContent = monthTransactions;
                     document.getElementById('zeroBalance').textContent = zeroBalance;
                 }
 
@@ -2224,17 +2773,17 @@
 
                     // Show only first 5 transactions
                     transactions.slice(0, 5).forEach(transaction => {
-                        const date = new Date(transaction.given_date);
+                        const date = new Date(transaction.given_date || transaction.date);
                         const amount = parseFloat(transaction.unit_price) * (parseInt(transaction.quantity) || 1);
                         
                         // Determine transaction type
                         let type = 'Purchase';
                         let typeClass = 'transaction-purchase';
                         
-                        if (transaction.sku === 'TOPUP') {
+                        if (transaction.sku === 'TOPUP' || transaction.type === 'topup') {
                             type = 'Top-up';
                             typeClass = 'transaction-topup';
-                        } else if (transaction.sku === 'DEDUCT') {
+                        } else if (transaction.sku === 'DEDUCT' || transaction.type === 'deduction') {
                             type = 'Deduction';
                             typeClass = 'transaction-deduction';
                         }
@@ -2242,7 +2791,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${date.toLocaleDateString()}</td>
-                            <td>${transaction.customer_name}</td>
+                            <td>${transaction.customer_name || transaction.learner_name}</td>
                             <td><span class="transaction-type ${typeClass}">${type}</span></td>
                             <td class="text-success">KES ${amount.toLocaleString()}</td>
                             <td>${transaction.notes || '-'}</td>
@@ -2275,51 +2824,54 @@
 
                 initializeCharts() {
                     // Monthly Spending Chart
-                    const spendingCtx = document.getElementById('monthlySpendingChart').getContext('2d');
-                    this.charts.spending = new Chart(spendingCtx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                            datasets: [{
-                                label: 'Monthly Spending (KES)',
-                                data: [0, 0, 0, 0, 0, 0],
-                                borderColor: '#2563EB',
-                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        callback: function(value) {
-                                            return 'KES ' + value.toLocaleString();
+                    const spendingCtx = document.getElementById('monthlySpendingChart');
+                    if (spendingCtx) {
+                        this.charts.spending = new Chart(spendingCtx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                                datasets: [{
+                                    label: 'Monthly Spending (KES)',
+                                    data: [0, 0, 0, 0, 0, 0],
+                                    borderColor: '#2563EB',
+                                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return 'KES ' + value.toLocaleString();
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
 
                     // Class Distribution Chart
-                    const classCtx = document.getElementById('classDistributionChart').getContext('2d');
-                    this.charts.class = new Chart(classCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Form 1', 'Form 2', 'Form 3', 'Form 4'],
-                            datasets: [{
-                                data: [0, 0, 0, 0],
-                                backgroundColor: [
-                                    '#10B981',
-                                    '#3B82F6',
-                                    '#8B5CF6',
-                                    '#F59E0B'
-                                ]
-                            }]
+                    const classCtx = document.getElementById('classDistributionChart');
+                    if (classCtx) {
+                        this.charts.class = new Chart(classCtx.getContext('2d'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Form 1', 'Form 2', 'Form 3', 'Form 4'],
+                                datasets: [{
+                                    data: [0, 0, 0, 0],
+                                    backgroundColor: [
+                                        '#10B981',
+                                        '#3B82F6',
+                                        '#8B5CF6',
+                                        '#F59E0B'
+                                    ]
+                                }]
                         },
                         options: {
                             responsive: true,
@@ -2330,12 +2882,13 @@
                                 }
                             }
                         }
-                    });
+                        });
+                    }
                 }
 
                 updateCharts(stats) {
                     // Update monthly spending chart
-                    if (stats.monthly_spending && stats.monthly_spending.length > 0) {
+                    if (stats.monthly_spending && stats.monthly_spending.length > 0 && this.charts.spending) {
                         const months = stats.monthly_spending.map(item => 
                             new Date(item.month).toLocaleDateString('en-US', { month: 'short' })
                         );
@@ -2349,7 +2902,7 @@
                     }
 
                     // Update class distribution chart
-                    if (stats.by_class && stats.by_class.length > 0) {
+                    if (stats.by_class && stats.by_class.length > 0 && this.charts.class) {
                         const classes = stats.by_class.map(item => item.class || 'Unknown');
                         const balances = stats.by_class.map(item => parseFloat(item.total_balance) || 0);
                         
@@ -2367,7 +2920,6 @@
 
                 viewLearnerHistory(learnerId) {
                     this.switchTab('history');
-                    // In a real implementation, you would filter the history table by this learner
                     this.showToast(`Viewing history for learner ${learnerId}`, 'info');
                 }
 
@@ -2421,18 +2973,18 @@
                     deductBtn.disabled = true;
 
                     try {
-                        const result = await API.deductPocketMoney({
+                        const result = await API.pocketMoney.deduct({
                             learner_id: this.currentDeductLearner.id,
                             amount: parseFloat(amount),
                             reason: reason
                         });
 
-                        if (result.success) {
+                        if (result && result.success) {
                             this.showToast('Deduction processed successfully!', 'success');
                             this.closeModal('deductMoneyModal');
                             this.refreshCurrentTab();
                         } else {
-                            this.showToast(result.message || 'Deduction failed', 'error');
+                            this.showToast(result?.message || 'Deduction failed', 'error');
                         }
                     } catch (error) {
                         console.error('Error processing deduction:', error);
@@ -2487,14 +3039,14 @@
                     try {
                         let result;
                         if (this.actionType === 'enable') {
-                            result = await API.enablePocketMoney(this.currentEnableDisableLearner.id);
+                            result = await API.pocketMoney.enable(this.currentEnableDisableLearner.id);
                         } else {
-                            result = await API.disablePocketMoney(this.currentEnableDisableLearner.id, {
+                            result = await API.pocketMoney.disable(this.currentEnableDisableLearner.id, {
                                 reason: reason
                             });
                         }
 
-                        if (result.success) {
+                        if (result && result.success) {
                             this.showToast(
                                 `Pocket money ${this.actionType}d successfully!`, 
                                 'success'
@@ -2502,7 +3054,7 @@
                             this.closeModal('enableDisableModal');
                             this.refreshCurrentTab();
                         } else {
-                            this.showToast(result.message || 'Operation failed', 'error');
+                            this.showToast(result?.message || 'Operation failed', 'error');
                         }
                     } catch (error) {
                         console.error('Error processing enable/disable:', error);
@@ -2517,18 +3069,15 @@
                     // Filter boarders table to show only low balance
                     document.getElementById('filterStatus').value = '';
                     document.getElementById('filterClass').value = '';
-                    
-                    // This would normally filter the table
-                    // For now, we'll just show a message
                     this.showToast('Showing boarders with low balances', 'info');
                 }
 
                 async exportBoarders() {
                     try {
-                        const summary = await API.getPocketMoneySummary();
-                        if (summary.success) {
+                        const summary = await API.pocketMoney.summary();
+                        if (summary && summary.success) {
                             // Convert to CSV
-                            const csv = this.convertToCSV(summary.summary);
+                            const csv = this.convertToCSV(summary.summary || []);
                             
                             // Download
                             const blob = new Blob([csv], { type: 'text/csv' });
@@ -2644,22 +3193,28 @@
                 }
 
                 openModal(modalId) {
-                    document.getElementById(modalId).classList.add('active');
-                    document.body.style.overflow = 'hidden';
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
                 }
 
                 closeModal(modalId) {
-                    document.getElementById(modalId).classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                    
-                    // Reset forms
-                    if (modalId === 'deductMoneyModal') {
-                        document.getElementById('deductForm').reset();
-                        this.currentDeductLearner = null;
-                    } else if (modalId === 'enableDisableModal') {
-                        document.getElementById('enableDisableForm').reset();
-                        this.currentEnableDisableLearner = null;
-                        this.actionType = null;
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                        
+                        // Reset forms
+                        if (modalId === 'deductMoneyModal') {
+                            document.getElementById('deductForm').reset();
+                            this.currentDeductLearner = null;
+                        } else if (modalId === 'enableDisableModal') {
+                            document.getElementById('enableDisableForm').reset();
+                            this.currentEnableDisableLearner = null;
+                            this.actionType = null;
+                        }
                     }
                 }
 
@@ -2701,23 +3256,16 @@
 
             // Initialize when DOM is ready
             document.addEventListener('DOMContentLoaded', async () => {
+                // Check if API is available
+                if (typeof API === 'undefined') {
+                    console.error('API not loaded. Make sure api.js is included before this script.');
+                    return;
+                }
+                
+                // Check authentication
                 try {
-                    // First check if we're on login page - skip auth check
-                    if (window.location.pathname.includes('login.html')) {
-                        return;
-                    }
-                    
-                    console.log('🔐 Checking authentication status...');
-                    
-                    // Try to verify authentication
-                    const authCheck = await API.checkAuth().catch(error => {
-                        console.warn('Auth check failed:', error);
-                        return null;
-                    });
-                    
+                    const authCheck = await API.auth.check();
                     if (authCheck && authCheck.success && authCheck.isAuthenticated) {
-                        console.log('✅ User authenticated:', authCheck.user?.username);
-                        
                         // Initialize pocket money manager
                         window.pocketMoneyManager = new PocketMoneyManager();
                         
@@ -2727,310 +3275,17 @@
                             document.getElementById('userGreeting').textContent = 
                                 `Welcome, ${user.display_name || user.username || 'User'}`;
                         }
-                        
-                        // Initialize auth object for menu.js
-                        if (window.auth) {
-                            window.auth.user = user;
-                            window.auth.initialized = true;
-                        }
-                        
-                    } else if (authCheck && !authCheck.success) {
-                        console.warn('❌ Auth check returned failure, redirecting...');
-                        window.location.href = '/login.html';
-                        return;
                     } else {
-                        console.warn('❌ Not authenticated, redirecting to login');
-                        window.location.href = '/login.html';
-                        return;
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
                     }
-                    
                 } catch (error) {
-                    console.error('Authentication initialization error:', error);
-                    window.location.href = '/login.html';
+                    console.error('Authentication check failed:', error);
+                    // Still initialize but show warning
+                    window.pocketMoneyManager = new PocketMoneyManager();
+                    this.showToast('Authentication check failed. Some features may not work.', 'warning');
                 }
             });
-
-        })();
-    </script>
-    
-    <script>
-        // Menu Manager (from your menu.js)
-        (function () {
-            'use strict';
-
-            const MENU_CONFIG = {
-                admin: [
-                    { icon: 'fas fa-tachometer-alt', label: 'Dashboard', page: 'admin.html' },
-                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
-                    { icon: 'fas fa-users', label: 'Customers', page: 'customers.html' },
-                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
-                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
-                    { icon: 'fas fa-boxes', label: 'Inventory', page: 'inventory.html' },
-                    { icon: 'fas fa-truck', label: 'Suppliers', page: 'suppliers.html' },
-                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
-                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
-                    { icon: 'fas fa-chart-bar', label: 'Reports', page: 'reports.html' },
-                    { icon: 'fas fa-chart-pie', label: 'Overview', page: 'overview.html' },
-                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
-                ],
-                department_uniform: [
-                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },      
-                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
-                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
-                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
-                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
-                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
-                ],
-                department_stationery: [
-                    { icon: 'fas fa-building', label: 'Departments', page: 'department.html' },
-                    { icon: 'fas fa-credit-card', label: 'Payments', page: 'payments.html' },
-                    { icon: 'fas fa-cash-register', label: 'POS', page: 'pos.html' },
-                    { icon: 'fas fa-wallet', label: 'Pocket Money', page: 'pocket_money.html' },
-                    { icon: 'fas fa-exchange-alt', label: 'Refunds', page: 'refunds.html' },
-                    { icon: 'fas fa-gift', label: 'Allocations', page: 'allocations.html' }
-                ]
-            };
-
-            class MenuManager {
-                constructor() {
-                    this.sidebarNav = document.getElementById('sidebarNav');
-                    this.menuToggle = document.getElementById('menuToggle');
-                    this.sidebar = document.getElementById('sidebar');
-                    this.sidebarOverlay = document.getElementById('sidebarOverlay');
-                    this.user = null;
-                }
-
-                async initialize() {
-                    if (!this.sidebarNav) {
-                        console.warn('Sidebar nav not found');
-                        return;
-                    }
-
-                    try {
-                        // Wait for auth to be ready
-                        await this.waitForAuth();
-                        
-                        // Get user info
-                        this.user = window.auth?.getUser();
-                        
-                        // Build menu
-                        this.buildMenu();
-                        
-                        // Setup mobile menu
-                        this.setupMobileMenu();
-                        
-                        // Highlight current page
-                        this.highlightCurrentPage();
-                        
-                        console.log('Menu initialized for user:', this.user?.role);
-                        
-                    } catch (error) {
-                        console.error('Menu initialization error:', error);
-                        this.buildDefaultMenu();
-                    }
-                }
-
-                async waitForAuth() {
-                    return new Promise((resolve) => {
-                        if (window.auth && window.auth.getUser()) {
-                            resolve();
-                            return;
-                        }
-
-                        let attempts = 0;
-                        const maxAttempts = 10;
-                        
-                        const checkAuth = setInterval(() => {
-                            attempts++;
-                            if (window.auth && window.auth.getUser()) {
-                                clearInterval(checkAuth);
-                                resolve();
-                            } else if (attempts >= maxAttempts) {
-                                clearInterval(checkAuth);
-                                console.warn('Auth not available, using default menu');
-                                resolve();
-                            }
-                        }, 100);
-                    });
-                }
-
-                buildMenu() {
-                    const role = this.user?.role || 'department_stationery';
-                    const items = MENU_CONFIG[role] || MENU_CONFIG.department_stationery;
-                    
-                    // Clear existing menu
-                    this.sidebarNav.innerHTML = '';
-                    
-                    // Add menu items
-                    items.forEach(item => {
-                        const menuItem = this.createMenuItem(item);
-                        this.sidebarNav.appendChild(menuItem);
-                    });
-                    
-                    // Add user info and logout
-                    this.addUserSection();
-                }
-
-                buildDefaultMenu() {
-                    const items = MENU_CONFIG.department_stationery;
-                    this.sidebarNav.innerHTML = '';
-                    
-                    items.forEach(item => {
-                        const menuItem = this.createMenuItem(item);
-                        this.sidebarNav.appendChild(menuItem);
-                    });
-                    
-                    this.addUserSection();
-                }
-
-                createMenuItem(item) {
-                    const a = document.createElement('a');
-                    a.href = item.page;
-                    a.className = 'nav-item';
-                    a.innerHTML = `
-                        <i class="${item.icon} nav-icon"></i>
-                        <span class="nav-label">${item.label}</span>
-                    `;
-                    
-                    a.addEventListener('click', (e) => {
-                        if (window.innerWidth <= 768) {
-                            this.closeMobileMenu();
-                        }
-                    });
-                    
-                    return a;
-                }
-
-                addUserSection() {
-                    const divider = document.createElement('div');
-                    divider.className = 'nav-divider';
-                    this.sidebarNav.appendChild(divider);
-                    
-                    // User info
-                    const userInfo = document.createElement('div');
-                    userInfo.className = 'nav-item';
-                    userInfo.style.pointerEvents = 'none';
-                    
-                    const userName = this.user?.displayName || this.user?.username || 'User';
-                    const userRole = this.user?.role || 'Staff';
-                    
-                    userInfo.innerHTML = `
-                        <i class="fas fa-user-circle nav-icon"></i>
-                        <div style="display: flex; flex-direction: column;">
-                            <span class="nav-label" style="font-weight: 600;">${userName}</span>
-                            <small style="opacity: 0.8; font-size: 12px;">${userRole.replace('_', ' ').toUpperCase()}</small>
-                        </div>
-                    `;
-                    this.sidebarNav.appendChild(userInfo);
-                    
-                    // Logout button
-                    const logoutItem = document.createElement('a');
-                    logoutItem.href = '#';
-                    logoutItem.className = 'nav-item logout-item';
-                    logoutItem.innerHTML = `
-                        <i class="fas fa-sign-out-alt nav-icon"></i>
-                        <span class="nav-label">Logout</span>
-                    `;
-                    
-                    logoutItem.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        this.handleLogout();
-                    });
-                    
-                    this.sidebarNav.appendChild(logoutItem);
-                }
-
-                handleLogout() {
-                    if (confirm('Are you sure you want to logout?')) {
-                        if (window.auth && typeof window.auth.logout === 'function') {
-                            window.auth.logout()
-                                .then(() => {
-                                    window.location.href = 'login.html';
-                                })
-                                .catch(() => {
-                                    window.location.href = 'login.html';
-                                });
-                        } else {
-                            window.location.href = 'login.html';
-                        }
-                    }
-                }
-
-                highlightCurrentPage() {
-                    const currentPage = window.location.pathname.split('/').pop() || 'admin.html';
-                    const navItems = this.sidebarNav.querySelectorAll('.nav-item:not(.logout-item)');
-                    
-                    navItems.forEach(item => {
-                        const href = item.getAttribute('href');
-                        if (href === currentPage) {
-                            item.classList.add('active');
-                        } else {
-                            item.classList.remove('active');
-                        }
-                    });
-                }
-
-                setupMobileMenu() {
-                    // Create menu toggle button if it doesn't exist
-                    if (!document.getElementById('menuToggle')) {
-                        const menuToggle = document.createElement('button');
-                        menuToggle.id = 'menuToggle';
-                        menuToggle.className = 'menu-toggle';
-                        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-                        document.querySelector('.nav-brand').appendChild(menuToggle);
-                    }
-                    
-                    const menuToggle = document.getElementById('menuToggle');
-                    const sidebar = document.getElementById('sidebar');
-                    const sidebarOverlay = document.getElementById('sidebarOverlay');
-                    
-                    if (!menuToggle || !sidebar || !sidebarOverlay) {
-                        return;
-                    }
-
-                    menuToggle.addEventListener('click', () => {
-                        this.toggleMobileMenu();
-                    });
-
-                    sidebarOverlay.addEventListener('click', () => {
-                        this.closeMobileMenu();
-                    });
-
-                    // Close menu when window resizes to desktop
-                    window.addEventListener('resize', () => {
-                        if (window.innerWidth > 768) {
-                            this.closeMobileMenu();
-                        }
-                    });
-                }
-
-                toggleMobileMenu() {
-                    const sidebar = document.getElementById('sidebar');
-                    const sidebarOverlay = document.getElementById('sidebarOverlay');
-                    
-                    sidebar.classList.toggle('active');
-                    sidebarOverlay.classList.toggle('active');
-                    document.body.classList.toggle('no-scroll');
-                }
-
-                closeMobileMenu() {
-                    const sidebar = document.getElementById('sidebar');
-                    const sidebarOverlay = document.getElementById('sidebarOverlay');
-                    
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                    document.body.classList.remove('no-scroll');
-                }
-            }
-
-            // Initialize when DOM is ready
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuManager = new MenuManager();
-                menuManager.initialize();
-            });
-
-            // Make MenuManager available globally
-            window.MenuManager = MenuManager;
 
         })();
     </script>
