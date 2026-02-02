@@ -1,5 +1,4 @@
-// Global API Helper for SteadyMonitor
-// Mirrors api.contract.json exactly
+
 (function () {
   'use strict';
 
