@@ -40,9 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Use window.auth if available, otherwise use API directly
             if (window.auth && window.auth.login) {
-                await window.auth.login(username, password);
+               await window.auth.login({ username, password });
             } else if (window.API) {
-                const response = await window.API.login(username, password);
+               const response = await window.API.auth.login({ username, password });
                 if (response && response.success) {
                     // Use goToPage or hash navigation instead of direct file redirects
                     const role = response.user.role;
