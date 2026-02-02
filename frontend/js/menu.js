@@ -72,29 +72,28 @@
             }
         }
 
-        async waitForAuth() {
-            return new Promise((resolve) => {
-                if (window.auth && window.auth.getUser()) {
-                    resolve();
-                    return;
-                }
+       async waitForAuth() {
+    return new Promise((resolve) => {
+        const check = () => {
+            if (window.auth && window.auth.getUser()) {
+                resolve();
+                return true;
+            }
+            return false;
+        };
 
-                let attempts = 0;
-                const maxAttempts = 10;
-                
-                const checkAuth = setInterval(() => {
-                    attempts++;
-                    if (window.auth && window.auth.getUser()) {
-                        clearInterval(checkAuth);
-                        resolve();
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(checkAuth);
-                        console.warn('Auth not available, using default menu');
-                        resolve();
-                    }
-                }, 100);
-            });
-        }
+        if (check()) return;
+
+        let attempts = 0;
+        const interval = setInterval(() => {
+            attempts++;
+            if (check() || attempts > 50) { // Increased to 5 seconds total
+                clearInterval(interval);
+                resolve();
+            }
+        }, 100);
+    });
+}
 
         buildMenu() {
             const role = this.user?.role || 'department_stationery';
