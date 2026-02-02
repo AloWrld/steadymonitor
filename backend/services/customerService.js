@@ -228,7 +228,8 @@ class CustomerService {
 
             // 1. Get current customer with lock
             const customerResult = await client.query(
-                'SELECT balance, total_items_cost, amount_paid FROM ${TABLE.customers} WHERE customer_id = $1 FOR UPDATE',
+                // CORRECT
+`SELECT balance, total_items_cost, amount_paid FROM ${TABLE.customers} WHERE customer_id = $1 FOR UPDATE`,
                 [customerId]
             );
 
