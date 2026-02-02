@@ -4,9 +4,347 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Department Dashboard | Hattyjohns Investments</title>
-    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* CSS Variables (Missing from base.css) */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #059669;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            
+            --card-bg: #ffffff;
+            --body-bg: #f8fafc;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            
+            --border-radius: 8px;
+            --border-radius-sm: 4px;
+            --border-radius-lg: 12px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            
+            --transition: 0.2s ease;
+        }
+
+        /* Base Styles (from missing base.css) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Layout */
+        .main-content-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            background: var(--border-light);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+        }
+
+        .nav-brand i {
+            color: var(--primary);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-greeting {
+            color: var(--text-secondary);
+        }
+
+        /* Sidebar (From menu.js integration) */
+        .sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 899;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 16px 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-top: 64px;
+            padding: 24px 0;
+            min-height: calc(100vh - 64px);
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .page-title h1 {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--border-light);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: var(--font-size-xs);
+        }
+
+        /* Badges (Missing in original) */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            border-radius: 12px;
+            line-height: 1;
+        }
+
+        .badge-primary {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
+
+        /* Forms */
+        .form-control {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            transition: var(--transition);
+            background: var(--card-bg);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--card-bg);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--border-light);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover {
+            background: var(--border-light);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
         /* Department Dashboard Specific Styles */
         .department-container {
             display: flex;
@@ -321,12 +659,40 @@
             .actions-grid {
                 grid-template-columns: 1fr;
             }
+
+            .sidebar {
+                width: 100%;
+                max-width: 320px;
+            }
         }
 
         @media (max-width: 480px) {
             .quick-stats {
                 grid-template-columns: 1fr;
             }
+
+            .table th, .table td {
+                padding: 8px 12px;
+            }
+
+            .nav-user {
+                gap: 8px;
+            }
+
+            .user-greeting {
+                display: none;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .btn:focus, .menu-toggle:focus, .form-control:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Body scroll lock for mobile menu */
+        body.no-scroll {
+            overflow: hidden;
         }
     </style>
 </head>
@@ -334,26 +700,26 @@
     <div class="main-content-wrapper">
         <!-- Top Navigation -->
         <nav class="top-nav">
-            <button class="menu-toggle" id="menuToggle">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
-            <a href="#" class="nav-brand">
+            <a href="#" class="nav-brand" aria-label="SteadyMonitor Home">
                 <i class="fas fa-building"></i>
                 <span>SteadyMonitor</span>
             </a>
             <div class="nav-user">
                 <span class="user-greeting" id="userGreeting">Welcome</span>
-                <button class="btn btn-sm btn-outline" id="logoutBtn">
+                <button class="btn btn-sm btn-outline" id="logoutBtn" aria-label="Logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </nav>
 
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar" id="sidebar" aria-hidden="true">
+            <nav class="sidebar-nav" id="sidebarNav" role="navigation" aria-label="Main navigation"></nav>
         </div>
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true" tabindex="-1"></div>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -365,7 +731,7 @@
                             <p class="text-secondary">View daily sales and department performance</p>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn btn-outline" id="refreshBtn">
+                            <button class="btn btn-outline" id="refreshBtn" aria-label="Refresh data">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
                         </div>
@@ -376,23 +742,23 @@
             <div class="container">
                 <div class="department-container">
                     <!-- Quick Stats -->
-                    <div class="quick-stats" id="quickStats">
-                        <div class="quick-stat">
+                    <div class="quick-stats" id="quickStats" role="region" aria-label="Quick statistics">
+                        <div class="quick-stat" tabindex="0" role="button" aria-label="Today's sales">
                             <i class="fas fa-cash-register"></i>
                             <div class="quick-stat-value" id="totalSales">KSh 0</div>
                             <div class="quick-stat-label">Today's Sales</div>
                         </div>
-                        <div class="quick-stat">
+                        <div class="quick-stat" tabindex="0" role="button" aria-label="Low stock items">
                             <i class="fas fa-box"></i>
                             <div class="quick-stat-value" id="lowStockCount">0</div>
                             <div class="quick-stat-label">Low Stock Items</div>
                         </div>
-                        <div class="quick-stat">
+                        <div class="quick-stat" tabindex="0" role="button" aria-label="Active customers">
                             <i class="fas fa-users"></i>
                             <div class="quick-stat-value" id="totalCustomers">0</div>
                             <div class="quick-stat-label">Active Customers</div>
                         </div>
-                        <div class="quick-stat">
+                        <div class="quick-stat" tabindex="0" role="button" aria-label="Total products">
                             <i class="fas fa-chart-line"></i>
                             <div class="quick-stat-value" id="totalProducts">0</div>
                             <div class="quick-stat-label">Total Products</div>
@@ -400,38 +766,38 @@
                     </div>
 
                     <!-- Quick Actions -->
-                    <div class="quick-actions">
+                    <section class="quick-actions" aria-labelledby="quickActionsTitle">
                         <div class="section-header">
-                            <h3 class="section-title">
+                            <h3 class="section-title" id="quickActionsTitle">
                                 <i class="fas fa-bolt"></i> Quick Actions
                             </h3>
                         </div>
                         <div class="actions-grid" id="quickActionsGrid">
                             <!-- Actions will be dynamically generated based on user role -->
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Department Sales Chart -->
-                    <div class="performance-section">
+                    <section class="performance-section" aria-labelledby="salesChartTitle">
                         <div class="section-header">
-                            <h3 class="section-title">
+                            <h3 class="section-title" id="salesChartTitle">
                                 <i class="fas fa-chart-bar"></i> Daily Sales Performance
                             </h3>
-                            <select id="chartPeriod" class="form-control" style="width: 150px;">
+                            <select id="chartPeriod" class="form-control" style="width: 150px;" aria-label="Select chart period">
                                 <option value="today" selected>Today</option>
                                 <option value="week">Last 7 Days</option>
                                 <option value="month">Last 30 Days</option>
                             </select>
                         </div>
                         <div class="chart-container" id="performanceChart">
-                            <canvas id="salesChart"></canvas>
+                            <canvas id="salesChart" role="img" aria-label="Sales performance chart"></canvas>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Recent Sales -->
-                    <div class="performance-section">
+                    <section class="performance-section" aria-labelledby="recentSalesTitle">
                         <div class="section-header">
-                            <h3 class="section-title">
+                            <h3 class="section-title" id="recentSalesTitle">
                                 <i class="fas fa-history"></i> Recent Sales
                             </h3>
                             <button class="btn btn-sm btn-outline" id="viewAllSalesBtn">
@@ -455,7 +821,7 @@
                                         <tr>
                                             <td colspan="6" class="text-center">
                                                 <div class="loading-container" style="min-height: 100px;">
-                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
                                                     <p>Loading recent sales...</p>
                                                 </div>
                                             </td>
@@ -464,12 +830,12 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Low Stock Products -->
-                    <div class="performance-section">
+                    <section class="performance-section" aria-labelledby="lowStockTitle">
                         <div class="section-header">
-                            <h3 class="section-title">
+                            <h3 class="section-title" id="lowStockTitle">
                                 <i class="fas fa-exclamation-triangle"></i> Low Stock Alert
                             </h3>
                             <button class="btn btn-sm btn-outline" id="viewAllLowStockBtn">
@@ -494,7 +860,7 @@
                                         <tr>
                                             <td colspan="7" class="text-center">
                                                 <div class="loading-container" style="min-height: 100px;">
-                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
                                                     <p>Loading low stock items...</p>
                                                 </div>
                                             </td>
@@ -503,14 +869,13 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- Scripts -->
-    <script src="js/api.js"></script>
     <script src="js/menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -520,11 +885,15 @@
                 this.user = null;
                 this.salesChart = null;
                 this.userDepartment = null;
+                this.isInitializing = false;
                 
                 this.init();
             }
 
             async init() {
+                if (this.isInitializing) return;
+                this.isInitializing = true;
+                
                 try {
                     // Wait for auth and menu to initialize
                     await this.waitForAuth();
@@ -547,7 +916,7 @@
                     await this.loadLowStockItems();
                     await this.loadRecentSales();
                     
-                    // Initialize chart
+                    // Initialize chart (only if Chart.js is loaded)
                     this.initChart();
                     
                     console.log('Department Dashboard initialized for:', this.userDepartment);
@@ -555,25 +924,33 @@
                 } catch (error) {
                     console.error('Initialization error:', error);
                     this.showToast('Failed to initialize dashboard', 'error');
+                } finally {
+                    this.isInitializing = false;
                 }
             }
 
             async waitForAuth() {
                 return new Promise((resolve) => {
                     const check = () => {
-                        if (window.auth && window.auth.getUser()) {
-                            resolve();
-                            return true;
+                        if (window.auth && window.auth.getUser) {
+                            const user = window.auth.getUser();
+                            if (user) {
+                                return true;
+                            }
                         }
                         return false;
                     };
 
-                    if (check()) return;
+                    if (check()) {
+                        resolve();
+                        return;
+                    }
 
                     let attempts = 0;
+                    const maxAttempts = 100; // 10 seconds total
                     const interval = setInterval(() => {
                         attempts++;
-                        if (check() || attempts > 50) {
+                        if (check() || attempts > maxAttempts) {
                             clearInterval(interval);
                             resolve();
                         }
@@ -583,38 +960,53 @@
 
             initUI() {
                 // Event Listeners
-                document.getElementById('refreshBtn').addEventListener('click', () => this.refreshData());
-                document.getElementById('viewAllLowStockBtn').addEventListener('click', () => this.viewAllLowStock());
-                document.getElementById('viewAllSalesBtn').addEventListener('click', () => this.viewAllSales());
-                document.getElementById('chartPeriod').addEventListener('change', (e) => this.updateChart(e.target.value));
+                const refreshBtn = document.getElementById('refreshBtn');
+                const viewAllLowStockBtn = document.getElementById('viewAllLowStockBtn');
+                const viewAllSalesBtn = document.getElementById('viewAllSalesBtn');
+                const chartPeriod = document.getElementById('chartPeriod');
+                
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => this.refreshData());
+                }
+                
+                if (viewAllLowStockBtn) {
+                    viewAllSalesBtn.addEventListener('click', () => this.viewAllLowStock());
+                }
+                
+                if (viewAllSalesBtn) {
+                    viewAllSalesBtn.addEventListener('click', () => this.viewAllSales());
+                }
+                
+                if (chartPeriod) {
+                    chartPeriod.addEventListener('change', (e) => this.updateChart(e.target.value));
+                }
 
                 // Update user greeting
                 if (this.user) {
                     const greeting = document.getElementById('userGreeting');
                     if (greeting) {
-                        greeting.textContent = `Welcome, ${this.user.displayName || this.user.username}`;
+                        greeting.textContent = `Welcome, ${this.user.displayName || this.user.username || 'User'}`;
                     }
+                }
+                
+                // Logout button - override menu.js handler for better control
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.handleLogout();
+                    });
                 }
             }
 
             fixMenuIntegration() {
-                // Fix for menu.js integration - re-attach logout handler after menu.js initializes
+                // Ensure menu.js initializes properly
                 setTimeout(() => {
-                    const logoutBtn = document.getElementById('logoutBtn');
-                    if (logoutBtn) {
-                        // Clone and replace to clear menu.js listeners
-                        const newBtn = logoutBtn.cloneNode(true);
-                        logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
-                        
-                        newBtn.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            this.handleLogout();
-                        });
-                        
-                        console.log('Menu.js logout button fixed');
+                    if (window.menuManager && typeof window.menuManager.initialize === 'function') {
+                        window.menuManager.initialize();
                     }
-                }, 1500); // Wait for menu.js to fully initialize
+                }, 500);
             }
 
             generateQuickActions() {
@@ -648,7 +1040,7 @@
                 const userActions = actions[role] || actions.department_stationery;
                 
                 actionsGrid.innerHTML = userActions.map(action => `
-                    <a href="${action.page}" class="action-card ${action.class}">
+                    <a href="${action.page}" class="action-card ${action.class}" aria-label="${action.desc}">
                         <i class="${action.icon}"></i>
                         <div class="action-card-content">
                             <div class="action-card-title">${action.title}</div>
@@ -660,27 +1052,42 @@
 
             async loadDashboardData() {
                 try {
-                    const stats = await API.getDashboardStats();
+                    // Use correct API endpoint from api.js
+                    const stats = await API.dashboard.stats();
                     
                     if (stats) {
-                        document.getElementById('totalSales').textContent = `KSh ${parseFloat(stats.today_sales).toLocaleString()}`;
-                        document.getElementById('lowStockCount').textContent = stats.low_stock_count;
-                        document.getElementById('totalCustomers').textContent = stats.total_customers;
-                        document.getElementById('totalProducts').textContent = stats.total_products;
+                        const totalSales = document.getElementById('totalSales');
+                        const lowStockCount = document.getElementById('lowStockCount');
+                        const totalCustomers = document.getElementById('totalCustomers');
+                        const totalProducts = document.getElementById('totalProducts');
+                        
+                        if (totalSales) totalSales.textContent = `KSh ${parseFloat(stats.today_sales || 0).toLocaleString()}`;
+                        if (lowStockCount) lowStockCount.textContent = stats.low_stock_count || 0;
+                        if (totalCustomers) totalCustomers.textContent = stats.total_customers || 0;
+                        if (totalProducts) totalProducts.textContent = stats.total_products || 0;
                     } else {
                         throw new Error('No stats data received');
                     }
                 } catch (error) {
                     console.error('Error loading dashboard data:', error);
                     this.showToast('Failed to load dashboard stats', 'error');
+                    
+                    // Set fallback values
+                    const elements = ['totalSales', 'lowStockCount', 'totalCustomers', 'totalProducts'];
+                    elements.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && el.textContent.includes('0')) {
+                            el.textContent = 'N/A';
+                        }
+                    });
                 }
             }
 
             async loadLowStockItems() {
                 try {
-                    const lowStockData = await API.getLowStock();
+                    const lowStockData = await API.inventory.lowStock();
                     
-                    if (lowStockData && lowStockData.length > 0) {
+                    if (lowStockData && Array.isArray(lowStockData)) {
                         this.renderLowStockTable(lowStockData);
                     } else {
                         this.renderLowStockTable([]);
@@ -694,6 +1101,7 @@
 
             renderLowStockTable(items) {
                 const tbody = document.getElementById('lowStockTableBody');
+                if (!tbody) return;
                 
                 if (!items || items.length === 0) {
                     tbody.innerHTML = `
@@ -710,7 +1118,7 @@
                 }
 
                 let filteredItems = items;
-                if (this.userDepartment && this.user.role !== 'admin') {
+                if (this.userDepartment && this.user?.role !== 'admin') {
                     filteredItems = items.filter(item => 
                         item.department === this.userDepartment
                     );
@@ -733,19 +1141,19 @@
                 tbody.innerHTML = filteredItems.slice(0, 10).map(item => `
                     <tr>
                         <td>
-                            <strong>${item.name}</strong><br>
-                            <small style="color: var(--text-secondary);">${item.sku}</small>
+                            <strong>${item.name || 'Unnamed Product'}</strong><br>
+                            <small style="color: var(--text-secondary);">${item.sku || 'N/A'}</small>
                         </td>
-                        <td>${item.sku}</td>
+                        <td>${item.sku || 'N/A'}</td>
                         <td>
-                            <span class="badge ${item.department === 'uniform' ? 'badge-primary' : 'badge-success'}">
-                                ${item.department.toUpperCase()}
+                            <span class="badge ${(item.department || 'general') === 'uniform' ? 'badge-primary' : 'badge-success'}">
+                                ${(item.department || 'general').toUpperCase()}
                             </span>
                         </td>
                         <td>
-                            <span class="badge badge-danger">${item.stock_quantity}</span>
+                            <span class="badge badge-danger">${item.stock_quantity || 0}</span>
                         </td>
-                        <td>${item.minimum_stock}</td>
+                        <td>${item.minimum_stock || 10}</td>
                         <td>
                             <span class="stock-indicator stock-low">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -754,20 +1162,30 @@
                         </td>
                         <td>
                             <div class="table-actions">
-                                <button class="btn btn-sm btn-outline" onclick="departmentManager.reorderProduct(${item.product_id})">
+                                <button class="btn btn-sm btn-outline reorder-btn" data-product-id="${item.product_id || item.id || ''}">
                                     <i class="fas fa-shopping-cart"></i> Reorder
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `).join('');
+                
+                // Add event listeners to reorder buttons
+                setTimeout(() => {
+                    document.querySelectorAll('.reorder-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const productId = e.currentTarget.getAttribute('data-product-id');
+                            this.reorderProduct(productId);
+                        });
+                    });
+                }, 100);
             }
 
             async loadRecentSales() {
                 try {
-                    const salesData = await API.getRecentSales();
+                    const salesData = await API.dashboard.recentSales();
                     
-                    if (salesData && salesData.length > 0) {
+                    if (salesData && Array.isArray(salesData)) {
                         this.renderRecentSalesTable(salesData);
                     } else {
                         this.renderRecentSalesTable([]);
@@ -781,6 +1199,7 @@
 
             renderRecentSalesTable(sales) {
                 const tbody = document.getElementById('recentSalesTableBody');
+                if (!tbody) return;
                 
                 if (!sales || sales.length === 0) {
                     tbody.innerHTML = `
@@ -797,7 +1216,7 @@
                 }
 
                 let filteredSales = sales;
-                if (this.userDepartment && this.user.role !== 'admin') {
+                if (this.userDepartment && this.user?.role !== 'admin') {
                     filteredSales = sales.filter(sale => 
                         sale.department === this.userDepartment
                     );
@@ -820,8 +1239,8 @@
                 tbody.innerHTML = filteredSales.slice(0, 10).map(sale => `
                     <tr>
                         <td>
-                            ${new Date(sale.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}<br>
-                            <small style="color: var(--text-secondary);">${new Date(sale.created_at).toLocaleDateString()}</small>
+                            ${new Date(sale.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}<br>
+                            <small style="color: var(--text-secondary);">${new Date(sale.created_at || Date.now()).toLocaleDateString()}</small>
                         </td>
                         <td>
                             <strong>${sale.sale_id || 'N/A'}</strong><br>
@@ -833,7 +1252,7 @@
                         </td>
                         <td><strong>KSh ${parseFloat(sale.total_amount || 0).toLocaleString()}</strong></td>
                         <td>
-                            <span class="badge ${sale.department === 'uniform' ? 'badge-primary' : 'badge-success'}">
+                            <span class="badge ${(sale.department || 'general') === 'uniform' ? 'badge-primary' : 'badge-success'}">
                                 ${(sale.department || 'general').toUpperCase()}
                             </span>
                         </td>
@@ -845,55 +1264,70 @@
             }
 
             initChart() {
-                const ctx = document.getElementById('salesChart').getContext('2d');
+                const ctx = document.getElementById('salesChart');
+                if (!ctx) return;
                 
-                this.salesChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Today'],
-                        datasets: [{
-                            label: 'Sales (KSh)',
-                            data: [0],
-                            backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                            borderColor: 'rgb(37, 99, 235)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Sales: KSh ${context.raw.toLocaleString()}`;
+                // Check if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    console.warn('Chart.js not loaded, chart initialization deferred');
+                    setTimeout(() => this.initChart(), 1000);
+                    return;
+                }
+                
+                try {
+                    this.salesChart = new Chart(ctx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Today'],
+                            datasets: [{
+                                label: 'Sales (KSh)',
+                                data: [0],
+                                backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                                borderColor: 'rgb(37, 99, 235)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Sales: KSh ${context.raw.toLocaleString()}`;
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return 'KSh ' + value.toLocaleString();
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'KSh ' + value.toLocaleString();
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
+                    });
 
-                this.updateChart('today');
+                    this.updateChart('today');
+                } catch (error) {
+                    console.error('Chart initialization error:', error);
+                    this.showToast('Failed to initialize chart', 'error');
+                }
             }
 
             async updateChart(period) {
+                if (!this.salesChart) return;
+                
                 try {
-                    const stats = await API.getDashboardStats();
-                    const todaySales = stats ? parseFloat(stats.today_sales) : 0;
+                    const stats = await API.dashboard.stats();
+                    const todaySales = stats ? parseFloat(stats.today_sales || 0) : 0;
                     
                     this.salesChart.data.datasets[0].data = [todaySales];
                     this.salesChart.update();
@@ -909,9 +1343,11 @@
                 try {
                     this.showToast('Refreshing data...', 'info');
                     
-                    await this.loadDashboardData();
-                    //await this.loadLowStockItems();
-                    await this.loadRecentSales();
+                    await Promise.all([
+                        this.loadDashboardData(),
+                        this.loadLowStockItems(),
+                        this.loadRecentSales()
+                    ]);
                     
                     this.showToast('Data refreshed successfully', 'success');
                 } catch (error) {
@@ -929,12 +1365,15 @@
             }
 
             reorderProduct(productId) {
+                if (!productId) {
+                    this.showToast('Invalid product selected', 'error');
+                    return;
+                }
                 this.showToast(`Reorder request sent for product #${productId}`, 'success');
+                // In production, you would call API.inventory.restock() here
             }
 
             handleLogout() {
-                console.log('Logout clicked');
-                
                 if (confirm('Are you sure you want to logout?')) {
                     // Clear any local storage
                     try {
@@ -964,8 +1403,13 @@
             }
 
             showToast(message, type = 'info') {
+                // Remove existing toasts
+                document.querySelectorAll('.toast').forEach(toast => toast.remove());
+                
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
                 toast.innerHTML = `
                     <div class="toast-content">
                         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
@@ -979,13 +1423,32 @@
                 
                 setTimeout(() => {
                     toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 300);
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.remove();
+                        }
+                    }, 300);
                 }, 3000);
             }
         }
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if API is available
+            if (typeof API === 'undefined') {
+                console.error('API not loaded. Make sure api.js is loaded before this page.');
+                // Create a minimal fallback
+                window.API = window.API || {};
+                window.API.dashboard = window.API.dashboard || {
+                    stats: () => Promise.resolve({ today_sales: 0, low_stock_count: 0, total_customers: 0, total_products: 0 }),
+                    lowStock: () => Promise.resolve([]),
+                    recentSales: () => Promise.resolve([])
+                };
+                window.API.inventory = window.API.inventory || {
+                    lowStock: () => Promise.resolve([])
+                };
+            }
+            
             window.departmentManager = new DepartmentManager();
         });
     </script>
